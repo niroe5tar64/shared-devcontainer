@@ -30,9 +30,30 @@ function generateBaseConfig(): DevContainerConfig {
         settings: base.settings,
       },
     },
-    postCreateCommand: "echo 'DevContainer setup complete!'",
+    postCreateCommand: base.postCreateCommand || "echo 'DevContainer setup complete!'",
     remoteUser: base.remoteUser,
   };
+}
+
+/**
+ * postCreateCommand を結合
+ */
+function mergePostCreateCommand(baseCmd?: string, presetCmd?: string | string[]): string | undefined {
+  const commands: string[] = [];
+
+  if (baseCmd) {
+    commands.push(baseCmd);
+  }
+
+  if (presetCmd) {
+    if (Array.isArray(presetCmd)) {
+      commands.push(...presetCmd);
+    } else {
+      commands.push(presetCmd);
+    }
+  }
+
+  return commands.length > 0 ? commands.join(' && ') : undefined;
 }
 
 /**
@@ -59,7 +80,7 @@ function generatePresetConfig(preset: PresetConfig): DevContainerConfig {
       },
     },
     ...(preset.mounts && { mounts: preset.mounts }),
-    postCreateCommand: preset.postCreateCommand,
+    postCreateCommand: mergePostCreateCommand(base.postCreateCommand, preset.postCreateCommand),
     remoteUser: base.remoteUser,
   };
 }

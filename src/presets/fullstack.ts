@@ -39,5 +39,6 @@ export const fullstackPreset: PresetConfig = {
 
   mounts: ['source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind'],
 
-  postCreateCommand: 'npm install -g bun pnpm',
+  // Bun は base で既にインストール済み
+  postCreateCommand: 'npm install -g pnpm',
 };

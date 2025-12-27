@@ -51,5 +51,11 @@ export const base: BaseConfig = {
     'git.confirmSync': false,
   },
 
+  // 開発ツールと AI アシスタントをすべての環境に標準装備
+  // 1. 基本ツール（vim, tree, jq）
+  // 2. Bun（高速パッケージマネージャー）
+  // 3. AI 開発ツール（Claude Code, Codex）を Bun でインストール
+  postCreateCommand: 'sudo apt-get update && sudo apt-get install -y vim tree jq && sudo npm install -g bun && sudo bun install -g @anthropic-ai/claude-code@latest @openai/codex@latest',
+
   remoteUser: 'vscode',
 };

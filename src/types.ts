@@ -47,6 +47,7 @@ export interface BaseConfig {
   features: DevContainerFeature;
   extensions: string[];
   settings: Record<string, unknown>;
+  postCreateCommand?: string;
   remoteUser: string;
 }
 

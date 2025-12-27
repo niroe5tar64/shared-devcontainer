@@ -38,5 +38,6 @@ export const nodePreset: PresetConfig = {
     'eslint.validate': ['javascript', 'typescript'],
   },
 
-  postCreateCommand: 'npm install -g bun pnpm',
+  // Bun は base で既にインストール済み
+  postCreateCommand: 'npm install -g pnpm',
 };
