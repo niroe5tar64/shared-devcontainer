@@ -12,9 +12,7 @@
 
 # Node.js
 node_modules/
-dist/
 
 # Generated files (DO NOT COMMIT)
 # これらは src/ から自動生成されます
-base.json
-presets/*.json
+dist/

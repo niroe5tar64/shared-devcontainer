@@ -79,12 +79,13 @@ async function writeJsonFile(filePath: string, data: unknown): Promise<void> {
 async function main() {
   console.log('🔨 Building DevContainer configurations...\n');
 
-  // presets ディレクトリを作成
-  await mkdir('presets', { recursive: true });
+  // dist ディレクトリを作成
+  await mkdir('dist', { recursive: true });
+  await mkdir(join('dist', 'presets'), { recursive: true });
 
   // base.json を生成
   const baseConfig = generateBaseConfig();
-  await writeJsonFile('base.json', baseConfig);
+  await writeJsonFile(join('dist', 'base.json'), baseConfig);
 
   // プリセットを生成
   const presets = [
@@ -95,7 +96,7 @@ async function main() {
 
   for (const { name, config } of presets) {
     const presetConfig = generatePresetConfig(config);
-    await writeJsonFile(join('presets', `${name}.json`), presetConfig);
+    await writeJsonFile(join('dist', 'presets', `${name}.json`), presetConfig);
   }
 
   console.log('\n✨ Build complete!');

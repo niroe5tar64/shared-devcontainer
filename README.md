@@ -21,21 +21,22 @@ shared-devcontainer/
 │       └── fullstack.ts
 ├── scripts/
 │   └── build.ts             # ビルドスクリプト
-├── base.json                # ← 自動生成（Git管理外）
-└── presets/                 # ← 自動生成（Git管理外）
-    ├── node.json
-    ├── python.json
-    └── fullstack.json
+└── dist/                    # ← 自動生成（Git管理外）
+    ├── base.json
+    └── presets/
+        ├── node.json
+        ├── python.json
+        └── fullstack.json
 ```
 
-### 生成される設定ファイル
+### 生成される設定ファイル（`dist/` 内）
 
-- **`base.json`**: すべてのプロジェクトに共通の基本設定
+- **`dist/base.json`**: すべてのプロジェクトに共通の基本設定
   - AI 開発ツール（Claude Code, GitHub Copilot）
   - Git ツール（Git, GitHub CLI）
   - 基本エディタ設定（フォーマット、リント）
 
-- **`presets/`**: 技術スタック別のプリセット
+- **`dist/presets/`**: 技術スタック別のプリセット
   - `node.json`: Node.js/TypeScript プロジェクト用
   - `python.json`: Python プロジェクト用
   - `fullstack.json`: フルスタック（Node.js + Docker）プロジェクト用
@@ -184,7 +185,7 @@ git submodule add https://github.com/niroe5tar64/shared-devcontainer.git .devcon
 ```json
 {
   "name": "My Project",
-  "extends": "./shared/presets/node.json",
+  "extends": "./shared/dist/presets/node.json",
 
   // プロジェクト固有の設定
   "forwardPorts": [3000],
