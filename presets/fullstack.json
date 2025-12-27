@@ -1,0 +1,78 @@
+{
+  "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json",
+  "name": "Fullstack Base",
+
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "installOhMyZsh": true,
+      "upgradePackages": true
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "dockerDashComposeVersion": "v2"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // AI アシスタント
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "anthropic.claude-code",
+
+        // Git 関連
+        "eamodio.gitlens",
+
+        // エディタ支援
+        "usernamehw.errorlens",
+        "wayou.vscode-todo-highlight",
+
+        // フロントエンド
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+
+        // Docker
+        "ms-azuretools.vscode-docker",
+
+        // データベース
+        "mtxr.sqltools"
+      ],
+      "settings": {
+        // エディタ基本設定
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll": "explicit"
+        },
+        "files.autoSave": "onFocusChange",
+        "files.trimTrailingWhitespace": true,
+
+        // Git 設定
+        "git.autofetch": true,
+        "git.confirmSync": false
+      }
+    }
+  },
+
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+
+  "postCreateCommand": "npm install -g bun pnpm",
+
+  "remoteUser": "vscode"
+}
