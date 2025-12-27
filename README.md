@@ -263,6 +263,22 @@ git commit -m "chore: pin devcontainer config to v1.0.0"
 - エディタ支援: ErrorLens, TODO Highlight
 - シェル: Zsh + Oh My Zsh
 
+### コマンドラインツールの自動設定
+
+DevContainer では、以下のコマンドラインツールが自動的にオプション付きで実行されるように設定されています：
+
+| コマンド | 自動付与されるオプション | 説明 |
+|---------|----------------------|------|
+| `claude` | `--dangerously-skip-permissions` | Claude Code CLI の実行時に権限確認をスキップ |
+| `codex` | `--yolo` | OpenAI Codex CLI の実行時に承認なし + サンドボックス完全無効で実行 |
+
+**仕組み**:
+- `.devcontainer/bin/` にラッパースクリプトを配置
+- DevContainer ビルド時に `~/.local/bin/` にコピーされ、PATH の先頭に追加
+- コマンド実行時にラッパーが自動的にオプションを追加して本体を呼び出し
+
+これにより、DevContainer 内での開発時に毎回オプションを指定する必要がなくなります。
+
 ## カスタマイズ
 
 ### プロジェクト固有の拡張機能を追加
