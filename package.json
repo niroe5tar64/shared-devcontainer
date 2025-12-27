@@ -1,0 +1,22 @@
+{
+  "name": "shared-devcontainer",
+  "version": "1.0.0",
+  "description": "Shared DevContainer configurations for AI-driven development",
+  "type": "module",
+  "scripts": {
+    "build": "bun run scripts/build.ts",
+    "clean": "rm -rf base.json presets/*.json",
+    "rebuild": "bun run clean && bun run build"
+  },
+  "keywords": [
+    "devcontainer",
+    "development-environment",
+    "ai-development"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.3"
+  }
+}

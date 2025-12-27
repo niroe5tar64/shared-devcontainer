@@ -2,7 +2,33 @@
 
 チーム共通の DevContainer 設定リポジトリです。
 
+**特徴**:
+- ✅ TypeScript で型安全に設定を管理
+- ✅ DRY原則に基づいた設定の再利用
+- ✅ ビルドスクリプトで JSON を自動生成
+- ✅ Git では TypeScript ソースのみを管理（JSON は生成物）
+
 ## 構成
+
+```
+shared-devcontainer/
+├── src/                      # 設定のソースファイル（編集するのはここ）
+│   ├── base.ts              # 共通設定
+│   ├── types.ts             # 型定義
+│   └── presets/             # プリセット
+│       ├── node.ts
+│       ├── python.ts
+│       └── fullstack.ts
+├── scripts/
+│   └── build.ts             # ビルドスクリプト
+├── base.json                # ← 自動生成（Git管理外）
+└── presets/                 # ← 自動生成（Git管理外）
+    ├── node.json
+    ├── python.json
+    └── fullstack.json
+```
+
+### 生成される設定ファイル
 
 - **`base.json`**: すべてのプロジェクトに共通の基本設定
   - AI 開発ツール（Claude Code, GitHub Copilot）
@@ -13,6 +39,134 @@
   - `node.json`: Node.js/TypeScript プロジェクト用
   - `python.json`: Python プロジェクト用
   - `fullstack.json`: フルスタック（Node.js + Docker）プロジェクト用
+
+## 開発者向け：設定の変更方法
+
+### 前提条件
+
+- [Bun](https://bun.sh/) がインストールされていること
+
+### セットアップ
+
+```bash
+# 依存関係をインストール
+bun install
+
+# JSON を生成
+bun run build
+```
+
+### 設定の編集
+
+1. **共通設定の変更**: `src/base.ts` を編集
+2. **プリセットの変更**: `src/presets/*.ts` を編集
+3. **ビルドして JSON を生成**:
+
+```bash
+# ビルド
+bun run build
+
+# クリーン + ビルド
+bun run rebuild
+```
+
+### 変更例：新しい拡張機能を全プロジェクトに追加
+
+```typescript
+// src/base.ts
+export const base: BaseConfig = {
+  // ...
+  extensions: [
+    'GitHub.copilot',
+    'anthropic.claude-code',
+    // 新しい拡張機能を追加
+    'usernamehw.errorlens',
+    'wayou.vscode-todo-highlight',
+    'github.vscode-pull-request-github', // ← 追加
+  ],
+  // ...
+};
+```
+
+```bash
+# ビルドして JSON を生成
+bun run build
+
+# Git にコミット（src/ のみ、JSON は含まない）
+git add src/base.ts
+git commit -m "feat: add GitHub PR extension"
+git push
+```
+
+### 変更例：Node.js プリセットに拡張機能を追加
+
+```typescript
+// src/presets/node.ts
+export const nodePreset: PresetConfig = {
+  // ...
+  extensions: [
+    'dbaeumer.vscode-eslint',
+    'esbenp.prettier-vscode',
+    'prisma.prisma', // ← 追加
+  ],
+  // ...
+};
+```
+
+### プリセットの追加
+
+新しいプリセット（例：Rust）を追加する場合：
+
+1. **`src/presets/rust.ts` を作成**:
+
+```typescript
+import type { PresetConfig } from '../types';
+
+export const rustPreset: PresetConfig = {
+  name: 'Rust Base',
+  image: 'mcr.microsoft.com/devcontainers/rust:1-bullseye',
+  features: {
+    'ghcr.io/devcontainers/features/rust:1': {
+      version: 'latest',
+    },
+  },
+  extensions: [
+    'rust-lang.rust-analyzer',
+    'tamasfe.even-better-toml',
+  ],
+  settings: {},
+};
+```
+
+2. **`scripts/build.ts` に追加**:
+
+```typescript
+import { rustPreset } from '../src/presets/rust';
+
+// ...
+
+const presets = [
+  { name: 'node', config: nodePreset },
+  { name: 'python', config: pythonPreset },
+  { name: 'fullstack', config: fullstackPreset },
+  { name: 'rust', config: rustPreset }, // ← 追加
+];
+```
+
+3. **ビルド**:
+
+```bash
+bun run build
+```
+
+### 型チェック
+
+TypeScript の型チェックで設定ミスを防げます：
+
+```bash
+# 型チェック
+bun run tsc --noEmit
+```
 
 ## 使用方法
 
