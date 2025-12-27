@@ -12,7 +12,3 @@
 
 # Node.js
 node_modules/
-
-# Generated files (DO NOT COMMIT)
-# これらは src/ から自動生成されます
-dist/

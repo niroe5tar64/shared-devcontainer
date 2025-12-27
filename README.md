@@ -6,7 +6,7 @@
 - ✅ TypeScript で型安全に設定を管理
 - ✅ DRY原則に基づいた設定の再利用
 - ✅ ビルドスクリプトで JSON を自動生成
-- ✅ Git では TypeScript ソースのみを管理（JSON は生成物）
+- ✅ 生成された JSON ファイルもコミット（サブモジュールとして即利用可能）
 
 ## 構成
 
@@ -21,7 +21,7 @@ shared-devcontainer/
 │       └── fullstack.ts
 ├── scripts/
 │   └── build.ts             # ビルドスクリプト
-└── dist/                    # ← 自動生成（Git管理外）
+└── dist/                    # ← 自動生成（Git管理対象）
     ├── base.json
     └── presets/
         ├── node.json
