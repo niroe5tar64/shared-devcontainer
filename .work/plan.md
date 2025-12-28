@@ -91,8 +91,43 @@ find "$HOME/.vscode-server/extensions" ...
   - デフォルト（dev-user）で正常動作
   - `DEVCONTAINER_USER=testuser bun run build` で動的変更確認済み
 
-### 残存する型エラー（既存問題）
+### 型エラー修正（完了）
 
-`scripts/build.ts` に型エラーあり（今回の修正とは無関係）。
-ビルド自体は正常に動作する。
+`scripts/build.ts` の型エラーを解決済み（コミット: 8f65e5c）
+
+---
+
+## 現在の状態（セッション引継ぎ用）
+
+### 完了済み
+
+1. **CLAUDE.md + rules 整備** (09d5084)
+   - CLAUDE.md を軽量化
+   - `.claude/rules/` に詳細ドキュメントを分離
+
+2. **ユーザー名の変数化** (5514154)
+   - `DEVCONTAINER_USER` 環境変数で動的設定可能
+   - `src/base.ts`, `.devcontainer/bin/claude` を修正
+
+3. **型エラー修正** (8f65e5c)
+   - `scripts/build.ts` のヘルパー関数追加
+
+### 動作確認コマンド
+
+```bash
+bun run tsc --noEmit   # 型チェック（エラーなし）
+bun run build          # ビルド（正常動作）
+
+# カスタムユーザーでビルド
+DEVCONTAINER_USER=myuser bun run build
+```
+
+### 未コミットの変更
+
+なし（すべてコミット済み）
+
+### 今後の検討事項
+
+- ラッパースクリプトの配布方法（ディレクトリ構成の見直し）
+- プリセットのラインナップ見直し
 
