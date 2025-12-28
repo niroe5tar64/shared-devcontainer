@@ -59,12 +59,12 @@
     "CLAUDE_SETTINGS_PATH": "/workspace/.claude/settings.json"
   },
   "remoteEnv": {
-    "PATH": "/workspaces/shared-devcontainer/.devcontainer/bin:${containerEnv:HOME}/.local/bin:${containerEnv:HOME}/.bun/bin:${containerEnv:PATH}"
+    "PATH": "${containerEnv:HOME}/.local/bin:${containerEnv:HOME}/.bun/bin:${containerEnv:PATH}"
   },
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
-  "postCreateCommand": "bash .devcontainer/post-create.sh && npm install -g pnpm",
+  "postCreateCommand": "bash ./post-create.sh && npm install -g pnpm",
   "remoteUser": "dev-user",
   "name": "Fullstack Base"
 }

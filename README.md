@@ -77,16 +77,20 @@ bun run rebuild
 
 ```typescript
 // src/base.ts
-export const base: BaseConfig = {
+export const base: DevContainerConfig = {
   // ...
-  extensions: [
-    'GitHub.copilot',
-    'anthropic.claude-code',
-    // 新しい拡張機能を追加
-    'usernamehw.errorlens',
-    'wayou.vscode-todo-highlight',
-    'github.vscode-pull-request-github', // ← 追加
-  ],
+  customizations: {
+    vscode: {
+      extensions: [
+        'GitHub.copilot',
+        'anthropic.claude-code',
+        // 新しい拡張機能を追加
+        'usernamehw.errorlens',
+        'wayou.vscode-todo-highlight',
+        'github.vscode-pull-request-github', // ← 追加
+      ],
+    },
+  },
   // ...
 };
 ```
@@ -105,13 +109,17 @@ git push
 
 ```typescript
 // src/presets/node.ts
-export const nodePreset: PresetConfig = {
+export const nodePreset: DevContainerConfig = {
   // ...
-  extensions: [
-    'dbaeumer.vscode-eslint',
-    'esbenp.prettier-vscode',
-    'prisma.prisma', // ← 追加
-  ],
+  customizations: {
+    vscode: {
+      extensions: [
+        'dbaeumer.vscode-eslint',
+        'esbenp.prettier-vscode',
+        'prisma.prisma', // ← 追加
+      ],
+    },
+  },
   // ...
 };
 ```
@@ -123,9 +131,9 @@ export const nodePreset: PresetConfig = {
 1. **`src/presets/rust.ts` を作成**:
 
 ```typescript
-import type { PresetConfig } from '../types';
+import type { DevContainerConfig } from '../types';
 
-export const rustPreset: PresetConfig = {
+export const rustPreset: DevContainerConfig = {
   name: 'Rust Base',
   image: 'mcr.microsoft.com/devcontainers/rust:1-bullseye',
   features: {
@@ -133,11 +141,15 @@ export const rustPreset: PresetConfig = {
       version: 'latest',
     },
   },
-  extensions: [
-    'rust-lang.rust-analyzer',
-    'tamasfe.even-better-toml',
-  ],
-  settings: {},
+  customizations: {
+    vscode: {
+      extensions: [
+        'rust-lang.rust-analyzer',
+        'tamasfe.even-better-toml',
+      ],
+      settings: {},
+    },
+  },
 };
 ```
 

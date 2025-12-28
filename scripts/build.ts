@@ -6,7 +6,7 @@
  * TypeScript の設定ファイルから JSON を生成します。
  */
 
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, copyFile, cp } from 'node:fs/promises';
 import { join } from 'node:path';
 import { base } from '../src/base';
 import { nodePreset } from '../src/presets/node';
@@ -17,13 +17,26 @@ import type { DevContainerConfig } from '../src/types';
 const SCHEMA_URL = 'https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json';
 
 /**
- * base.json を生成
+ * dist/base.json を生成（サブモジュールとして配布する用）
  */
 function generateBaseConfig(): DevContainerConfig {
   return {
     $schema: SCHEMA_URL,
     name: 'Base Configuration',
     ...base,
+  };
+}
+
+/**
+ * .devcontainer/devcontainer.json を生成（このリポジトリ自体の開発環境用）
+ */
+function generateDevContainerConfig(): DevContainerConfig {
+  return {
+    $schema: SCHEMA_URL,
+    name: 'Base Configuration',
+    ...base,
+    // このリポジトリ自体では .devcontainer/post-create.sh を参照
+    postCreateCommand: 'bash .devcontainer/post-create.sh',
   };
 }
 
@@ -127,12 +140,14 @@ async function main() {
   await mkdir('dist', { recursive: true });
   await mkdir(join('dist', 'presets'), { recursive: true });
 
-  // base.json を生成
+  // base.json を生成（サブモジュール配布用）
   const baseConfig = generateBaseConfig();
   await writeJsonFile(join('dist', 'base.json'), baseConfig);
-  // VS Code が直接参照する .devcontainer/devcontainer.json も同内容で出力
+
+  // .devcontainer/devcontainer.json を生成（このリポジトリ自体の開発環境用）
   await mkdir('.devcontainer', { recursive: true });
-  await writeJsonFile(join('.devcontainer', 'devcontainer.json'), baseConfig);
+  const devContainerConfig = generateDevContainerConfig();
+  await writeJsonFile(join('.devcontainer', 'devcontainer.json'), devContainerConfig);
 
   // プリセットを生成
   const presets = [
@@ -145,6 +160,14 @@ async function main() {
     const presetConfig = generatePresetConfig(config);
     await writeJsonFile(join('dist', 'presets', `${name}.json`), presetConfig);
   }
+
+  // bin/ と post-create.sh を dist/ にコピー（サブモジュール対応）
+  console.log('\n📦 Copying additional files...');
+  await mkdir(join('dist', 'bin'), { recursive: true });
+  await cp(join('.devcontainer', 'bin'), join('dist', 'bin'), { recursive: true });
+  await copyFile(join('.devcontainer', 'post-create.sh'), join('dist', 'post-create.sh'));
+  console.log('✅ Copied: dist/bin/');
+  console.log('✅ Copied: dist/post-create.sh');
 
   console.log('\n✨ Build complete!');
 }

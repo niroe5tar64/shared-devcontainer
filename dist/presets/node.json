@@ -65,13 +65,15 @@
     "CLAUDE_SETTINGS_PATH": "/workspace/.claude/settings.json"
   },
   "remoteEnv": {
-    "PATH": "/workspaces/shared-devcontainer/.devcontainer/bin:${containerEnv:HOME}/.local/bin:${containerEnv:HOME}/.bun/bin:${containerEnv:PATH}"
+    "PATH": "${containerEnv:HOME}/.local/bin:${containerEnv:HOME}/.bun/bin:${containerEnv:PATH}"
   },
   "mounts": [
+    "source=${localEnv:HOME}/.gitconfig,target=/home/dev-user/.gitconfig,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.ssh,target=/home/dev-user/.ssh,type=bind,consistency=cached,readonly",
     "source=${localEnv:HOME}/.claude,target=/home/dev-user/.claude,type=bind",
     "source=${localEnv:HOME}/.codex,target=/home/dev-user/.codex,type=bind"
   ],
-  "postCreateCommand": "bash .devcontainer/post-create.sh && npm install -g pnpm",
+  "postCreateCommand": "bash ./post-create.sh && npm install -g pnpm",
   "remoteUser": "dev-user",
   "name": "Node.js Base"
 }

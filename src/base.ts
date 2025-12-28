@@ -81,13 +81,17 @@ export const base: DevContainerConfig = {
     CLAUDE_SETTINGS_PATH: '/workspace/.claude/settings.json',
   },
 
-  // PATH設定：プロジェクトのラッパースクリプトとユーザーローカルのバイナリを優先
+  // PATH設定：ユーザーローカルのバイナリを優先
   remoteEnv: {
-    PATH: '/workspaces/shared-devcontainer/.devcontainer/bin:${containerEnv:HOME}/.local/bin:${containerEnv:HOME}/.bun/bin:${containerEnv:PATH}',
+    PATH: '${containerEnv:HOME}/.local/bin:${containerEnv:HOME}/.bun/bin:${containerEnv:PATH}',
   },
 
-  // 認証情報の永続化：ホストマシンとバインドマウントで共有
+  // ホストマシンとバインドマウントで共有
   mounts: [
+    // Git設定とSSH鍵
+    'source=${localEnv:HOME}/.gitconfig,target=/home/dev-user/.gitconfig,type=bind,consistency=cached',
+    'source=${localEnv:HOME}/.ssh,target=/home/dev-user/.ssh,type=bind,consistency=cached,readonly',
+    // AI開発ツールの認証情報
     'source=${localEnv:HOME}/.claude,target=/home/dev-user/.claude,type=bind',
     'source=${localEnv:HOME}/.codex,target=/home/dev-user/.codex,type=bind',
   ],
@@ -96,7 +100,8 @@ export const base: DevContainerConfig = {
   // 1. 基本ツール（vim, tree, jq）
   // 2. Bun（高速パッケージマネージャー）
   // 3. AI 開発ツール（Claude Code, Codex）のインストールとラッパースクリプト設定
-  postCreateCommand: 'bash .devcontainer/post-create.sh',
+  // サブモジュールとして使う場合は、dist/post-create.shを参照（相対パス）
+  postCreateCommand: 'bash ./post-create.sh',
 
   remoteUser: 'dev-user',
 };
