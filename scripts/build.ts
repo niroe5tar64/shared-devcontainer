@@ -17,6 +17,28 @@ import type { DevContainerConfig } from '../src/types';
 const SCHEMA_URL = 'https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json';
 
 /**
+ * VS Code customizations の型定義
+ * 生成された型では customizations が { [k: string]: unknown } のため、
+ * 型安全にアクセスするためのヘルパー型を定義
+ */
+interface VSCodeCustomizations {
+  extensions?: string[];
+  settings?: Record<string, unknown>;
+}
+
+function getVSCodeCustomizations(config: DevContainerConfig): VSCodeCustomizations | undefined {
+  return config.customizations?.vscode as VSCodeCustomizations | undefined;
+}
+
+function getPostCreateCommand(config: DevContainerConfig): string | string[] | undefined {
+  const cmd = config.postCreateCommand;
+  if (typeof cmd === 'string' || Array.isArray(cmd)) {
+    return cmd;
+  }
+  return undefined;
+}
+
+/**
  * dist/base.json を生成（サブモジュールとして配布する用）
  */
 function generateBaseConfig(): DevContainerConfig {
@@ -98,6 +120,9 @@ function mergePostCreateCommand(baseCmd?: string | string[], presetCmd?: string 
  * baseとpresetをマージする
  */
 function generatePresetConfig(preset: DevContainerConfig): DevContainerConfig {
+  const baseVSCode = getVSCodeCustomizations(base);
+  const presetVSCode = getVSCodeCustomizations(preset);
+
   return {
     $schema: SCHEMA_URL,
     ...base,
@@ -107,17 +132,20 @@ function generatePresetConfig(preset: DevContainerConfig): DevContainerConfig {
     customizations: {
       vscode: {
         extensions: mergeArrays(
-          base.customizations?.vscode?.extensions,
-          preset.customizations?.vscode?.extensions
+          baseVSCode?.extensions,
+          presetVSCode?.extensions
         ),
         settings: deepMerge(
-          base.customizations?.vscode?.settings,
-          preset.customizations?.vscode?.settings
+          baseVSCode?.settings,
+          presetVSCode?.settings
         ),
       },
     },
     mounts: preset.mounts || base.mounts,
-    postCreateCommand: mergePostCreateCommand(base.postCreateCommand, preset.postCreateCommand),
+    postCreateCommand: mergePostCreateCommand(
+      getPostCreateCommand(base),
+      getPostCreateCommand(preset)
+    ),
   };
 }
 
