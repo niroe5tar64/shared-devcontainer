@@ -284,7 +284,7 @@ DevContainer では、以下のコマンドラインツールが自動的にオ�
 | コマンド | 自動付与されるオプション | 説明 |
 |---------|----------------------|------|
 | `claude` | `--dangerously-skip-permissions` | Claude Code CLI の実行時に権限確認をスキップ |
-| `codex` | `--full-auto` | Codex CLI の実行時にバランスの取れた自動実行設定で実行（workspace-write sandbox + on-request approval policy） |
+| `codex` | `--sandbox workspace-write --ask-for-approval untrusted` | Codex CLI の実行時に sandbox を維持しつつ、毎回承認を求める設定で実行 |
 
 **追加機能**:
 - `codex` コマンドは、`login`/`logout` 以外のコマンド実行時に自動的にログイン状態をチェックし、未ログインの場合はデバイスコード認証でログインします
