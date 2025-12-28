@@ -1,6 +1,14 @@
 import type { DevContainerConfig } from './types';
 
 /**
+ * DevContainer ユーザー名
+ *
+ * 環境変数 DEVCONTAINER_USER で上書き可能。
+ * 例: DEVCONTAINER_USER=myuser bun run build
+ */
+const DEVCONTAINER_USER = process.env.DEVCONTAINER_USER || 'dev-user';
+
+/**
  * Base DevContainer Configuration
  *
  * すべてのプロジェクトで共通の設定を定義します。
@@ -26,7 +34,7 @@ export const base: DevContainerConfig = {
       installZsh: true,
       installOhMyZsh: true,
       upgradePackages: true,
-      username: 'dev-user',
+      username: DEVCONTAINER_USER,
     },
   },
 
@@ -89,11 +97,11 @@ export const base: DevContainerConfig = {
   // ホストマシンとバインドマウントで共有
   mounts: [
     // Git設定とSSH鍵
-    'source=${localEnv:HOME}/.gitconfig,target=/home/dev-user/.gitconfig,type=bind,consistency=cached',
-    'source=${localEnv:HOME}/.ssh,target=/home/dev-user/.ssh,type=bind,consistency=cached,readonly',
+    `source=\${localEnv:HOME}/.gitconfig,target=/home/${DEVCONTAINER_USER}/.gitconfig,type=bind,consistency=cached`,
+    `source=\${localEnv:HOME}/.ssh,target=/home/${DEVCONTAINER_USER}/.ssh,type=bind,consistency=cached,readonly`,
     // AI開発ツールの認証情報
-    'source=${localEnv:HOME}/.claude,target=/home/dev-user/.claude,type=bind',
-    'source=${localEnv:HOME}/.codex,target=/home/dev-user/.codex,type=bind',
+    `source=\${localEnv:HOME}/.claude,target=/home/${DEVCONTAINER_USER}/.claude,type=bind`,
+    `source=\${localEnv:HOME}/.codex,target=/home/${DEVCONTAINER_USER}/.codex,type=bind`,
   ],
 
   // 開発ツールと AI アシスタントをすべての環境に標準装備
@@ -103,5 +111,5 @@ export const base: DevContainerConfig = {
   // サブモジュールとして使う場合は、dist/post-create.shを参照（相対パス）
   postCreateCommand: 'bash ./post-create.sh',
 
-  remoteUser: 'dev-user',
+  remoteUser: DEVCONTAINER_USER,
 };

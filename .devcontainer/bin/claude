@@ -2,10 +2,12 @@
 set -euo pipefail
 
 # VS Code Claude extension のバイナリを動的に探す
-real=$(find /home/dev-user/.vscode-server/extensions -name "claude" -path "*/resources/native-binary/claude" -type f 2>/dev/null | head -1) || true
+# $HOME を使用してユーザー非依存に
+real=$(find "$HOME/.vscode-server/extensions" -name "claude" -path "*/resources/native-binary/claude" -type f 2>/dev/null | head -1) || true
 
 if [ -z "${real:-}" ] || [ ! -x "$real" ]; then
   echo "Error: real claude binary not found in VS Code extensions directory" >&2
+  echo "Hint: Ensure the Claude Code extension is installed in VS Code" >&2
   exit 127
 fi
 
