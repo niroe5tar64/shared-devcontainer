@@ -51,7 +51,7 @@
     "CLAUDE_SETTINGS_PATH": "/workspace/.claude/settings.json"
   },
   "remoteEnv": {
-    "PATH": "${containerEnv:HOME}/.local/bin:${containerEnv:HOME}/.bun/bin:${containerEnv:PATH}"
+    "PATH": "/home/dev-user/.local/bin:/home/dev-user/.bun/bin:${containerEnv:PATH}"
   },
   "mounts": [
     "source=${localEnv:HOME}/.gitconfig,target=/home/dev-user/.gitconfig,type=bind,consistency=cached",

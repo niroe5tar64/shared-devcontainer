@@ -90,8 +90,9 @@ export const base: DevContainerConfig = {
   },
 
   // PATH設定：ユーザーローカルのバイナリを優先
+  // ${containerEnv:HOME} は未定義のため使えない → ユーザー名変数でパスを構築
   remoteEnv: {
-    PATH: '${containerEnv:HOME}/.local/bin:${containerEnv:HOME}/.bun/bin:${containerEnv:PATH}',
+    PATH: `/home/${DEVCONTAINER_USER}/.local/bin:/home/${DEVCONTAINER_USER}/.bun/bin:\${containerEnv:PATH}`,
   },
 
   // ホストマシンとバインドマウントで共有
