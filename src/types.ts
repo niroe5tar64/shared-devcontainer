@@ -1,47 +1,21 @@
 /**
  * DevContainer Configuration Types
- * Based on: https://containers.dev/implementors/json_schema/
  */
 
+// 公式スキーマから生成された型をインポート
+export type { DevContainerConfig } from './types.generated';
+
+/**
+ * Feature設定の型
+ * 各Featureは設定オプションを持つことができる
+ */
 export interface DevContainerFeature {
   [key: string]: Record<string, unknown> | string | boolean;
 }
 
-export interface VSCodeExtension {
-  extensions?: string[];
-  settings?: Record<string, unknown>;
-}
-
-export interface DevContainerCustomizations {
-  vscode?: VSCodeExtension;
-}
-
-export interface DevContainerMount {
-  source?: string;
-  target?: string;
-  type?: string;
-}
-
-/**
- * Complete DevContainer Configuration
- */
-export interface DevContainerConfig {
-  $schema?: string;
-  name?: string;
-  image?: string;
-  features?: DevContainerFeature;
-  customizations?: DevContainerCustomizations;
-  forwardPorts?: number[];
-  postCreateCommand?: string | string[];
-  postStartCommand?: string | string[];
-  postAttachCommand?: string | string[];
-  remoteUser?: string;
-  containerEnv?: Record<string, string>;
-  mounts?: (DevContainerMount | string)[];
-}
-
 /**
  * Base Configuration (shared settings)
+ * 簡略化されたDSL形式の設定。ビルド時に完全なDevContainerConfigに変換される。
  */
 export interface BaseConfig {
   image?: string;
@@ -51,11 +25,12 @@ export interface BaseConfig {
   postCreateCommand?: string | string[];
   remoteUser: string;
   remoteEnv?: Record<string, string>;
-  mounts?: (DevContainerMount | string)[];
+  mounts?: string[];
 }
 
 /**
  * Preset Configuration (extends base)
+ * 簡略化されたDSL形式の設定。ビルド時にbaseと結合され、完全なDevContainerConfigに変換される。
  */
 export interface PresetConfig {
   name: string;
@@ -63,6 +38,6 @@ export interface PresetConfig {
   features: DevContainerFeature;
   extensions: string[];
   settings?: Record<string, unknown>;
-  mounts?: (DevContainerMount | string)[];
+  mounts?: string[];
   postCreateCommand?: string | string[];
 }
