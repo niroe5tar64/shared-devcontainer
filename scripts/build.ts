@@ -12,6 +12,7 @@ import { base } from '../src/base';
 import { nodePreset } from '../src/presets/node';
 import { pythonPreset } from '../src/presets/python';
 import { fullstackPreset } from '../src/presets/fullstack';
+import { writingPreset } from '../src/presets/writing';
 import type { DevContainerConfig } from '../src/types';
 
 const SCHEMA_URL = 'https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json';
@@ -141,6 +142,8 @@ function generatePresetConfig(preset: DevContainerConfig): DevContainerConfig {
         ),
       },
     },
+    containerEnv: deepMerge(base.containerEnv, preset.containerEnv),
+    remoteEnv: deepMerge(base.remoteEnv, preset.remoteEnv),
     mounts: preset.mounts || base.mounts,
     postCreateCommand: mergePostCreateCommand(
       getPostCreateCommand(base),
@@ -182,6 +185,7 @@ async function main() {
     { name: 'node', config: nodePreset },
     { name: 'python', config: pythonPreset },
     { name: 'fullstack', config: fullstackPreset },
+    { name: 'writing', config: writingPreset },
   ];
 
   for (const { name, config } of presets) {
