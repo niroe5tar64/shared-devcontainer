@@ -112,6 +112,11 @@ find "$HOME/.vscode-server/extensions" ...
 3. **型エラー修正** (8f65e5c)
    - `scripts/build.ts` のヘルパー関数追加
 
+4. **remoteEnv PATH設定の修正** (5785110)
+   - `${containerEnv:HOME}` が未定義で空文字列になっていた問題を修正
+   - `/home/${DEVCONTAINER_USER}` を明示的に指定
+   - これにより `~/.local/bin` のラッパースクリプトが正しく優先される
+
 ### 動作確認コマンド
 
 ```bash
@@ -130,4 +135,61 @@ DEVCONTAINER_USER=myuser bun run build
 
 - ラッパースクリプトの配布方法（ディレクトリ構成の見直し）
 - プリセットのラインナップ見直し
+
+---
+
+## PATH問題の詳細記録（5785110）
+
+### 発生していた問題
+
+claudeラッパースクリプトが `--dangerously-skip-permissions` オプション付きで実行されない。
+
+### 根本原因
+
+1. **remoteEnvでの変数展開エラー**
+   ```typescript
+   // 修正前
+   remoteEnv: {
+     PATH: '${containerEnv:HOME}/.local/bin:...'
+   }
+   ```
+   - `${containerEnv:HOME}` が未定義のため空文字列に展開
+   - 結果: `/.local/bin` という不正なパスが生成
+
+2. **PATHの優先順位**
+   ```
+   実際のPATH:
+   /.local/bin:/.bun/bin:/usr/local/share/nvm/.../bin:.../home/dev-user/.local/bin
+
+   問題:
+   - npm の claude が優先（/usr/local/share/nvm/versions/node/v24.12.0/bin）
+   - ラッパースクリプト（/home/dev-user/.local/bin）は最後
+   ```
+
+3. **DevContainer再ビルドでも解決しない理由**
+   - ソースの設定自体が間違っていたため
+
+### 解決策
+
+```typescript
+// 修正後（src/base.ts L95）
+remoteEnv: {
+  PATH: `/home/${DEVCONTAINER_USER}/.local/bin:/home/${DEVCONTAINER_USER}/.bun/bin:\${containerEnv:PATH}`,
+}
+```
+
+- `${containerEnv:HOME}` → `/home/${DEVCONTAINER_USER}` に変更
+- ビルド時に正しいパスが生成される
+- DevContainer再ビルド後、ラッパースクリプトが優先される
+
+### 動作確認方法
+
+DevContainer再ビルド後：
+```bash
+which claude
+# 期待値: /home/dev-user/.local/bin/claude
+
+claude --version
+# ラッパー経由で --dangerously-skip-permissions が付与される
+```
 
