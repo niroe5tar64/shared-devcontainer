@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(printenv:*)",
+      "Bash(cat:*)",
+      "Bash(env)",
+      "Bash(export PATH=\"$HOME/.local/bin:$HOME/.bun/bin:$PATH\")",
+      "Bash(bun run build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: remoteEnvのPATH設定で変数展開エラーを修正\n\n$containerEnv:HOMEが未定義により空文字列に展開されていた問題を修正。\nユーザー名変数を使用して/home/$DEVCONTAINER_USERを明示的に指定。\n\nこれにより、~/.local/binのラッパースクリプトが正しく優先される。\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit:*)"
     ]
   }
 }

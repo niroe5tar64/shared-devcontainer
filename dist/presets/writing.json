@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json",
-  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
     "ghcr.io/devcontainers/features/git:1": {
       "version": "latest"
@@ -9,8 +9,7 @@
       "version": "latest"
     },
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "20",
-      "nodeGypDependencies": true
+      "version": "lts"
     },
     "ghcr.io/devcontainers/features/common-utils:2": {
       "installZsh": true,
@@ -31,8 +30,7 @@
         "wayou.vscode-todo-highlight",
         "biomejs.biome",
         "oven.bun-vscode",
-        "bierner.markdown-mermaid",
-        "dbaeumer.vscode-eslint"
+        "bierner.markdown-mermaid"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -44,13 +42,7 @@
         "files.trimTrailingWhitespace": true,
         "terminal.integrated.defaultProfile.linux": "bash",
         "git.autofetch": true,
-        "git.confirmSync": false,
-        "[markdown]": {
-          "editor.defaultFormatter": "biomejs.biome"
-        },
-        "[typescript]": {
-          "editor.defaultFormatter": "biomejs.biome"
-        }
+        "git.confirmSync": false
       }
     }
   },
@@ -58,8 +50,7 @@
     "CLAUDE_SETTINGS_PATH": "/workspace/.claude/settings.json"
   },
   "remoteEnv": {
-    "PATH": "/home/dev-user/.local/bin:/home/dev-user/.bun/bin:${containerEnv:PATH}",
-    "CODEX_HOME": "/workspace/.codex"
+    "PATH": "/home/dev-user/.local/bin:/home/dev-user/.bun/bin:${containerEnv:PATH}"
   },
   "mounts": [
     "source=${localEnv:HOME}/.gitconfig,target=/home/dev-user/.gitconfig,type=bind,consistency=cached",
@@ -67,7 +58,7 @@
     "source=${localEnv:HOME}/.claude,target=/home/dev-user/.claude,type=bind",
     "source=${localEnv:HOME}/.codex,target=/home/dev-user/.codex,type=bind"
   ],
-  "postCreateCommand": "bash ./post-create.sh && bun install",
+  "postCreateCommand": "bash ./post-create.sh",
   "remoteUser": "dev-user",
   "name": "AI Writing Base"
 }
