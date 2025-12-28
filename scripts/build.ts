@@ -23,6 +23,7 @@ function generateBaseConfig(): DevContainerConfig {
   return {
     $schema: SCHEMA_URL,
     name: 'Base Configuration',
+    ...(base.image && { image: base.image }),
     features: base.features,
     customizations: {
       vscode: {
@@ -30,6 +31,8 @@ function generateBaseConfig(): DevContainerConfig {
         settings: base.settings,
       },
     },
+    ...(base.remoteEnv && { remoteEnv: base.remoteEnv }),
+    ...(base.mounts && { mounts: base.mounts }),
     postCreateCommand: base.postCreateCommand || "echo 'DevContainer setup complete!'",
     remoteUser: base.remoteUser,
   };
@@ -38,11 +41,15 @@ function generateBaseConfig(): DevContainerConfig {
 /**
  * postCreateCommand を結合
  */
-function mergePostCreateCommand(baseCmd?: string, presetCmd?: string | string[]): string | undefined {
+function mergePostCreateCommand(baseCmd?: string | string[], presetCmd?: string | string[]): string | undefined {
   const commands: string[] = [];
 
   if (baseCmd) {
-    commands.push(baseCmd);
+    if (Array.isArray(baseCmd)) {
+      commands.push(...baseCmd);
+    } else {
+      commands.push(baseCmd);
+    }
   }
 
   if (presetCmd) {
@@ -79,7 +86,8 @@ function generatePresetConfig(preset: PresetConfig): DevContainerConfig {
         },
       },
     },
-    ...(preset.mounts && { mounts: preset.mounts }),
+    ...(base.remoteEnv && { remoteEnv: base.remoteEnv }),
+    ...(preset.mounts ? { mounts: preset.mounts } : base.mounts && { mounts: base.mounts }),
     postCreateCommand: mergePostCreateCommand(base.postCreateCommand, preset.postCreateCommand),
     remoteUser: base.remoteUser,
   };
@@ -107,6 +115,9 @@ async function main() {
   // base.json を生成
   const baseConfig = generateBaseConfig();
   await writeJsonFile(join('dist', 'base.json'), baseConfig);
+  // VS Code が直接参照する .devcontainer/devcontainer.json も同内容で出力
+  await mkdir('.devcontainer', { recursive: true });
+  await writeJsonFile(join('.devcontainer', 'devcontainer.json'), baseConfig);
 
   // プリセットを生成
   const presets = [

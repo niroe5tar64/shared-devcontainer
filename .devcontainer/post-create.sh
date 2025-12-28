@@ -15,8 +15,13 @@ echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.zshrc
 # Update PATH for current session
 export PATH="$HOME/.bun/bin:$PATH"
 
-# Install CLI tools (npm)
-npm install -g @anthropic-ai/claude-code @openai/codex
+# Install CLI tools (npm) - check if npm packages are installed (not just command exists)
+if ! npm list -g @anthropic-ai/claude-code @openai/codex &> /dev/null; then
+    echo "Installing Claude Code and Codex CLI tools..."
+    npm install -g @anthropic-ai/claude-code @openai/codex
+else
+    echo "Claude Code and Codex CLI tools already installed, skipping..."
+fi
 
 # Install wrapper scripts for claude and codex
 mkdir -p ~/.local/bin

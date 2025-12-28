@@ -44,11 +44,14 @@ export interface DevContainerConfig {
  * Base Configuration (shared settings)
  */
 export interface BaseConfig {
+  image?: string;
   features: DevContainerFeature;
   extensions: string[];
   settings: Record<string, unknown>;
-  postCreateCommand?: string;
+  postCreateCommand?: string | string[];
   remoteUser: string;
+  remoteEnv?: Record<string, string>;
+  mounts?: (DevContainerMount | string)[];
 }
 
 /**

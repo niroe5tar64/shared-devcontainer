@@ -1,6 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json",
   "name": "Base Configuration",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
     "ghcr.io/devcontainers/features/git:1": {
       "version": "latest"
@@ -8,10 +9,14 @@
     "ghcr.io/devcontainers/features/github-cli:1": {
       "version": "latest"
     },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    },
     "ghcr.io/devcontainers/features/common-utils:2": {
       "installZsh": true,
       "installOhMyZsh": true,
-      "upgradePackages": true
+      "upgradePackages": true,
+      "username": "dev-user"
     }
   },
   "customizations": {
@@ -36,6 +41,13 @@
       }
     }
   },
-  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y vim tree jq && sudo npm install -g bun && sudo bun install -g @anthropic-ai/claude-code@latest @openai/codex@latest",
-  "remoteUser": "vscode"
+  "remoteEnv": {
+    "PATH": "/workspaces/shared-devcontainer/.devcontainer/bin:${containerEnv:HOME}/.local/bin:${containerEnv:HOME}/.bun/bin:${containerEnv:PATH}"
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.claude,target=/home/dev-user/.claude,type=bind",
+    "source=${localEnv:HOME}/.codex,target=/home/dev-user/.codex,type=bind"
+  ],
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "remoteUser": "dev-user"
 }

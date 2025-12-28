@@ -71,6 +71,8 @@ bun run build
 bun run rebuild
 ```
 
+**重要**: このプロジェクト自体の `.devcontainer/devcontainer.json` は `dist/base.json` を extends しているため、`src/base.ts` を編集して `bun run build` を実行すれば、自動的に開発環境の設定も更新されます。設定の乖離を防ぐため、**`.devcontainer/devcontainer.json` を直接編集せず**、必ず `src/base.ts` を編集してください。
+
 ### 変更例：新しい拡張機能を全プロジェクトに追加
 
 ```typescript
@@ -270,7 +272,11 @@ DevContainer では、以下のコマンドラインツールが自動的にオ�
 | コマンド | 自動付与されるオプション | 説明 |
 |---------|----------------------|------|
 | `claude` | `--dangerously-skip-permissions` | Claude Code CLI の実行時に権限確認をスキップ |
-| `codex` | `--yolo` | OpenAI Codex CLI の実行時に承認なし + サンドボックス完全無効で実行 |
+| `codex` | `--full-auto` | Codex CLI の実行時にバランスの取れた自動実行設定で実行（workspace-write sandbox + on-request approval policy） |
+
+**追加機能**:
+- `codex` コマンドは、`login`/`logout` 以外のコマンド実行時に自動的にログイン状態をチェックし、未ログインの場合はデバイスコード認証でログインします
+- `codex login` 実行時は自動的に `--device-auth` オプションが付与され、DevContainer 環境でもスムーズに認証できます
 
 **仕組み**:
 - `.devcontainer/bin/` にラッパースクリプトを配置
@@ -278,6 +284,107 @@ DevContainer では、以下のコマンドラインツールが自動的にオ�
 - コマンド実行時にラッパーが自動的にオプションを追加して本体を呼び出し
 
 これにより、DevContainer 内での開発時に毎回オプションを指定する必要がなくなります。
+
+### Claude Code / Codex 認証情報の永続化
+
+DevContainer では、Claude Code と Codex の認証情報を **ホストマシンとバインドマウントで共有**するため、**コンテナを再ビルドしても認証状態が確実に維持**され、複数のプロジェクト間でも認証情報を共有できます。
+
+**マウント設定（ホストマシンの設定を共有）**:
+```json
+"mounts": [
+  "source=${localEnv:HOME}/.claude,target=/home/dev-user/.claude,type=bind",
+  "source=${localEnv:HOME}/.codex,target=/home/dev-user/.codex,type=bind"
+]
+```
+
+※ `common-utils` フィーチャーで `username: "dev-user"` を指定しているため、コンテナビルド時に `dev-user` が作成されます。
+
+この設定により：
+- 認証情報は **ホストマシン** の `~/.claude` および `~/.codex` に保存される
+- 複数のプロジェクト（DevContainer）で **同じ認証情報を共有**できる
+- ホストマシンから直接認証情報にアクセス可能
+- Rebuild 後も **確実に維持**される
+
+#### 初回セットアップ手順
+
+**1. DevContainer を起動**
+
+VS Code で `Cmd+Shift+P` → `Dev Containers: Reopen in Container`
+
+**2. 認証を実行**
+
+コンテナ内またはホストマシンで以下のコマンドを実行：
+
+```bash
+# Claude Code にログイン
+claude login
+
+# Codex にログイン（OpenAI API キーが必要）
+codex login
+```
+
+認証情報はホストマシンの以下のディレクトリに保存されます：
+- `~/.claude/` (Mac/Linux) または `%USERPROFILE%\.claude\` (Windows)
+- `~/.codex/` (Mac/Linux) または `%USERPROFILE%\.codex\` (Windows)
+
+**3. 認証状態の確認**
+
+DevContainer のビルド完了時に自動的に認証状態がチェックされ、未認証の場合は警告が表示されます。
+
+#### Rebuild 後の挙動
+
+DevContainer を Rebuild しても：
+- ✅ 認証情報はホストマシンに保存されているため、**確実に維持される**
+- ✅ **再ログイン不要**で `claude` および `codex` コマンドをすぐに使用可能
+- ✅ コマンド履歴や設定も維持される
+- ✅ 複数のプロジェクト間で同じ認証情報を共有できる
+
+#### 認証情報の管理
+
+**認証情報の確認**:
+```bash
+# ホストマシンで実行
+ls -la ~/.claude/
+ls -la ~/.codex/
+```
+
+**認証情報のバックアップ（オプション）**:
+```bash
+# 認証情報をバックアップしたい場合
+tar czf claude-backup.tar.gz ~/.claude ~/.codex
+```
+
+**認証情報の削除（リセットしたい場合）**:
+```bash
+# 警告: 認証情報が完全に削除されます
+rm -rf ~/.claude ~/.codex
+```
+
+#### トラブルシューティング
+
+**症状**: 初回ログイン後も認証が保存されない
+
+**確認事項**:
+1. **ホストマシンにディレクトリが作成されているか確認**:
+   ```bash
+   # ホストマシンで実行
+   ls -la ~/.claude
+   ls -la ~/.codex
+   ```
+
+2. **devcontainer.json のマウント設定を確認**:
+   - `type=bind` になっているか
+   - `source=${localEnv:HOME}/.claude` のパスが正しいか
+
+3. **ディレクトリの権限を確認**:
+   ```bash
+   # ホストマシンで実行
+   chmod 700 ~/.claude ~/.codex
+   ```
+
+**症状**: 複数のプロジェクトで認証情報を共有したい
+
+**解決策**: バインドマウント方式では、すべてのプロジェクトでホストマシンの `~/.claude` と `~/.codex` を共有します。一度ログインすれば、すべてのプロジェクトで認証情報が利用可能です。
 
 ## カスタマイズ
 
