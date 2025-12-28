@@ -1,6 +1,5 @@
 {
   "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json",
-  "name": "Node.js Base",
   "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
   "features": {
     "ghcr.io/devcontainers/features/git:1": {
@@ -27,8 +26,12 @@
         "GitHub.copilot-chat",
         "anthropic.claude-code",
         "eamodio.gitlens",
+        "mhutchie.git-graph",
         "usernamehw.errorlens",
         "wayou.vscode-todo-highlight",
+        "biomejs.biome",
+        "oven.bun-vscode",
+        "bierner.markdown-mermaid",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "orta.vscode-jest",
@@ -36,14 +39,15 @@
       ],
       "settings": {
         "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.codeActionsOnSave": {
           "source.fixAll": "explicit"
         },
         "files.autoSave": "onFocusChange",
         "files.trimTrailingWhitespace": true,
+        "terminal.integrated.defaultProfile.linux": "bash",
         "git.autofetch": true,
         "git.confirmSync": false,
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
         "[javascript]": {
           "editor.defaultFormatter": "esbenp.prettier-vscode"
         },
@@ -57,6 +61,9 @@
       }
     }
   },
+  "containerEnv": {
+    "CLAUDE_SETTINGS_PATH": "/workspace/.claude/settings.json"
+  },
   "remoteEnv": {
     "PATH": "/workspaces/shared-devcontainer/.devcontainer/bin:${containerEnv:HOME}/.local/bin:${containerEnv:HOME}/.bun/bin:${containerEnv:PATH}"
   },
@@ -65,5 +72,6 @@
     "source=${localEnv:HOME}/.codex,target=/home/dev-user/.codex,type=bind"
   ],
   "postCreateCommand": "bash .devcontainer/post-create.sh && npm install -g pnpm",
-  "remoteUser": "dev-user"
+  "remoteUser": "dev-user",
+  "name": "Node.js Base"
 }

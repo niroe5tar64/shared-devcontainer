@@ -1,4 +1,4 @@
-import type { PresetConfig } from '../types';
+import type { DevContainerConfig } from '../types';
 
 /**
  * Fullstack Preset
@@ -6,7 +6,7 @@ import type { PresetConfig } from '../types';
  * Node.js 20 + Docker-in-Docker
  * フロントエンド + バックエンド + コンテナ開発
  */
-export const fullstackPreset: PresetConfig = {
+export const fullstackPreset: DevContainerConfig = {
   name: 'Fullstack Base',
   image: 'mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye',
 
@@ -20,21 +20,25 @@ export const fullstackPreset: PresetConfig = {
     },
   },
 
-  extensions: [
-    // フロントエンド
-    'dbaeumer.vscode-eslint',
-    'esbenp.prettier-vscode',
-    'bradlc.vscode-tailwindcss',
+  customizations: {
+    vscode: {
+      extensions: [
+        // フロントエンド
+        'dbaeumer.vscode-eslint',
+        'esbenp.prettier-vscode',
+        'bradlc.vscode-tailwindcss',
 
-    // Docker
-    'ms-azuretools.vscode-docker',
+        // Docker
+        'ms-azuretools.vscode-docker',
 
-    // データベース
-    'mtxr.sqltools',
-  ],
+        // データベース
+        'mtxr.sqltools',
+      ],
 
-  settings: {
-    'editor.defaultFormatter': 'esbenp.prettier-vscode',
+      settings: {
+        'editor.defaultFormatter': 'esbenp.prettier-vscode',
+      },
+    },
   },
 
   mounts: ['source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind'],

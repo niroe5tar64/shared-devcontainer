@@ -1,4 +1,4 @@
-import type { BaseConfig } from './types';
+import type { DevContainerConfig } from './types';
 
 /**
  * Base DevContainer Configuration
@@ -9,7 +9,7 @@ import type { BaseConfig } from './types';
  * - 基本エディタ設定
  * - 開発ツール（vim, tree, jq, Bun）
  */
-export const base: BaseConfig = {
+export const base: DevContainerConfig = {
   image: 'mcr.microsoft.com/devcontainers/base:ubuntu',
 
   features: {
@@ -30,32 +30,55 @@ export const base: BaseConfig = {
     },
   },
 
-  extensions: [
-    // AI アシスタント
-    'GitHub.copilot',
-    'GitHub.copilot-chat',
-    'anthropic.claude-code',
+  customizations: {
+    vscode: {
+      extensions: [
+        // AI アシスタント
+        'GitHub.copilot',
+        'GitHub.copilot-chat',
+        'anthropic.claude-code',
 
-    // Git 関連
-    'eamodio.gitlens',
+        // Git 関連
+        'eamodio.gitlens',
+        'mhutchie.git-graph',
 
-    // エディタ支援
-    'usernamehw.errorlens',
-    'wayou.vscode-todo-highlight',
-  ],
+        // エディタ支援
+        'usernamehw.errorlens',
+        'wayou.vscode-todo-highlight',
 
-  settings: {
-    // エディタ基本設定
-    'editor.formatOnSave': true,
-    'editor.codeActionsOnSave': {
-      'source.fixAll': 'explicit',
+        // リンター/フォーマッター
+        'biomejs.biome',
+
+        // 開発ツール
+        'oven.bun-vscode',
+
+        // ドキュメント
+        'bierner.markdown-mermaid',
+      ],
+
+      settings: {
+        // エディタ基本設定
+        'editor.formatOnSave': true,
+        'editor.defaultFormatter': 'biomejs.biome',
+        'editor.codeActionsOnSave': {
+          'source.fixAll': 'explicit',
+        },
+        'files.autoSave': 'onFocusChange',
+        'files.trimTrailingWhitespace': true,
+
+        // ターミナル設定
+        'terminal.integrated.defaultProfile.linux': 'bash',
+
+        // Git 設定
+        'git.autofetch': true,
+        'git.confirmSync': false,
+      },
     },
-    'files.autoSave': 'onFocusChange',
-    'files.trimTrailingWhitespace': true,
+  },
 
-    // Git 設定
-    'git.autofetch': true,
-    'git.confirmSync': false,
+  // 環境変数の追加
+  containerEnv: {
+    CLAUDE_SETTINGS_PATH: '/workspace/.claude/settings.json',
   },
 
   // PATH設定：プロジェクトのラッパースクリプトとユーザーローカルのバイナリを優先

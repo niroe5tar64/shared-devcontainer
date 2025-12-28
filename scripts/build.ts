@@ -12,7 +12,7 @@ import { base } from '../src/base';
 import { nodePreset } from '../src/presets/node';
 import { pythonPreset } from '../src/presets/python';
 import { fullstackPreset } from '../src/presets/fullstack';
-import type { DevContainerConfig, PresetConfig } from '../src/types';
+import type { DevContainerConfig } from '../src/types';
 
 const SCHEMA_URL = 'https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json';
 
@@ -23,19 +23,36 @@ function generateBaseConfig(): DevContainerConfig {
   return {
     $schema: SCHEMA_URL,
     name: 'Base Configuration',
-    ...(base.image && { image: base.image }),
-    features: base.features,
-    customizations: {
-      vscode: {
-        extensions: base.extensions,
-        settings: base.settings,
-      },
-    },
-    ...(base.remoteEnv && { remoteEnv: base.remoteEnv }),
-    ...(base.mounts && { mounts: base.mounts }),
-    postCreateCommand: base.postCreateCommand || "echo 'DevContainer setup complete!'",
-    remoteUser: base.remoteUser,
+    ...base,
   };
+}
+
+/**
+ * 配列をマージ（重複を排除）
+ */
+function mergeArrays<T>(base?: T[], preset?: T[]): T[] | undefined {
+  if (!base && !preset) return undefined;
+  const combined = [...(base || []), ...(preset || [])];
+  return Array.from(new Set(combined));
+}
+
+/**
+ * オブジェクトを深くマージ
+ */
+function deepMerge<T extends Record<string, any>>(base?: T, preset?: T): T | undefined {
+  if (!base && !preset) return undefined;
+  if (!base) return preset;
+  if (!preset) return base;
+
+  const result = { ...base } as T;
+  for (const key in preset) {
+    if (preset[key] && typeof preset[key] === 'object' && !Array.isArray(preset[key])) {
+      result[key] = deepMerge(base[key], preset[key]) as any;
+    } else {
+      result[key] = preset[key];
+    }
+  }
+  return result;
 }
 
 /**
@@ -65,31 +82,29 @@ function mergePostCreateCommand(baseCmd?: string | string[], presetCmd?: string 
 
 /**
  * プリセットから完全な DevContainer 設定を生成
+ * baseとpresetをマージする
  */
-function generatePresetConfig(preset: PresetConfig): DevContainerConfig {
+function generatePresetConfig(preset: DevContainerConfig): DevContainerConfig {
   return {
     $schema: SCHEMA_URL,
-    name: preset.name,
-    image: preset.image,
-    features: {
-      ...base.features,
-      ...preset.features,
-    },
+    ...base,
+    ...preset,
+    // 特定のフィールドは専用のマージロジックを使用
+    features: deepMerge(base.features, preset.features),
     customizations: {
       vscode: {
-        // base の拡張機能 + プリセット固有の拡張機能
-        extensions: [...base.extensions, ...preset.extensions],
-        // base の設定 + プリセット固有の設定
-        settings: {
-          ...base.settings,
-          ...preset.settings,
-        },
+        extensions: mergeArrays(
+          base.customizations?.vscode?.extensions,
+          preset.customizations?.vscode?.extensions
+        ),
+        settings: deepMerge(
+          base.customizations?.vscode?.settings,
+          preset.customizations?.vscode?.settings
+        ),
       },
     },
-    ...(base.remoteEnv && { remoteEnv: base.remoteEnv }),
-    ...(preset.mounts ? { mounts: preset.mounts } : base.mounts && { mounts: base.mounts }),
+    mounts: preset.mounts || base.mounts,
     postCreateCommand: mergePostCreateCommand(base.postCreateCommand, preset.postCreateCommand),
-    remoteUser: base.remoteUser,
   };
 }
 
