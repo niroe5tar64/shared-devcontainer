@@ -31,15 +31,15 @@ if [ "${1:-}" != "login" ] && [ "${1:-}" != "logout" ]; then
   # ログイン状態をチェック（exit code 0 = ログイン済み, 1 = 未ログイン）
   if ! "$real" login status &>/dev/null; then
     echo "Not logged in. Logging in with device authentication..." >&2
-    "$real" --sandbox workspace-write --ask-for-approval untrusted login --device-auth
+    "$real" --sandbox workspace-write --ask-for-approval never login --device-auth
   fi
 fi
 
 # loginコマンドの場合はデバイスコード認証を使用（DevContainer環境向け）
 if [ "${1:-}" = "login" ]; then
   # ブラウザベース認証が動作しないため、デバイスコード認証を使用
-  exec "$real" --sandbox workspace-write --ask-for-approval untrusted login --device-auth "${@:2}"
+  exec "$real" --sandbox workspace-write --ask-for-approval never login --device-auth "${@:2}"
 else
-  # その他のコマンドは sandbox=workspace-write + approval=untrusted で実行
-  exec "$real" --sandbox workspace-write --ask-for-approval untrusted "$@"
+  # その他のコマンドは sandbox=workspace-write + approval=never で実行
+  exec "$real" --sandbox workspace-write --ask-for-approval never "$@"
 fi

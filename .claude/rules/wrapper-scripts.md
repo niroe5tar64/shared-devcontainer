@@ -34,7 +34,8 @@ DevContainer 環境で便利なデフォルトオプションを自動付与す�
 
 ```bash
 # 自動付与されるオプション
---full-auto  # 通常コマンド
+--sandbox workspace-write
+--ask-for-approval never
 --device-auth  # login コマンド
 ```
 
@@ -43,7 +44,7 @@ DevContainer 環境で便利なデフォルトオプションを自動付与す�
 1. `which -a codex` で本物のバイナリを検索（bash ラッパーをスキップ）
 2. `login`/`logout` 以外のコマンド実行前にログイン状態をチェック
 3. 未ログインなら自動的にデバイス認証でログイン
-4. `--full-auto` オプション付きで実行
+4. `--sandbox workspace-write --ask-for-approval never` を付与して実行
 
 ### 現在の制約（要改善）
 
