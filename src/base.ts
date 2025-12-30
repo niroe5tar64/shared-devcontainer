@@ -34,6 +34,7 @@ export const base: DevContainerConfig = {
       installZsh: true,
       installOhMyZsh: true,
       upgradePackages: true,
+      timezone: 'Asia/Tokyo',
       username: DEVCONTAINER_USER,
     },
   },

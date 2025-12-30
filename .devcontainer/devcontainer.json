@@ -16,6 +16,7 @@
       "installZsh": true,
       "installOhMyZsh": true,
       "upgradePackages": true,
+      "timezone": "Asia/Tokyo",
       "username": "dev-user"
     }
   },
