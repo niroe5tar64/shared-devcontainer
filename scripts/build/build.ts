@@ -31,6 +31,7 @@ import { nodePreset } from '../../src/presets/node';
 import { pythonPreset } from '../../src/presets/python';
 import { fullstackPreset } from '../../src/presets/fullstack';
 import { writingPreset } from '../../src/presets/writing';
+import { bunPreset } from '../../src/presets/bun';
 import type { DevContainerConfig } from '../../src/types';
 import {
   generatePresetConfig,
@@ -47,6 +48,7 @@ const PRESETS: Record<string, DevContainerConfig> = {
   python: pythonPreset,
   fullstack: fullstackPreset,
   writing: writingPreset,
+  bun: bunPreset,
 };
 
 /**
