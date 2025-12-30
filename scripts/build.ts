@@ -6,13 +6,20 @@
  * Self DevContainer と Client DevContainer の両方に対応した統合ビルドスクリプト
  *
  * Usage:
- *   # Self DevContainer (このプロジェクト自身)
- *   bun run build           # preset なし（base + project-config）
- *   bun run build node      # node preset（base + node + project-config）
+ *   # 自動判定モード（実行ディレクトリから Self/Client を判定）
+ *   bun run build              # Self: preset なし / Client: エラー（preset 必須）
+ *   bun run build node         # Self: node preset / Client: node preset
  *
- *   # Client DevContainer (サブモジュールとして利用)
- *   cd .devcontainer/shared
- *   bun run build writing   # writing preset（base + writing + project-config）
+ *   # 明示的指定モード（実行ディレクトリに依存しない）
+ *   bun run build --mode=self           # Self: preset なし
+ *   bun run build --mode=self node      # Self: node preset
+ *   bun run build --mode=client writing # Client: writing preset
+ *
+ *   # package.json の npm scripts 経由（推奨）
+ *   bun run build              # 自動判定
+ *   bun run build:self         # Self モード
+ *   bun run build:self node    # Self モード + node preset
+ *   bun run build:client writing # Client モード + writing preset
  */
 
 import { mkdir, copyFile, cp } from 'node:fs/promises';
@@ -202,8 +209,31 @@ async function buildClient(presetName: string) {
  * メイン処理
  */
 async function main() {
-  const mode = await detectBuildMode();
-  const presetName = process.argv[2];
+  // コマンドライン引数から --mode フラグを解析
+  const args = process.argv.slice(2);
+  const modeIndex = args.findIndex(arg => arg.startsWith('--mode='));
+
+  let mode: BuildMode;
+  if (modeIndex !== -1) {
+    // --mode フラグが指定されている場合（明示的指定）
+    const modeValue = args[modeIndex].split('=')[1] as BuildMode;
+    if (modeValue !== 'self' && modeValue !== 'client') {
+      console.error(`❌ Error: Invalid mode "${modeValue}"`);
+      console.error('Valid modes: self, client');
+      process.exit(1);
+    }
+    mode = modeValue;
+    console.log(`🔧 Build mode: ${mode} (explicitly specified)`);
+    // --mode フラグを除去
+    args.splice(modeIndex, 1);
+  } else {
+    // --mode フラグがない場合は自動判定
+    mode = await detectBuildMode();
+    console.log(`🔧 Build mode: ${mode} (auto-detected)`);
+  }
+
+  // 残りの引数から preset 名を取得
+  const presetName = args[0];
 
   if (mode === 'self') {
     // Self DevContainer: preset はオプション
