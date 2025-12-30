@@ -29,7 +29,6 @@ bun run build:self node    # Self モード + node preset
 bun run build:client writing  # 明示的に Client モード + preset
 
 # その他
-bun run rebuild        # クリーン後にビルド (rm -rf dist && build)
 bun run generate-types # 公式スキーマから TypeScript 型を再生成
 bun run tsc --noEmit   # 型チェック
 ```
@@ -37,7 +36,6 @@ bun run tsc --noEmit   # 型チェック
 ## 絶対ルール
 
 - **`.devcontainer/devcontainer.json` を直接編集しない** - `src/base.ts` を編集して `bun run build` で生成
-- **`dist/` は Git 管理対象** - サブモジュール利用時にビルド不要にするため
 - **型定義の手動編集禁止** - `src/types.generated.ts` は `bun run generate-types` で生成
 
 ## 主要ファイル

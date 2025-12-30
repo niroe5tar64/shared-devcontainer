@@ -66,8 +66,7 @@ ai-writing-starter/
     ├── bin/               ← ラッパースクリプト（コピー）
     ├── post-create.sh     ← セットアップスクリプト（コピー）
     └── shared/            ← サブモジュール
-        └── dist/
-            ├── presets/
+        └── .devcontainer/
             ├── bin/
             └── post-create.sh
 ```
@@ -160,7 +159,7 @@ cd ../..
 
 ```typescript
 // .devcontainer/project-config.ts
-import type { DevContainerConfig } from './src/types';
+import type { DevContainerConfig } from './shared/src/types';
 
 export const projectConfig: DevContainerConfig = {
   // プロジェクト固有のポートフォワード
@@ -228,9 +227,9 @@ npx bun run build:client writing
 ### ビルドエラーが発生する
 
 ```bash
-# shared-devcontainer 側で先に bun run build を実行
+# 依存関係を入れ直して再実行
 cd .devcontainer/shared
-bun run build
+bun install
 bun run build:client writing
 ```
 

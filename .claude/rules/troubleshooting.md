@@ -15,8 +15,8 @@ bun run generate-types
 ### ビルドが失敗する
 
 ```bash
-# クリーンビルド
-bun run rebuild
+# 再ビルド
+bun run build
 
 # 依存関係の再インストール
 rm -rf node_modules && bun install
@@ -38,13 +38,14 @@ git submodule update --init --recursive
 
 VS Code: `Cmd+Shift+P` → `Dev Containers: Rebuild Container`
 
-### プリセットのパスが見つからない
+### プリセット名が見つからない
 
-**症状**: `extends` でエラー
+**症状**: `bun run build:client <preset>` でエラー
 
 ```bash
-# パスを確認
-ls -la .devcontainer/shared/dist/presets/
+# 利用可能なプリセットを確認
+ls -la .devcontainer/shared/src/presets/
+rg "const PRESETS" .devcontainer/shared/scripts/build.ts
 ```
 
 ## 認証関連
@@ -112,6 +113,6 @@ npm root -g
 
 ## 設定変更が反映されない
 
-1. `src/` のファイルを編集したか確認（`dist/` を直接編集していないか）
-2. `bun run build` を実行したか確認
+1. `src/` のファイルを編集したか確認
+2. `bun run build` / `bun run build:client <preset>` を実行したか確認
 3. DevContainer を再ビルドしたか確認

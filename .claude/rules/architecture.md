@@ -5,11 +5,11 @@
 ```
 src/base.ts + src/presets/*.ts + .devcontainer/project-config.ts
         ↓ bun run build (Self DevContainer)
-dist/base.json + dist/presets/*.json + .devcontainer/devcontainer.json
+.devcontainer/devcontainer.json
         ↓ git submodule
 他プロジェクトで bun run build:client <preset> を実行
         ↓
-親プロジェクトの .devcontainer/devcontainer.json を生成
+親プロジェクトの .devcontainer/devcontainer.json + bin/ + post-create.sh を生成
 ```
 
 ## ディレクトリ構成
@@ -26,11 +26,6 @@ shared-devcontainer/
 │   ├── lib/
 │   │   └── devcontainer-builder.ts  # 共通ユーティリティ
 │   └── generate-types.ts    # 型生成スクリプト
-├── dist/                    # 自動生成（Git管理対象）
-│   ├── base.json
-│   ├── presets/*.json
-│   ├── bin/                 # ラッパースクリプト
-│   └── post-create.sh
 └── .devcontainer/           # このリポジトリ自体の開発環境
     ├── devcontainer.json    # 自動生成（Self DevContainer）
     ├── project-config.ts    # プロジェクト固有設定
@@ -53,9 +48,11 @@ shared-devcontainer/
 
 ## 生成されるファイルの関係
 
-- `dist/base.json`: `src/base.ts` のみから生成
-- `dist/presets/*.json`: `src/base.ts` + `src/presets/*.ts` をマージして生成
 - `.devcontainer/devcontainer.json`: base + (preset) + project-config をマージ（Self DevContainer）
+- Client 実行時は親プロジェクトの `.devcontainer/` に以下を生成:
+  - `devcontainer.json`
+  - `bin/`（ラッパースクリプトをコピー）
+  - `post-create.sh`（セットアップスクリプトをコピー）
 
 ## 配布先での利用方法
 
@@ -70,7 +67,7 @@ bun run build:client writing  # writing プリセットで devcontainer.json を
 
 これにより、親プロジェクトの `.devcontainer/` に以下が生成されます：
 - `devcontainer.json` - 完全な設定ファイル
-- `bin/` - ラッパースクリプト
-- `post-create.sh` - セットアップスクリプト
+- `bin/` - ラッパースクリプト（`.devcontainer/bin` からコピー）
+- `post-create.sh` - セットアップスクリプト（`.devcontainer/post-create.sh` からコピー）
 
 プロジェクト固有の設定は `.devcontainer/project-config.ts` で追加可能です。

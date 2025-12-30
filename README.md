@@ -6,7 +6,7 @@
 - ✅ TypeScript で型安全に設定を管理
 - ✅ DRY原則に基づいた設定の再利用
 - ✅ ビルドスクリプトで JSON を自動生成
-- ✅ 生成された JSON ファイルもコミット（サブモジュールとして即利用可能）
+- ✅ Client 側でビルドして `.devcontainer/` を生成
 
 ## 構成
 
@@ -15,31 +15,28 @@ shared-devcontainer/
 ├── src/                      # 設定のソースファイル（編集するのはここ）
 │   ├── base.ts              # 共通設定
 │   ├── types.ts             # 型定義
+│   ├── types.generated.ts   # 自動生成された型（編集禁止）
 │   └── presets/             # プリセット
 │       ├── node.ts
 │       ├── python.ts
 │       └── fullstack.ts
 ├── scripts/
-│   └── build.ts             # ビルドスクリプト
-└── dist/                    # ← 自動生成（Git管理対象）
-    ├── base.json
-    └── presets/
-        ├── node.json
-        ├── python.json
-        └── fullstack.json
+│   ├── build.ts             # ビルドスクリプト
+│   └── generate-types.ts    # 型生成スクリプト
+└── .devcontainer/           # このリポジトリ自体の開発環境
+    ├── devcontainer.json    # 自動生成（Self DevContainer）
+    ├── project-config.ts    # Self 用の追加設定
+    ├── bin/                 # ラッパースクリプト（ソース）
+    └── post-create.sh       # セットアップスクリプト（ソース）
 ```
 
-### 生成される設定ファイル（`dist/` 内）
+### 生成されるファイル
 
-- **`dist/base.json`**: すべてのプロジェクトに共通の基本設定
-  - AI 開発ツール（Claude Code, GitHub Copilot）
-  - Git ツール（Git, GitHub CLI）
-  - 基本エディタ設定（フォーマット、リント）
-
-- **`dist/presets/`**: 技術スタック別のプリセット
-  - `node.json`: Node.js/TypeScript プロジェクト用
-  - `python.json`: Python プロジェクト用
-  - `fullstack.json`: フルスタック（Node.js + Docker）プロジェクト用
+- **Self**: `.devcontainer/devcontainer.json`
+- **Client**: 親プロジェクトの `.devcontainer/` に以下を生成
+  - `devcontainer.json`
+  - `bin/`（ラッパースクリプトのコピー）
+  - `post-create.sh`（セットアップスクリプトのコピー）
 
 ## 開発者向け：設定の変更方法
 
@@ -53,7 +50,7 @@ shared-devcontainer/
 # 依存関係をインストール
 bun install
 
-# JSON を生成
+# JSON を生成（Self DevContainer）
 bun run build
 ```
 
@@ -64,14 +61,11 @@ bun run build
 3. **ビルドして JSON を生成**:
 
 ```bash
-# ビルド
+# Self DevContainer の生成
 bun run build
-
-# クリーン + ビルド
-bun run rebuild
 ```
 
-**重要**: このプロジェクト自体の `.devcontainer/devcontainer.json` は `dist/base.json` を extends しているため、`src/base.ts` を編集して `bun run build` を実行すれば、自動的に開発環境の設定も更新されます。設定の乖離を防ぐため、**`.devcontainer/devcontainer.json` を直接編集せず**、必ず `src/base.ts` を編集してください。
+**重要**: `.devcontainer/devcontainer.json` は生成ファイルのため直接編集せず、`src/` を編集して `bun run build` を実行してください。
 
 ### 変更例：新しい拡張機能を全プロジェクトに追加
 
@@ -98,11 +92,6 @@ export const base: DevContainerConfig = {
 ```bash
 # ビルドして JSON を生成
 bun run build
-
-# Git にコミット（src/ のみ、JSON は含まない）
-git add src/base.ts
-git commit -m "feat: add GitHub PR extension"
-git push
 ```
 
 ### 変更例：Node.js プリセットに拡張機能を追加
@@ -158,14 +147,13 @@ export const rustPreset: DevContainerConfig = {
 ```typescript
 import { rustPreset } from '../src/presets/rust';
 
-// ...
-
-const presets = [
-  { name: 'node', config: nodePreset },
-  { name: 'python', config: pythonPreset },
-  { name: 'fullstack', config: fullstackPreset },
-  { name: 'rust', config: rustPreset }, // ← 追加
-];
+const PRESETS: Record<string, DevContainerConfig> = {
+  node: nodePreset,
+  python: pythonPreset,
+  fullstack: fullstackPreset,
+  writing: writingPreset,
+  rust: rustPreset, // ← 追加
+};
 ```
 
 3. **ビルド**:
@@ -194,27 +182,13 @@ cd /path/to/your/project
 git submodule add https://github.com/niroe5tar64/shared-devcontainer.git .devcontainer/shared
 ```
 
-2. **`.devcontainer/devcontainer.json` を作成**:
+2. **Client DevContainer を生成**:
 
-```json
-{
-  "name": "My Project",
-  "extends": "./shared/dist/presets/node.json",
-
-  // プロジェクト固有の設定
-  "forwardPorts": [3000],
-
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        // プロジェクト固有の拡張機能
-        "prisma.prisma"
-      ]
-    }
-  },
-
-  "postCreateCommand": "npm install"
-}
+```bash
+cd .devcontainer/shared
+bun install
+bun run build:client node
+cd ../..
 ```
 
 3. **DevContainer を開く**:
@@ -232,7 +206,11 @@ mv .devcontainer/devcontainer.json .devcontainer/devcontainer.json.backup
 # 2. Submodule を追加
 git submodule add https://github.com/niroe5tar64/shared-devcontainer.git .devcontainer/shared
 
-# 3. 新しい devcontainer.json を作成（上記参照）
+# 3. Client DevContainer を生成
+cd .devcontainer/shared
+bun install
+bun run build:client node
+cd ../..
 ```
 
 ### 共通設定の更新
@@ -240,10 +218,13 @@ git submodule add https://github.com/niroe5tar64/shared-devcontainer.git .devcon
 共通設定の更新を各プロジェクトに反映：
 
 ```bash
-# プロジェクトディレクトリで実行
-git submodule update --remote .devcontainer/shared
-git add .devcontainer/shared
-git commit -m "chore: update devcontainer config"
+# サブモジュールを最新化
+cd .devcontainer/shared
+git pull origin main
+
+# devcontainer.json を再生成
+bun run build:client node
+cd ../..
 
 # DevContainer を再ビルド
 # VS Code: Cmd+Shift+P → "Dev Containers: Rebuild Container"
@@ -256,9 +237,10 @@ git commit -m "chore: update devcontainer config"
 ```bash
 cd .devcontainer/shared
 git checkout v1.0.0
+
+# devcontainer.json を再生成
+bun run build:client node
 cd ../..
-git add .devcontainer/shared
-git commit -m "chore: pin devcontainer config to v1.0.0"
 ```
 
 ## プリセット選択ガイド
@@ -267,9 +249,9 @@ git commit -m "chore: pin devcontainer config to v1.0.0"
 
 | プロジェクトタイプ | プリセット | 含まれる機能 |
 |-------------------|-----------|-------------|
-| Node.js/TypeScript | `presets/node.json` | Node.js 20, Bun, pnpm, ESLint, Prettier |
-| Python | `presets/python.json` | Python 3.11, Poetry, Black, Ruff |
-| フルスタック（Docker使用） | `presets/fullstack.json` | Node.js 20, Docker-in-Docker, Bun, pnpm |
+| Node.js/TypeScript | `node` | Node.js 20, Bun, pnpm, ESLint, Prettier |
+| Python | `python` | Python 3.11, Poetry, Black, Ruff |
+| フルスタック（Docker使用） | `fullstack` | Node.js 20, Docker-in-Docker, Bun, pnpm |
 
 **共通で含まれる機能（すべてのプリセット）**:
 - AI アシスタント: Claude Code, GitHub Copilot
@@ -277,7 +259,47 @@ git commit -m "chore: pin devcontainer config to v1.0.0"
 - エディタ支援: ErrorLens, TODO Highlight
 - シェル: Zsh + Oh My Zsh
 
-### コマンドラインツールの自動設定
+## カスタマイズ
+
+プロジェクト固有の設定は `.devcontainer/project-config.ts` で追加します。
+
+```typescript
+// .devcontainer/project-config.ts
+import type { DevContainerConfig } from './shared/src/types';
+
+export const projectConfig: DevContainerConfig = {
+  // プロジェクト固有のポートフォワード
+  forwardPorts: [3000, 8080],
+
+  // プロジェクト固有の拡張機能
+  customizations: {
+    vscode: {
+      extensions: [
+        'dbaeumer.vscode-eslint',
+      ],
+    },
+  },
+
+  // プロジェクト固有の環境変数
+  containerEnv: {
+    PROJECT_NAME: 'my-project',
+  },
+};
+
+export default projectConfig;
+```
+
+変更後はサブモジュール内で再生成します：
+
+```bash
+cd .devcontainer/shared
+bun run build:client node
+cd ../..
+```
+
+⚠️ **注意**: `extensions` 配列は上書きではなく、プリセットの拡張機能に追加されます（devcontainer の仕様）。
+
+## コマンドラインツールの自動設定
 
 DevContainer では、以下のコマンドラインツールが自動的にオプション付きで実行されるように設定されています：
 
@@ -297,7 +319,7 @@ DevContainer では、以下のコマンドラインツールが自動的にオ�
 
 これにより、DevContainer 内での開発時に毎回オプションを指定する必要がなくなります。
 
-### Claude Code / Codex 認証情報の永続化
+## Claude Code / Codex 認証情報の永続化
 
 DevContainer では、Claude Code と Codex の認証情報を **ホストマシンとバインドマウントで共有**するため、**コンテナを再ビルドしても認証状態が確実に維持**され、複数のプロジェクト間でも認証情報を共有できます。
 
@@ -398,61 +420,6 @@ rm -rf ~/.claude ~/.codex
 
 **解決策**: バインドマウント方式では、すべてのプロジェクトでホストマシンの `~/.claude` と `~/.codex` を共有します。一度ログインすれば、すべてのプロジェクトで認証情報が利用可能です。
 
-## カスタマイズ
-
-### プロジェクト固有の拡張機能を追加
-
-```json
-{
-  "extends": "./shared/presets/node.json",
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        // 共通の拡張機能は自動で含まれる
-        // プロジェクト固有の拡張のみ追加
-        "prisma.prisma",
-        "GraphQL.vscode-graphql"
-      ]
-    }
-  }
-}
-```
-
-⚠️ **注意**: `extensions` 配列は上書きではなく、プリセットの拡張機能に追加されます（devcontainer の仕様）。
-
-### ポート転送の設定
-
-```json
-{
-  "extends": "./shared/presets/node.json",
-  "forwardPorts": [3000, 5432, 6379]
-}
-```
-
-### 環境変数の設定
-
-```json
-{
-  "extends": "./shared/presets/node.json",
-  "containerEnv": {
-    "NODE_ENV": "development",
-    "DATABASE_URL": "postgresql://localhost:5432/mydb"
-  }
-}
-```
-
-### 追加の Features
-
-```json
-{
-  "extends": "./shared/presets/node.json",
-  "features": {
-    // プリセットの Features に追加
-    "ghcr.io/devcontainers/features/aws-cli:1": {}
-  }
-}
-```
-
 ## トラブルシューティング
 
 ### サブモジュールが初期化されていない
@@ -473,13 +440,13 @@ git submodule update --init --recursive
 # VS Code: Cmd+Shift+P → "Dev Containers: Rebuild Container"
 ```
 
-### プリセットのパスが見つからない
+### プリセット名が見つからない
 
-**症状**: `extends` でエラーが発生
+**症状**: `bun run build:client <preset>` でエラーが発生
 
-**解決策**: パスが正しいか確認
+**解決策**: プリセット名を確認
 ```bash
-ls -la .devcontainer/shared/presets/node.json
+ls -la .devcontainer/shared/src/presets/
 ```
 
 ## 貢献
@@ -490,16 +457,14 @@ ls -la .devcontainer/shared/presets/node.json
 
 新しい技術スタック用のプリセットを追加する場合：
 
-1. `presets/` に新しい JSON ファイルを作成
-2. base.json の設定を継承（手動で含める）
-3. 技術スタック固有の設定を追加
-4. このREADME の「プリセット選択ガイド」を更新
+1. `src/presets/` に新しいファイルを作成
+2. `scripts/build.ts` の `PRESETS` に追加
+3. `bun run build` を実行
 
 ## バージョン履歴
 
 - `v1.0.0` (2025-12-27): 初回リリース
-  - base.json: AI 開発ツール、基本エディタ設定
-  - プリセット: Node.js, Python, Fullstack
+  - 共通設定とプリセットの提供
 
 ## ライセンス
 

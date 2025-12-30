@@ -1,5 +1,5 @@
 ---
-paths: .devcontainer/bin/**, dist/bin/**
+paths: .devcontainer/bin/**
 ---
 
 # ラッパースクリプトガイド
@@ -12,7 +12,6 @@ DevContainer 環境で便利なデフォルトオプションを自動付与す�
 ## ファイル構成
 
 - `.devcontainer/bin/` - ソース（編集対象）
-- `dist/bin/` - ビルド時にコピー（編集禁止）
 
 ## claude ラッパー
 
@@ -67,7 +66,7 @@ DevContainer 作成後に実行されるセットアップスクリプト。
 サブモジュールとして利用する場合、相対パスで参照：
 ```json
 {
-  "postCreateCommand": "bash ./shared/dist/post-create.sh"
+  "postCreateCommand": "bash .devcontainer/post-create.sh"
 }
 ```
 

@@ -11,13 +11,11 @@
 ## 絶対ルール
 
 - `.devcontainer/devcontainer.json` を直接編集しない（`src/base.ts` を編集して `bun run build`）
-- `dist/` は Git 管理対象（生成物を配布するため）
 - `src/types.generated.ts` は手動編集禁止（`bun run generate-types` で再生成）
 
 ## 主要コマンド
 
 - `bun run build` / `bun run build:self` / `bun run build:client <preset>`
-- `bun run rebuild`
 - `bun run generate-types`
 - `bun run tsc --noEmit`
 

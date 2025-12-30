@@ -68,6 +68,4 @@ bun run build         # JSON 生成
 ```
 
 ビルド成功後、以下が更新される：
-- `dist/base.json`
-- `dist/presets/*.json`
 - `.devcontainer/devcontainer.json`

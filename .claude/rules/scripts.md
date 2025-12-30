@@ -28,7 +28,6 @@ bun run build:client writing # Client モード + writing preset
 | `detectBuildMode()` | 実行ディレクトリから Self/Client を自動判定 |
 | `buildSelf(presetName?)` | Self DevContainer のビルド |
 | `buildClient(presetName)` | Client DevContainer のビルド |
-| `generateBaseConfig()` | `dist/base.json` 用の設定を生成 |
 
 ### モード判定ロジック
 
@@ -55,16 +54,12 @@ const PRESETS: Record<string, DevContainerConfig> = {
 ### 出力先
 
 **Self モード**:
-- `dist/base.json` - サブモジュール配布用
-- `dist/presets/*.json` - プリセット別設定
 - `.devcontainer/devcontainer.json` - Self DevContainer
-- `dist/bin/` - `.devcontainer/bin/` からコピー
-- `dist/post-create.sh` - `.devcontainer/post-create.sh` からコピー
 
 **Client モード**:
 - `../.devcontainer/devcontainer.json` - Client DevContainer
-- `../.devcontainer/bin/` - ラッパースクリプト
-- `../.devcontainer/post-create.sh` - セットアップスクリプト
+- `../.devcontainer/bin/` - `.devcontainer/bin/` からコピー
+- `../.devcontainer/post-create.sh` - `.devcontainer/post-create.sh` からコピー
 
 ## scripts/lib/devcontainer-builder.ts
 
