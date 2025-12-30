@@ -15,13 +15,23 @@ import { nodePreset } from '../src/presets/node';
 import { pythonPreset } from '../src/presets/python';
 import { fullstackPreset } from '../src/presets/fullstack';
 import { writingPreset } from '../src/presets/writing';
-import { projectConfig, projectConfigMetadata } from '../.devcontainer/project-config';
+import { projectConfig, projectConfigMetadata, presetName } from '../.devcontainer/project-config';
 import type { DevContainerConfig } from '../src/types';
 import {
   SCHEMA_URL,
   generatePresetConfig,
   writeJsonFile,
 } from './lib/devcontainer-builder';
+
+/**
+ * プリセットマップ（Self/Client 共通）
+ */
+const PRESETS: Record<string, DevContainerConfig> = {
+  node: nodePreset,
+  python: pythonPreset,
+  fullstack: fullstackPreset,
+  writing: writingPreset,
+};
 
 /**
  * dist/base.json を生成（サブモジュールとして配布する用）
@@ -38,10 +48,20 @@ function generateBaseConfig(): DevContainerConfig {
  * .devcontainer/devcontainer.json を生成（Self DevContainer用）
  *
  * base + (preset) + projectConfig をマージ
- * preset は現在使用していないが、将来的に追加可能
+ * presetName が指定されている場合は対応する preset を使用
  */
 function generateDevContainerConfig(): DevContainerConfig {
-  const preset = undefined; // 現在はプリセット未使用（将来的に nodePreset などを指定可能）
+  // presetName から preset を取得
+  let preset: DevContainerConfig | undefined = undefined;
+  if (presetName) {
+    preset = PRESETS[presetName];
+    if (!preset) {
+      console.warn(`⚠️  Warning: Unknown preset "${presetName}", ignoring preset`);
+      console.warn(`   Available presets: ${Object.keys(PRESETS).join(', ')}`);
+    } else {
+      console.log(`📦 Using preset: ${presetName}`);
+    }
+  }
 
   // base + preset + projectConfig を3層マージ
   const config = generatePresetConfig(preset, projectConfig);
@@ -73,14 +93,7 @@ async function main() {
   await writeJsonFile(join('.devcontainer', 'devcontainer.json'), devContainerConfig);
 
   // プリセットを生成（サブモジュール配布用）
-  const presets = [
-    { name: 'node', config: nodePreset },
-    { name: 'python', config: pythonPreset },
-    { name: 'fullstack', config: fullstackPreset },
-    { name: 'writing', config: writingPreset },
-  ];
-
-  for (const { name, config } of presets) {
+  for (const [name, config] of Object.entries(PRESETS)) {
     // プリセットは projectConfig なしで生成（Client側で読み込むため）
     const presetConfig = generatePresetConfig(config);
     await writeJsonFile(join('dist', 'presets', `${name}.json`), presetConfig);

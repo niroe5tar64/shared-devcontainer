@@ -3,12 +3,24 @@
  *
  * ファイル名: .devcontainer/project-config.ts
  *
- * このファイルを作成すると、bun run build:client 実行時に
+ * このファイルを作成すると、ビルド時に
  * base + preset + この設定がマージされます。
+ *
+ * - Self DevContainer: bun run build
+ * - Client DevContainer: bun run build:client <preset-name>
  */
 
 // 型定義のインポート（利用側プロジェクトでのパス例）
 // import type { DevContainerConfig } from './shared/src/types';
+
+/**
+ * 使用するプリセット名（オプション）
+ * Self DevContainer の場合のみ使用
+ * Client DevContainer では build:client の引数で指定
+ *
+ * 利用可能なプリセット: 'node' | 'python' | 'fullstack' | 'writing'
+ */
+// export const presetName: string | undefined = 'node';
 
 export const projectConfig /*: DevContainerConfig */ = {
   // プロジェクト固有のポートフォワード

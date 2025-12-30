@@ -7,6 +7,14 @@
 
 import type { DevContainerConfig } from '../src/types';
 
+/**
+ * 使用するプリセット名（オプション）
+ * undefined の場合は base + projectConfig のみ
+ *
+ * 利用可能なプリセット: 'node' | 'python' | 'fullstack' | 'writing'
+ */
+export const presetName: string | undefined = undefined;
+
 export const projectConfig: DevContainerConfig = {
   name: 'Shared DevContainer Development',
 
