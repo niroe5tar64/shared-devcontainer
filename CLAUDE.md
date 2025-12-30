@@ -7,6 +7,16 @@ This file provides guidance to Claude Code when working with this repository.
 チーム共通の DevContainer 設定を TypeScript で管理し、JSON 設定ファイルを自動生成するリポジトリ。
 他プロジェクトから Git サブモジュールとして利用することを想定。
 
+## 用語定義
+
+| 用語 | 意味 | 具体例 |
+|-----|------|--------|
+| **Self DevContainer** | このプロジェクト自身の開発環境 | `shared-devcontainer/.devcontainer/devcontainer.json` |
+| **Client DevContainer** | このプロジェクトを利用する側の開発環境 | `ai-writing-starter/.devcontainer/devcontainer.json` |
+
+- **Self**: `scripts/build.ts` で生成。`.devcontainer/project-config.ts` で固有設定を追加可能
+- **Client**: `scripts/build-client.ts` で生成。親プロジェクトの `.devcontainer/project-config.ts` で固有設定を追加可能
+
 ## ビルドコマンド
 
 ```bash

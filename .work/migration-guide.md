@@ -7,6 +7,20 @@
 
 ---
 
+## 用語定義
+
+このガイドでは以下の用語を使用します：
+
+| 用語 | 意味 | 具体例 |
+|-----|------|--------|
+| **Self DevContainer** | shared-devcontainer プロジェクト自身の開発環境 | `shared-devcontainer/.devcontainer/devcontainer.json` |
+| **Client DevContainer** | shared-devcontainer を利用する側のプロジェクトの開発環境 | `ai-writing-starter/.devcontainer/devcontainer.json` |
+
+- このガイドは **Client DevContainer** の構築手順を説明します
+- Self DevContainer については `shared-devcontainer` プロジェクトの CLAUDE.md を参照
+
+---
+
 ## ステップ1: shared-devcontainer をプッシュ
 
 ```bash
