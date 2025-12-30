@@ -12,3 +12,6 @@
 
 # Node.js
 node_modules/
+
+# Test directories
+test-extends/

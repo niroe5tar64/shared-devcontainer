@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "build": "bun run scripts/build.ts",
+    "build:client": "bun run scripts/build-client.ts",
     "clean": "rm -rf dist",
     "rebuild": "bun run clean && bun run build",
-    "generate-types": "bun run scripts/generate-types.ts"
+    "generate-types": "bun run scripts/generate-types.ts",
+    "generate-standalone": "bun run scripts/generate-standalone.ts"
   },
   "keywords": [
     "devcontainer",
@@ -18,6 +20,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.10.0",
+    "bun-types": "^1.3.5",
     "json-schema-to-typescript": "^15.0.4",
     "typescript": "^5.3.3"
   }
