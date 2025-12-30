@@ -44,7 +44,7 @@ shared-devcontainer/
 | `features` | オブジェクトを深くマージ（後から指定したものが優先） |
 | `customizations.vscode.extensions` | 配列を結合し重複排除 |
 | `customizations.vscode.settings` | オブジェクトを深くマージ |
-| `mounts` | project-config > preset > base の優先順 |
+| `mounts` | base → preset → project をマージ（`target`/`dst` が同一なら後勝ち） |
 | `postCreateCommand` | project-config で明示指定すれば上書き、なければマージ |
 | その他 | 後から指定したもので上書き |
 

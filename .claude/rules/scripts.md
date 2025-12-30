@@ -72,6 +72,7 @@ Self/Client 共通のユーティリティ関数を集約。
 | `generatePresetConfig(preset?, projectConfig?)` | base + preset + projectConfig を3層マージ |
 | `mergeArrays()` | 配列を結合し重複排除 |
 | `deepMerge()` | オブジェクトを再帰的にマージ |
+| `mergeMounts()` | mounts をマージ（`target`/`dst` が同一なら後勝ち） |
 | `mergePostCreateCommand()` | postCreateCommand を結合 |
 | `writeJsonFile()` | JSON ファイルを書き込み |
 | `loadProjectConfig()` | project-config.ts を動的に読み込み |
