@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Allow overrides from the environment for sandbox/approval behavior.
+SANDBOX_MODE="${CODEX_SANDBOX:-workspace-write}"
+APPROVAL_MODE="${CODEX_APPROVAL:-never}"
+
+# If Landlock is unavailable, fall back to no-sandbox to avoid startup failure.
+if [ "$SANDBOX_MODE" != "danger-full-access" ]; then
+  if [ ! -e /proc/self/attr/landlock ] && [ ! -e /sys/kernel/security/landlock ]; then
+    SANDBOX_MODE="danger-full-access"
+  fi
+fi
+
 # PATHの先頭にこのラッパーがいる想定なので、which -a で「本物」を探す
 # 他のbashラッパーをスキップして、実際のバイナリ（.js等）を見つける
 real=""
@@ -31,15 +42,15 @@ if [ "${1:-}" != "login" ] && [ "${1:-}" != "logout" ]; then
   # ログイン状態をチェック（exit code 0 = ログイン済み, 1 = 未ログイン）
   if ! "$real" login status &>/dev/null; then
     echo "Not logged in. Logging in with device authentication..." >&2
-    "$real" --sandbox workspace-write --ask-for-approval never login --device-auth
+    "$real" --sandbox "$SANDBOX_MODE" --ask-for-approval "$APPROVAL_MODE" login --device-auth
   fi
 fi
 
 # loginコマンドの場合はデバイスコード認証を使用（DevContainer環境向け）
 if [ "${1:-}" = "login" ]; then
   # ブラウザベース認証が動作しないため、デバイスコード認証を使用
-  exec "$real" --sandbox workspace-write --ask-for-approval never login --device-auth "${@:2}"
+  exec "$real" --sandbox "$SANDBOX_MODE" --ask-for-approval "$APPROVAL_MODE" login --device-auth "${@:2}"
 else
   # その他のコマンドは sandbox=workspace-write + approval=never で実行
-  exec "$real" --sandbox workspace-write --ask-for-approval never "$@"
+  exec "$real" --sandbox "$SANDBOX_MODE" --ask-for-approval "$APPROVAL_MODE" "$@"
 fi
