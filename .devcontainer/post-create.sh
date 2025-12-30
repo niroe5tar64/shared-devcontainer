@@ -11,9 +11,15 @@ sudo apt-get install -y vim tree jq unzip
 # Install bun
 curl -fsSL https://bun.sh/install | bash
 
+append_line_once() {
+  local line="$1"
+  local file="$2"
+  grep -qxF "$line" "$file" || echo "$line" >> "$file"
+}
+
 # Add bun to PATH for bash and zsh
-echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.bashrc
-echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.zshrc
+append_line_once 'export PATH="$HOME/.bun/bin:$PATH"' ~/.bashrc
+append_line_once 'export PATH="$HOME/.bun/bin:$PATH"' ~/.zshrc
 
 # Update PATH for current session
 export PATH="$HOME/.bun/bin:$PATH"
@@ -33,5 +39,5 @@ cp "${SCRIPT_DIR}/bin/codex" ~/.local/bin/codex
 chmod +x ~/.local/bin/claude ~/.local/bin/codex
 
 # Add ~/.local/bin to PATH (prepend to ensure wrappers are found first)
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+append_line_once 'export PATH="$HOME/.local/bin:$PATH"' ~/.bashrc
+append_line_once 'export PATH="$HOME/.local/bin:$PATH"' ~/.zshrc

@@ -54,6 +54,56 @@ export function mergeArrays<T>(base?: T[], preset?: T[]): T[] | undefined {
 }
 
 /**
+ * マウント指定から target を取得
+ */
+function getMountTarget(mount: string): string | undefined {
+  const parts = mount.split(',');
+  for (const part of parts) {
+    const trimmed = part.trim();
+    const [key, ...rest] = trimmed.split('=');
+    if (key === 'target' || key === 'dst') {
+      return rest.join('=');
+    }
+  }
+  return undefined;
+}
+
+/**
+ * mounts をマージ（target が同一なら後勝ち）
+ */
+export function mergeMounts(
+  base?: string[],
+  preset?: string[],
+  project?: string[]
+): string[] | undefined {
+  const lists = [base, preset, project];
+  const result: string[] = [];
+  const targetIndex = new Map<string, number>();
+  const seen = new Set<string>();
+
+  for (const list of lists) {
+    if (!list) continue;
+    for (const mount of list) {
+      const target = getMountTarget(mount);
+      if (target) {
+        const existing = targetIndex.get(target);
+        if (existing !== undefined) {
+          result[existing] = mount;
+        } else {
+          targetIndex.set(target, result.length);
+          result.push(mount);
+        }
+      } else if (!seen.has(mount)) {
+        seen.add(mount);
+        result.push(mount);
+      }
+    }
+  }
+
+  return result.length ? result : undefined;
+}
+
+/**
  * オブジェクトを深くマージ
  */
 export function deepMerge<T extends Record<string, any>>(base?: T, preset?: T): T | undefined {
@@ -150,7 +200,7 @@ export function generatePresetConfig(
     },
     containerEnv: deepMerge(deepMerge(base.containerEnv, preset?.containerEnv), projectConfig?.containerEnv),
     remoteEnv: deepMerge(deepMerge(base.remoteEnv, preset?.remoteEnv), projectConfig?.remoteEnv),
-    mounts: projectConfig?.mounts || preset?.mounts || base.mounts,
+    mounts: mergeMounts(base.mounts, preset?.mounts, projectConfig?.mounts),
     postCreateCommand: finalPostCreateCommand,
   };
 }

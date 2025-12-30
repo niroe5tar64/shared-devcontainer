@@ -143,7 +143,11 @@ async function buildClient(presetName: string) {
   // 生成された設定は "bash ./post-create.sh" なので、これを .devcontainer/ からの相対パスに
   const postCreateCmd = getPostCreateCommand(config);
   if (postCreateCmd) {
-    config.postCreateCommand = 'bash .devcontainer/post-create.sh';
+    const rewritePath = (value: string) =>
+      value.replaceAll('./post-create.sh', '.devcontainer/post-create.sh');
+    config.postCreateCommand = Array.isArray(postCreateCmd)
+      ? postCreateCmd.map(rewritePath)
+      : rewritePath(postCreateCmd);
   }
 
   // devcontainer.json を生成
