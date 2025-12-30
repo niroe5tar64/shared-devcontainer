@@ -88,6 +88,7 @@ export const base: DevContainerConfig = {
   // 環境変数の追加
   containerEnv: {
     CLAUDE_SETTINGS_PATH: '/workspace/.claude/settings.json',
+    TZ: 'Asia/Tokyo',
   },
 
   // PATH設定：ユーザーローカルのバイナリを優先
