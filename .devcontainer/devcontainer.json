@@ -1,6 +1,6 @@
 {
+  "$comment": "チーム共通DevContainer設定の開発環境",
   "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json",
-  "name": "Base Configuration",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
     "ghcr.io/devcontainers/features/git:1": {
@@ -60,5 +60,6 @@
     "source=${localEnv:HOME}/.codex,target=/home/dev-user/.codex,type=bind"
   ],
   "postCreateCommand": "bash .devcontainer/post-create.sh",
-  "remoteUser": "dev-user"
+  "remoteUser": "dev-user",
+  "name": "Shared DevContainer Development"
 }

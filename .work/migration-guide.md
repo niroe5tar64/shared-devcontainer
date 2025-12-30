@@ -142,13 +142,13 @@ cd ../..
 
 ## プロジェクト固有の設定を追加（オプション）
 
-プロジェクト特有の設定が必要な場合、`.devcontainer/shared/client-config.ts` を作成します。
+プロジェクト特有の設定が必要な場合、`.devcontainer/project-config.ts` を作成します。
 
 ```typescript
-// .devcontainer/shared/client-config.ts
+// .devcontainer/project-config.ts
 import type { DevContainerConfig } from './src/types';
 
-export const clientConfig: DevContainerConfig = {
+export const projectConfig: DevContainerConfig = {
   // プロジェクト固有のポートフォワード
   forwardPorts: [3000, 8080],
 
@@ -167,12 +167,12 @@ export const clientConfig: DevContainerConfig = {
   },
 };
 
-export default clientConfig;
+export default projectConfig;
 ```
 
 この設定は `bun run build:client` 実行時に自動的にマージされます。
 
-詳細は `.devcontainer/shared/.work/client-config-example.ts` を参照してください。
+詳細は `.devcontainer/shared/.work/project-config-example.ts` を参照してください。
 
 ---
 
@@ -247,7 +247,7 @@ bun run build:client writing  # これだけで全て生成
 ```
 
 ### ✅ プロジェクト固有設定のサポート
-`client-config.ts` で各プロジェクトの設定をカスタマイズ可能
+`project-config.ts` で各プロジェクトの設定をカスタマイズ可能
 
 ### ✅ クロスプラットフォーム対応
 Windows/macOS/Linux で同じ手順で動作
@@ -270,7 +270,7 @@ DevContainer の `extends` プロパティは、**同じリポジトリ内のフ
 
 この方式では：
 - base.ts + presets/*.ts をマージ
-- client-config.ts があればさらにマージ
+- project-config.ts があればさらにマージ
 - 完全な devcontainer.json を親プロジェクトに直接出力
 - bin/ や post-create.sh もコピー
 

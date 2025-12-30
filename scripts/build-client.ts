@@ -103,39 +103,39 @@ function mergePostCreateCommand(baseCmd?: string | string[], presetCmd?: string 
 /**
  * プリセットから完全な DevContainer 設定を生成
  */
-function generatePresetConfig(preset: DevContainerConfig, clientConfig?: DevContainerConfig): DevContainerConfig {
+function generatePresetConfig(preset: DevContainerConfig, projectConfig?: DevContainerConfig): DevContainerConfig {
   const baseVSCode = getVSCodeCustomizations(base);
   const presetVSCode = getVSCodeCustomizations(preset);
-  const clientVSCode = clientConfig ? getVSCodeCustomizations(clientConfig) : undefined;
+  const projectVSCode = projectConfig ? getVSCodeCustomizations(projectConfig) : undefined;
 
   return {
     $schema: SCHEMA_URL,
     ...base,
     ...preset,
-    ...clientConfig,
+    ...projectConfig,
     // 特定のフィールドは専用のマージロジックを使用
-    features: deepMerge(deepMerge(base.features, preset.features), clientConfig?.features),
+    features: deepMerge(deepMerge(base.features, preset.features), projectConfig?.features),
     customizations: {
       vscode: {
         extensions: mergeArrays(
           mergeArrays(baseVSCode?.extensions, presetVSCode?.extensions),
-          clientVSCode?.extensions
+          projectVSCode?.extensions
         ),
         settings: deepMerge(
           deepMerge(baseVSCode?.settings, presetVSCode?.settings),
-          clientVSCode?.settings
+          projectVSCode?.settings
         ),
       },
     },
-    containerEnv: deepMerge(deepMerge(base.containerEnv, preset.containerEnv), clientConfig?.containerEnv),
-    remoteEnv: deepMerge(deepMerge(base.remoteEnv, preset.remoteEnv), clientConfig?.remoteEnv),
-    mounts: clientConfig?.mounts || preset.mounts || base.mounts,
+    containerEnv: deepMerge(deepMerge(base.containerEnv, preset.containerEnv), projectConfig?.containerEnv),
+    remoteEnv: deepMerge(deepMerge(base.remoteEnv, preset.remoteEnv), projectConfig?.remoteEnv),
+    mounts: projectConfig?.mounts || preset.mounts || base.mounts,
     postCreateCommand: mergePostCreateCommand(
       mergePostCreateCommand(
         getPostCreateCommand(base),
         getPostCreateCommand(preset)
       ),
-      getPostCreateCommand(clientConfig)
+      getPostCreateCommand(projectConfig)
     ),
   };
 }
@@ -152,19 +152,19 @@ async function writeJsonFile(filePath: string, data: unknown): Promise<void> {
 /**
  * プロジェクト固有の設定を読み込み（オプション）
  */
-async function loadClientConfig(clientDevcontainerDir: string): Promise<DevContainerConfig | undefined> {
-  const configPath = join(clientDevcontainerDir, 'shared', 'client-config.ts');
+async function loadProjectConfig(clientDevcontainerDir: string): Promise<DevContainerConfig | undefined> {
+  const configPath = join(clientDevcontainerDir, 'project-config.ts');
 
   if (!existsSync(configPath)) {
     return undefined;
   }
 
   try {
-    console.log(`📝 Loading client-specific config from: ${configPath}`);
+    console.log(`📝 Loading project-specific config from: ${configPath}`);
     const module = await import(configPath);
-    return module.default || module.clientConfig;
+    return module.default || module.projectConfig;
   } catch (error) {
-    console.warn(`⚠️  Failed to load client config: ${error}`);
+    console.warn(`⚠️  Failed to load project config: ${error}`);
     return undefined;
   }
 }
@@ -209,10 +209,10 @@ async function main() {
   console.log(`📂 Target directory: ${clientDevcontainerDir}`);
 
   // プロジェクト固有の設定を読み込み（存在する場合）
-  const clientConfig = await loadClientConfig(clientDevcontainerDir);
+  const projectConfig = await loadProjectConfig(clientDevcontainerDir);
 
   // 設定を生成
-  const config = generatePresetConfig(preset, clientConfig);
+  const config = generatePresetConfig(preset, projectConfig);
 
   // postCreateCommand のパスを調整
   // 生成された設定は "bash ./post-create.sh" なので、これを .devcontainer/ からの相対パスに

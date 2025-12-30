@@ -13,6 +13,7 @@ import { nodePreset } from '../src/presets/node';
 import { pythonPreset } from '../src/presets/python';
 import { fullstackPreset } from '../src/presets/fullstack';
 import { writingPreset } from '../src/presets/writing';
+import { projectConfig, projectConfigMetadata } from '../.devcontainer/project-config';
 import type { DevContainerConfig } from '../src/types';
 
 const SCHEMA_URL = 'https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json';
@@ -52,14 +53,46 @@ function generateBaseConfig(): DevContainerConfig {
 
 /**
  * .devcontainer/devcontainer.json を生成（このリポジトリ自体の開発環境用）
+ *
+ * base + (preset) + projectConfig をマージ
+ * preset は現在使用していないが、将来的に追加可能
  */
 function generateDevContainerConfig(): DevContainerConfig {
+  const preset = undefined; // 現在はプリセット未使用（将来的に nodePreset などを指定可能）
+
+  // base と preset（あれば）をマージ
+  const baseConfig = preset ? generatePresetConfig(preset) : { ...base };
+
+  const baseVSCode = getVSCodeCustomizations(baseConfig);
+  const projectVSCode = getVSCodeCustomizations(projectConfig);
+
   return {
+    ...projectConfigMetadata, // $comment などのメタデータ
     $schema: SCHEMA_URL,
-    name: 'Base Configuration',
-    ...base,
-    // このリポジトリ自体では .devcontainer/post-create.sh を参照
-    postCreateCommand: 'bash .devcontainer/post-create.sh',
+    ...baseConfig,
+    ...projectConfig,
+    // 特定のフィールドは専用のマージロジックを使用
+    features: deepMerge(baseConfig.features, projectConfig.features),
+    customizations: {
+      vscode: {
+        extensions: mergeArrays(
+          baseVSCode?.extensions,
+          projectVSCode?.extensions
+        ),
+        settings: deepMerge(
+          baseVSCode?.settings,
+          projectVSCode?.settings
+        ),
+      },
+    },
+    containerEnv: deepMerge(baseConfig.containerEnv, projectConfig.containerEnv),
+    remoteEnv: deepMerge(baseConfig.remoteEnv, projectConfig.remoteEnv),
+    mounts: projectConfig.mounts || baseConfig.mounts,
+    // projectConfig に postCreateCommand があれば上書き、なければマージ
+    postCreateCommand: projectConfig.postCreateCommand || mergePostCreateCommand(
+      getPostCreateCommand(baseConfig),
+      getPostCreateCommand(projectConfig)
+    ) || 'bash .devcontainer/post-create.sh',
   };
 }
 

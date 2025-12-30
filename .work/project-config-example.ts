@@ -1,15 +1,16 @@
 /**
  * プロジェクト固有の DevContainer 設定例
  *
- * ファイル名: .devcontainer/shared/client-config.ts
+ * ファイル名: .devcontainer/project-config.ts
  *
  * このファイルを作成すると、bun run build:client 実行時に
  * base + preset + この設定がマージされます。
  */
 
-import type { DevContainerConfig } from './src/types';
+// 型定義のインポート（利用側プロジェクトでのパス例）
+// import type { DevContainerConfig } from './shared/src/types';
 
-export const clientConfig: DevContainerConfig = {
+export const projectConfig /*: DevContainerConfig */ = {
   // プロジェクト固有のポートフォワード
   forwardPorts: [3000, 8080],
 
@@ -39,4 +40,4 @@ export const clientConfig: DevContainerConfig = {
   postCreateCommand: 'npm install && npm run setup',
 };
 
-export default clientConfig;
+export default projectConfig;
