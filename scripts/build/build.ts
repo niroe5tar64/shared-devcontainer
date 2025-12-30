@@ -7,18 +7,20 @@
  *
  * Usage:
  *   # 自動判定モード（実行ディレクトリから Self/Client を判定）
- *   bun run build              # Self: preset なし / Client: エラー（preset 必須）
- *   bun run build node         # Self: node preset / Client: node preset
+ *   bun run build              # preset なし（base のみ）
+ *   bun run build node         # node preset を使用
  *
  *   # 明示的指定モード（実行ディレクトリに依存しない）
  *   bun run build --mode=self           # Self: preset なし
  *   bun run build --mode=self node      # Self: node preset
+ *   bun run build --mode=client         # Client: preset なし
  *   bun run build --mode=client writing # Client: writing preset
  *
  *   # package.json の npm scripts 経由（推奨）
  *   bun run build              # 自動判定
  *   bun run build:self         # Self モード
  *   bun run build:self node    # Self モード + node preset
+ *   bun run build:client       # Client モード（preset なし）
  *   bun run build:client writing # Client モード + writing preset
  */
 
@@ -113,15 +115,22 @@ async function buildSelf(presetName?: string) {
 /**
  * Client DevContainer のビルド
  */
-async function buildClient(presetName: string) {
-  console.log(`🔨 Building Client DevContainer configuration (preset: ${presetName})...\n`);
+async function buildClient(presetName?: string) {
+  const presetInfo = presetName ? `preset: ${presetName}` : 'no preset';
+  console.log(`🔨 Building Client DevContainer configuration (${presetInfo})...\n`);
 
   // preset を取得
-  const preset = PRESETS[presetName];
-  if (!preset) {
-    console.error(`❌ Error: Unknown preset "${presetName}"`);
-    console.error(`Available presets: ${Object.keys(PRESETS).join(', ')}`);
-    process.exit(1);
+  let preset: DevContainerConfig | undefined = undefined;
+  if (presetName) {
+    preset = PRESETS[presetName];
+    if (!preset) {
+      console.error(`❌ Error: Unknown preset "${presetName}"`);
+      console.error(`Available presets: ${Object.keys(PRESETS).join(', ')}`);
+      process.exit(1);
+    }
+    console.log(`📦 Using preset: ${presetName}`);
+  } else {
+    console.log('📦 Using base configuration only (no preset)');
   }
 
   // 親プロジェクトのパスを計算
@@ -207,14 +216,7 @@ async function main() {
     // Self DevContainer: preset はオプション
     await buildSelf(presetName);
   } else {
-    // Client DevContainer: preset は必須
-    if (!presetName) {
-      console.error('❌ Error: Preset name is required for Client DevContainer');
-      console.error('Usage: bun run build <preset-name>');
-      console.error('Example: bun run build writing');
-      console.error(`Available presets: ${Object.keys(PRESETS).join(', ')}`);
-      process.exit(1);
-    }
+    // Client DevContainer: preset はオプション
     await buildClient(presetName);
   }
 }
