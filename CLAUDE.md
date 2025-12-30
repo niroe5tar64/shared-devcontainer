@@ -14,13 +14,21 @@ This file provides guidance to Claude Code when working with this repository.
 | **Self DevContainer** | このプロジェクト自身の開発環境 | `shared-devcontainer/.devcontainer/devcontainer.json` |
 | **Client DevContainer** | このプロジェクトを利用する側の開発環境 | `ai-writing-starter/.devcontainer/devcontainer.json` |
 
-- **Self**: `scripts/build.ts` で生成。`.devcontainer/project-config.ts` で固有設定を追加可能
-- **Client**: `scripts/build-client.ts` で生成。親プロジェクトの `.devcontainer/project-config.ts` で固有設定を追加可能
+- **Self/Client 共通**: `scripts/build.ts` で生成（統合スクリプト）
+- 固有設定は `.devcontainer/project-config.ts` で追加可能
 
 ## ビルドコマンド
 
 ```bash
-bun run build          # TypeScript から JSON 設定を生成
+# Self DevContainer（このプロジェクト自身）
+bun run build              # 自動判定（preset なし）
+bun run build:self         # 明示的に Self モード
+bun run build:self node    # Self モード + node preset
+
+# Client DevContainer（サブモジュールとして利用時）
+bun run build:client writing  # 明示的に Client モード + preset
+
+# その他
 bun run rebuild        # クリーン後にビルド (rm -rf dist && build)
 bun run generate-types # 公式スキーマから TypeScript 型を再生成
 bun run tsc --noEmit   # 型チェック

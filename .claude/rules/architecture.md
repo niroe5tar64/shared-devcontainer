@@ -3,11 +3,13 @@
 ## ソース → ビルド → 配布フロー
 
 ```
-src/base.ts + src/presets/*.ts
-        ↓ bun run build
-dist/base.json + dist/presets/*.json + dist/bin/ + dist/post-create.sh
+src/base.ts + src/presets/*.ts + .devcontainer/project-config.ts
+        ↓ bun run build (Self DevContainer)
+dist/base.json + dist/presets/*.json + .devcontainer/devcontainer.json
         ↓ git submodule
-他プロジェクトが dist/ 内のファイルを extends で利用
+他プロジェクトで bun run build:client <preset> を実行
+        ↓
+親プロジェクトの .devcontainer/devcontainer.json を生成
 ```
 
 ## ディレクトリ構成
@@ -20,7 +22,9 @@ shared-devcontainer/
 │   ├── types.generated.ts   # 自動生成された型（編集禁止）
 │   └── presets/             # プリセット
 ├── scripts/
-│   ├── build.ts             # ビルドスクリプト
+│   ├── build.ts             # 統合ビルドスクリプト（Self/Client両対応）
+│   ├── lib/
+│   │   └── devcontainer-builder.ts  # 共通ユーティリティ
 │   └── generate-types.ts    # 型生成スクリプト
 ├── dist/                    # 自動生成（Git管理対象）
 │   ├── base.json
@@ -28,37 +32,45 @@ shared-devcontainer/
 │   ├── bin/                 # ラッパースクリプト
 │   └── post-create.sh
 └── .devcontainer/           # このリポジトリ自体の開発環境
-    ├── devcontainer.json    # src/base.ts から生成
+    ├── devcontainer.json    # 自動生成（Self DevContainer）
+    ├── project-config.ts    # プロジェクト固有設定
     ├── bin/                 # ラッパースクリプト（ソース）
     └── post-create.sh       # セットアップスクリプト（ソース）
 ```
 
-## マージロジック（scripts/build.ts）
+## マージロジック（scripts/lib/devcontainer-builder.ts）
 
-ビルド時、base と preset は以下のルールでマージされる：
+ビルド時、base + preset + project-config は以下のルールで3層マージされる：
 
 | フィールド | マージ方法 |
 |-----------|----------|
-| `features` | オブジェクトを深くマージ（preset が優先） |
+| `features` | オブジェクトを深くマージ（後から指定したものが優先） |
 | `customizations.vscode.extensions` | 配列を結合し重複排除 |
 | `customizations.vscode.settings` | オブジェクトを深くマージ |
-| `mounts` | preset があれば preset、なければ base |
-| `postCreateCommand` | 両方あれば `&&` で結合 |
-| その他 | preset で上書き |
+| `mounts` | project-config > preset > base の優先順 |
+| `postCreateCommand` | project-config で明示指定すれば上書き、なければマージ |
+| その他 | 後から指定したもので上書き |
 
 ## 生成されるファイルの関係
 
 - `dist/base.json`: `src/base.ts` のみから生成
 - `dist/presets/*.json`: `src/base.ts` + `src/presets/*.ts` をマージして生成
-- `.devcontainer/devcontainer.json`: `src/base.ts` から生成（このリポジトリ用）
+- `.devcontainer/devcontainer.json`: base + (preset) + project-config をマージ（Self DevContainer）
 
 ## 配布先での利用方法
 
-```json
-{
-  "extends": "./shared/dist/presets/node.json",
-  "forwardPorts": [3000]
-}
+**注意**: DevContainer の `extends` プロパティはサブモジュール（別リポジトリ）には対応していません。
+代わりに、ビルドスクリプトで完全な `devcontainer.json` を生成する方式を採用しています。
+
+```bash
+# Client プロジェクトでの利用手順
+cd .devcontainer/shared
+bun run build:client writing  # writing プリセットで devcontainer.json を生成
 ```
 
-`extends` により、プリセットの設定を継承しつつプロジェクト固有の設定を追加可能。
+これにより、親プロジェクトの `.devcontainer/` に以下が生成されます：
+- `devcontainer.json` - 完全な設定ファイル
+- `bin/` - ラッパースクリプト
+- `post-create.sh` - セットアップスクリプト
+
+プロジェクト固有の設定は `.devcontainer/project-config.ts` で追加可能です。

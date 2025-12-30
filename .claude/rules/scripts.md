@@ -6,41 +6,80 @@ paths: scripts/**
 
 ## scripts/build.ts
 
-TypeScript 設定から JSON を生成するメインスクリプト。
+Self DevContainer と Client DevContainer の両方に対応した統合ビルドスクリプト。
+
+### 使用方法
+
+```bash
+# 自動判定モード（実行ディレクトリから Self/Client を判定）
+bun run build              # preset なし
+bun run build node         # node preset
+
+# 明示的指定モード（実行ディレクトリに依存しない）
+bun run build:self           # Self モード
+bun run build:self node      # Self モード + node preset
+bun run build:client writing # Client モード + writing preset
+```
 
 ### 主要な関数
 
 | 関数 | 役割 |
 |-----|------|
+| `detectBuildMode()` | 実行ディレクトリから Self/Client を自動判定 |
+| `buildSelf(presetName?)` | Self DevContainer のビルド |
+| `buildClient(presetName)` | Client DevContainer のビルド |
 | `generateBaseConfig()` | `dist/base.json` 用の設定を生成 |
-| `generateDevContainerConfig()` | `.devcontainer/devcontainer.json` 用の設定を生成 |
-| `generatePresetConfig(preset)` | プリセット用の設定を base とマージして生成 |
-| `mergeArrays()` | 配列を結合し重複排除 |
-| `deepMerge()` | オブジェクトを再帰的にマージ |
-| `mergePostCreateCommand()` | postCreateCommand を `&&` で結合 |
+
+### モード判定ロジック
+
+1. `src/base.ts` が存在すれば **Self モード**
+2. カレントディレクトリ名が `shared` で、親に `.devcontainer` があれば **Client モード**
+3. `--mode=self` / `--mode=client` フラグで明示的に指定可能
 
 ### プリセットの追加
 
-`presets` 配列に新しいエントリを追加：
+`PRESETS` オブジェクトに新しいエントリを追加：
 
 ```typescript
 import { newPreset } from '../src/presets/new';
 
-const presets = [
-  { name: 'node', config: nodePreset },
-  { name: 'python', config: pythonPreset },
-  { name: 'fullstack', config: fullstackPreset },
-  { name: 'new', config: newPreset },  // 追加
-];
+const PRESETS: Record<string, DevContainerConfig> = {
+  node: nodePreset,
+  python: pythonPreset,
+  fullstack: fullstackPreset,
+  writing: writingPreset,
+  new: newPreset,  // 追加
+};
 ```
 
 ### 出力先
 
+**Self モード**:
 - `dist/base.json` - サブモジュール配布用
 - `dist/presets/*.json` - プリセット別設定
-- `.devcontainer/devcontainer.json` - このリポジトリ自体の開発環境
+- `.devcontainer/devcontainer.json` - Self DevContainer
 - `dist/bin/` - `.devcontainer/bin/` からコピー
 - `dist/post-create.sh` - `.devcontainer/post-create.sh` からコピー
+
+**Client モード**:
+- `../.devcontainer/devcontainer.json` - Client DevContainer
+- `../.devcontainer/bin/` - ラッパースクリプト
+- `../.devcontainer/post-create.sh` - セットアップスクリプト
+
+## scripts/lib/devcontainer-builder.ts
+
+Self/Client 共通のユーティリティ関数を集約。
+
+### 主要な関数
+
+| 関数 | 役割 |
+|-----|------|
+| `generatePresetConfig(preset?, projectConfig?)` | base + preset + projectConfig を3層マージ |
+| `mergeArrays()` | 配列を結合し重複排除 |
+| `deepMerge()` | オブジェクトを再帰的にマージ |
+| `mergePostCreateCommand()` | postCreateCommand を結合 |
+| `writeJsonFile()` | JSON ファイルを書き込み |
+| `loadProjectConfig()` | project-config.ts を動的に読み込み |
 
 ## scripts/generate-types.ts
 
