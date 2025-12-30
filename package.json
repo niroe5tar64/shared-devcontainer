@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "bun run scripts/build.ts",
-    "build:client": "bun run scripts/build-client.ts",
+    "build:client": "bun run scripts/build.ts",
     "clean": "rm -rf dist",
     "rebuild": "bun run clean && bun run build",
     "generate-types": "bun run scripts/generate-types.ts",

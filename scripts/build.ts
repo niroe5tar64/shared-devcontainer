@@ -1,26 +1,35 @@
 #!/usr/bin/env bun
 
 /**
- * Build Script for Self DevContainer Configuration
+ * Unified Build Script for DevContainer Configurations
  *
- * TypeScript の設定ファイルから JSON を生成します。
- * - Self DevContainer: このプロジェクト自身の開発環境
- * - dist/: サブモジュール配布用のファイル
+ * Self DevContainer と Client DevContainer の両方に対応した統合ビルドスクリプト
+ *
+ * Usage:
+ *   # Self DevContainer (このプロジェクト自身)
+ *   bun run build           # preset なし（base + project-config）
+ *   bun run build node      # node preset（base + node + project-config）
+ *
+ *   # Client DevContainer (サブモジュールとして利用)
+ *   cd .devcontainer/shared
+ *   bun run build writing   # writing preset（base + writing + project-config）
  */
 
 import { mkdir, copyFile, cp } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, resolve, basename } from 'node:path';
+import { existsSync } from 'node:fs';
 import { base } from '../src/base';
 import { nodePreset } from '../src/presets/node';
 import { pythonPreset } from '../src/presets/python';
 import { fullstackPreset } from '../src/presets/fullstack';
 import { writingPreset } from '../src/presets/writing';
-import { projectConfig, projectConfigMetadata, presetName } from '../.devcontainer/project-config';
 import type { DevContainerConfig } from '../src/types';
 import {
   SCHEMA_URL,
   generatePresetConfig,
   writeJsonFile,
+  loadProjectConfig,
+  getPostCreateCommand,
 } from './lib/devcontainer-builder';
 
 /**
@@ -34,6 +43,34 @@ const PRESETS: Record<string, DevContainerConfig> = {
 };
 
 /**
+ * ビルドモード
+ */
+type BuildMode = 'self' | 'client';
+
+/**
+ * ビルドモードを判定
+ * 実行ディレクトリから Self/Client を自動判別
+ */
+async function detectBuildMode(): Promise<BuildMode> {
+  const cwd = process.cwd();
+
+  // src/base.ts が存在すれば Self モード
+  if (existsSync(join(cwd, 'src', 'base.ts'))) {
+    return 'self';
+  }
+
+  // 親ディレクトリに .devcontainer が存在し、カレントが shared なら Client モード
+  const parentDir = resolve(cwd, '..');
+  const parentDirName = basename(cwd);
+  if (parentDirName === 'shared' && existsSync(join(parentDir, '.devcontainer'))) {
+    return 'client';
+  }
+
+  // デフォルトは Self
+  return 'self';
+}
+
+/**
  * dist/base.json を生成（サブモジュールとして配布する用）
  */
 function generateBaseConfig(): DevContainerConfig {
@@ -45,39 +82,27 @@ function generateBaseConfig(): DevContainerConfig {
 }
 
 /**
- * .devcontainer/devcontainer.json を生成（Self DevContainer用）
- *
- * base + (preset) + projectConfig をマージ
- * presetName が指定されている場合は対応する preset を使用
+ * Self DevContainer のビルド
  */
-function generateDevContainerConfig(): DevContainerConfig {
-  // presetName から preset を取得
+async function buildSelf(presetName?: string) {
+  console.log('🔨 Building Self DevContainer configuration...\n');
+
+  // preset を取得
   let preset: DevContainerConfig | undefined = undefined;
   if (presetName) {
     preset = PRESETS[presetName];
     if (!preset) {
-      console.warn(`⚠️  Warning: Unknown preset "${presetName}", ignoring preset`);
-      console.warn(`   Available presets: ${Object.keys(PRESETS).join(', ')}`);
-    } else {
-      console.log(`📦 Using preset: ${presetName}`);
+      console.error(`❌ Error: Unknown preset "${presetName}"`);
+      console.error(`Available presets: ${Object.keys(PRESETS).join(', ')}`);
+      process.exit(1);
     }
+    console.log(`📦 Using preset: ${presetName}`);
   }
 
-  // base + preset + projectConfig を3層マージ
-  const config = generatePresetConfig(preset, projectConfig);
-
-  // メタデータを追加
-  return {
-    ...projectConfigMetadata, // $comment などのメタデータ
-    ...config,
-  };
-}
-
-/**
- * メイン処理
- */
-async function main() {
-  console.log('🔨 Building Self DevContainer configuration...\n');
+  // project-config を読み込み
+  const projectConfigModule = await import('../.devcontainer/project-config');
+  const projectConfig = projectConfigModule.projectConfig;
+  const projectConfigMetadata = projectConfigModule.projectConfigMetadata;
 
   // dist ディレクトリを作成
   await mkdir('dist', { recursive: true });
@@ -89,7 +114,11 @@ async function main() {
 
   // .devcontainer/devcontainer.json を生成（Self DevContainer用）
   await mkdir('.devcontainer', { recursive: true });
-  const devContainerConfig = generateDevContainerConfig();
+  const config = generatePresetConfig(preset, projectConfig);
+  const devContainerConfig = {
+    ...projectConfigMetadata, // $comment などのメタデータ
+    ...config,
+  };
   await writeJsonFile(join('.devcontainer', 'devcontainer.json'), devContainerConfig);
 
   // プリセットを生成（サブモジュール配布用）
@@ -108,6 +137,88 @@ async function main() {
   console.log('✅ Copied: dist/post-create.sh');
 
   console.log('\n✨ Build complete!');
+}
+
+/**
+ * Client DevContainer のビルド
+ */
+async function buildClient(presetName: string) {
+  console.log(`🔨 Building Client DevContainer configuration (preset: ${presetName})...\n`);
+
+  // preset を取得
+  const preset = PRESETS[presetName];
+  if (!preset) {
+    console.error(`❌ Error: Unknown preset "${presetName}"`);
+    console.error(`Available presets: ${Object.keys(PRESETS).join(', ')}`);
+    process.exit(1);
+  }
+
+  // 親プロジェクトのパスを計算
+  // このスクリプトは .devcontainer/shared/ で実行される想定
+  // PWD環境変数を使用してシンボリックリンクを辿らないパスを取得
+  const cwd = process.env.PWD || process.cwd();
+  const clientDevcontainerDir = resolve(cwd, '..');
+
+  console.log(`📂 Current directory: ${cwd}`);
+  console.log(`📂 Target directory: ${clientDevcontainerDir}`);
+
+  // プロジェクト固有の設定を読み込み（存在する場合）
+  const projectConfig = await loadProjectConfig(clientDevcontainerDir);
+
+  // base + preset + projectConfig を3層マージして設定を生成
+  const config = generatePresetConfig(preset, projectConfig);
+
+  // postCreateCommand のパスを調整
+  // 生成された設定は "bash ./post-create.sh" なので、これを .devcontainer/ からの相対パスに
+  const postCreateCmd = getPostCreateCommand(config);
+  if (postCreateCmd) {
+    config.postCreateCommand = 'bash .devcontainer/post-create.sh';
+  }
+
+  // devcontainer.json を生成
+  await mkdir(clientDevcontainerDir, { recursive: true });
+  await writeJsonFile(join(clientDevcontainerDir, 'devcontainer.json'), config);
+
+  // bin/ と post-create.sh をコピー
+  console.log('\n📦 Copying additional files...');
+  // distDir は shared-devcontainer/dist/
+  const distDir = resolve(cwd, 'dist');
+
+  await mkdir(join(clientDevcontainerDir, 'bin'), { recursive: true });
+  await cp(join(distDir, 'bin'), join(clientDevcontainerDir, 'bin'), { recursive: true });
+  console.log(`✅ Copied: ${join(clientDevcontainerDir, 'bin')}`);
+
+  await copyFile(join(distDir, 'post-create.sh'), join(clientDevcontainerDir, 'post-create.sh'));
+  console.log(`✅ Copied: ${join(clientDevcontainerDir, 'post-create.sh')}`);
+
+  console.log('\n✨ Client DevContainer configuration generated successfully!');
+  console.log('\n📝 Next steps:');
+  console.log('   1. Return to your project root directory');
+  console.log('   2. Open in VS Code');
+  console.log('   3. Dev Containers: Reopen in Container');
+}
+
+/**
+ * メイン処理
+ */
+async function main() {
+  const mode = await detectBuildMode();
+  const presetName = process.argv[2];
+
+  if (mode === 'self') {
+    // Self DevContainer: preset はオプション
+    await buildSelf(presetName);
+  } else {
+    // Client DevContainer: preset は必須
+    if (!presetName) {
+      console.error('❌ Error: Preset name is required for Client DevContainer');
+      console.error('Usage: bun run build <preset-name>');
+      console.error('Example: bun run build writing');
+      console.error(`Available presets: ${Object.keys(PRESETS).join(', ')}`);
+      process.exit(1);
+    }
+    await buildClient(presetName);
+  }
 }
 
 main().catch((error) => {

@@ -6,21 +6,20 @@
  * このファイルを作成すると、ビルド時に
  * base + preset + この設定がマージされます。
  *
- * - Self DevContainer: bun run build
- * - Client DevContainer: bun run build:client <preset-name>
+ * preset を使用する場合は、ビルド時に引数で指定：
+ *   # Self DevContainer
+ *   bun run build              # preset なし（base + project-config）
+ *   bun run build node         # node preset（base + node + project-config）
+ *
+ *   # Client DevContainer（サブモジュール内から実行）
+ *   cd .devcontainer/shared
+ *   bun run build writing      # writing preset（base + writing + project-config）
+ *
+ * 利用可能なプリセット: 'node' | 'python' | 'fullstack' | 'writing'
  */
 
 // 型定義のインポート（利用側プロジェクトでのパス例）
 // import type { DevContainerConfig } from './shared/src/types';
-
-/**
- * 使用するプリセット名（オプション）
- * Self DevContainer の場合のみ使用
- * Client DevContainer では build:client の引数で指定
- *
- * 利用可能なプリセット: 'node' | 'python' | 'fullstack' | 'writing'
- */
-// export const presetName: string | undefined = 'node';
 
 export const projectConfig /*: DevContainerConfig */ = {
   // プロジェクト固有のポートフォワード

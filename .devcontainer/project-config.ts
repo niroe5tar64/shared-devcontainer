@@ -3,17 +3,12 @@
  *
  * base + (preset) + この設定 がマージされて
  * .devcontainer/devcontainer.json が生成されます
+ *
+ * preset を使用する場合は、ビルド時に引数で指定：
+ *   bun run build node  # node preset を使用
  */
 
 import type { DevContainerConfig } from '../src/types';
-
-/**
- * 使用するプリセット名（オプション）
- * undefined の場合は base + projectConfig のみ
- *
- * 利用可能なプリセット: 'node' | 'python' | 'fullstack' | 'writing'
- */
-export const presetName: string | undefined = undefined;
 
 export const projectConfig: DevContainerConfig = {
   name: 'Shared DevContainer Development',
