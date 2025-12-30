@@ -41,3 +41,11 @@ chmod +x ~/.local/bin/claude ~/.local/bin/codex
 # Add ~/.local/bin to PATH (prepend to ensure wrappers are found first)
 append_line_once 'export PATH="$HOME/.local/bin:$PATH"' ~/.bashrc
 append_line_once 'export PATH="$HOME/.local/bin:$PATH"' ~/.zshrc
+
+# Fix git credential helper (retry after initial container setup completes)
+# Wait a bit to avoid "Device or resource busy" error during container startup
+sleep 2
+if ! git config --global --get credential.helper &> /dev/null; then
+    echo "Configuring git credential helper..."
+    git config --global credential.helper store 2> /dev/null || true
+fi
