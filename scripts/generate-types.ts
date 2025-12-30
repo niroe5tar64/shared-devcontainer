@@ -9,13 +9,10 @@ import { compile } from 'json-schema-to-typescript';
 import type { JSONSchema } from 'json-schema-to-typescript';
 import fs from 'fs/promises';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const BASE_SCHEMA_URL =
   'https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.base.schema.json';
-const OUTPUT_PATH = path.join(__dirname, '../src/types.generated.ts');
+const OUTPUT_PATH = path.join(import.meta.dir, '../src/types.generated.ts');
 
 async function generateTypes() {
   console.log('🔍 Fetching base schema...');
