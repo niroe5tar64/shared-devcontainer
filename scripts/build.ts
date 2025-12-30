@@ -1,12 +1,14 @@
 #!/usr/bin/env bun
 
 /**
- * Build Script for DevContainer Configurations
+ * Build Script for Self DevContainer Configuration
  *
  * TypeScript の設定ファイルから JSON を生成します。
+ * - Self DevContainer: このプロジェクト自身の開発環境
+ * - dist/: サブモジュール配布用のファイル
  */
 
-import { mkdir, writeFile, copyFile, cp } from 'node:fs/promises';
+import { mkdir, copyFile, cp } from 'node:fs/promises';
 import { join } from 'node:path';
 import { base } from '../src/base';
 import { nodePreset } from '../src/presets/node';
@@ -15,30 +17,11 @@ import { fullstackPreset } from '../src/presets/fullstack';
 import { writingPreset } from '../src/presets/writing';
 import { projectConfig, projectConfigMetadata } from '../.devcontainer/project-config';
 import type { DevContainerConfig } from '../src/types';
-
-const SCHEMA_URL = 'https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json';
-
-/**
- * VS Code customizations の型定義
- * 生成された型では customizations が { [k: string]: unknown } のため、
- * 型安全にアクセスするためのヘルパー型を定義
- */
-interface VSCodeCustomizations {
-  extensions?: string[];
-  settings?: Record<string, unknown>;
-}
-
-function getVSCodeCustomizations(config: DevContainerConfig): VSCodeCustomizations | undefined {
-  return config.customizations?.vscode as VSCodeCustomizations | undefined;
-}
-
-function getPostCreateCommand(config: DevContainerConfig): string | string[] | undefined {
-  const cmd = config.postCreateCommand;
-  if (typeof cmd === 'string' || Array.isArray(cmd)) {
-    return cmd;
-  }
-  return undefined;
-}
+import {
+  SCHEMA_URL,
+  generatePresetConfig,
+  writeJsonFile,
+} from './lib/devcontainer-builder';
 
 /**
  * dist/base.json を生成（サブモジュールとして配布する用）
@@ -52,7 +35,7 @@ function generateBaseConfig(): DevContainerConfig {
 }
 
 /**
- * .devcontainer/devcontainer.json を生成（このリポジトリ自体の開発環境用）
+ * .devcontainer/devcontainer.json を生成（Self DevContainer用）
  *
  * base + (preset) + projectConfig をマージ
  * preset は現在使用していないが、将来的に追加可能
@@ -60,145 +43,21 @@ function generateBaseConfig(): DevContainerConfig {
 function generateDevContainerConfig(): DevContainerConfig {
   const preset = undefined; // 現在はプリセット未使用（将来的に nodePreset などを指定可能）
 
-  // base と preset（あれば）をマージ
-  const baseConfig = preset ? generatePresetConfig(preset) : { ...base };
+  // base + preset + projectConfig を3層マージ
+  const config = generatePresetConfig(preset, projectConfig);
 
-  const baseVSCode = getVSCodeCustomizations(baseConfig);
-  const projectVSCode = getVSCodeCustomizations(projectConfig);
-
+  // メタデータを追加
   return {
     ...projectConfigMetadata, // $comment などのメタデータ
-    $schema: SCHEMA_URL,
-    ...baseConfig,
-    ...projectConfig,
-    // 特定のフィールドは専用のマージロジックを使用
-    features: deepMerge(baseConfig.features, projectConfig.features),
-    customizations: {
-      vscode: {
-        extensions: mergeArrays(
-          baseVSCode?.extensions,
-          projectVSCode?.extensions
-        ),
-        settings: deepMerge(
-          baseVSCode?.settings,
-          projectVSCode?.settings
-        ),
-      },
-    },
-    containerEnv: deepMerge(baseConfig.containerEnv, projectConfig.containerEnv),
-    remoteEnv: deepMerge(baseConfig.remoteEnv, projectConfig.remoteEnv),
-    mounts: projectConfig.mounts || baseConfig.mounts,
-    // projectConfig に postCreateCommand があれば上書き、なければマージ
-    postCreateCommand: projectConfig.postCreateCommand || mergePostCreateCommand(
-      getPostCreateCommand(baseConfig),
-      getPostCreateCommand(projectConfig)
-    ) || 'bash .devcontainer/post-create.sh',
+    ...config,
   };
-}
-
-/**
- * 配列をマージ（重複を排除）
- */
-function mergeArrays<T>(base?: T[], preset?: T[]): T[] | undefined {
-  if (!base && !preset) return undefined;
-  const combined = [...(base || []), ...(preset || [])];
-  return Array.from(new Set(combined));
-}
-
-/**
- * オブジェクトを深くマージ
- */
-function deepMerge<T extends Record<string, any>>(base?: T, preset?: T): T | undefined {
-  if (!base && !preset) return undefined;
-  if (!base) return preset;
-  if (!preset) return base;
-
-  const result = { ...base } as T;
-  for (const key in preset) {
-    if (preset[key] && typeof preset[key] === 'object' && !Array.isArray(preset[key])) {
-      result[key] = deepMerge(base[key], preset[key]) as any;
-    } else {
-      result[key] = preset[key];
-    }
-  }
-  return result;
-}
-
-/**
- * postCreateCommand を結合
- */
-function mergePostCreateCommand(baseCmd?: string | string[], presetCmd?: string | string[]): string | undefined {
-  const commands: string[] = [];
-
-  if (baseCmd) {
-    if (Array.isArray(baseCmd)) {
-      commands.push(...baseCmd);
-    } else {
-      commands.push(baseCmd);
-    }
-  }
-
-  if (presetCmd) {
-    if (Array.isArray(presetCmd)) {
-      commands.push(...presetCmd);
-    } else {
-      commands.push(presetCmd);
-    }
-  }
-
-  return commands.length > 0 ? commands.join(' && ') : undefined;
-}
-
-/**
- * プリセットから完全な DevContainer 設定を生成
- * baseとpresetをマージする
- */
-function generatePresetConfig(preset: DevContainerConfig): DevContainerConfig {
-  const baseVSCode = getVSCodeCustomizations(base);
-  const presetVSCode = getVSCodeCustomizations(preset);
-
-  return {
-    $schema: SCHEMA_URL,
-    ...base,
-    ...preset,
-    // 特定のフィールドは専用のマージロジックを使用
-    features: deepMerge(base.features, preset.features),
-    customizations: {
-      vscode: {
-        extensions: mergeArrays(
-          baseVSCode?.extensions,
-          presetVSCode?.extensions
-        ),
-        settings: deepMerge(
-          baseVSCode?.settings,
-          presetVSCode?.settings
-        ),
-      },
-    },
-    containerEnv: deepMerge(base.containerEnv, preset.containerEnv),
-    remoteEnv: deepMerge(base.remoteEnv, preset.remoteEnv),
-    mounts: preset.mounts || base.mounts,
-    postCreateCommand: mergePostCreateCommand(
-      getPostCreateCommand(base),
-      getPostCreateCommand(preset)
-    ),
-  };
-}
-
-/**
- * JSON ファイルを書き込み
- */
-async function writeJsonFile(filePath: string, data: unknown): Promise<void> {
-  const json = JSON.stringify(data, null, 2);
-  await writeFile(filePath, json + '\n', 'utf-8');
-  console.log(`✅ Generated: ${filePath}`);
 }
 
 /**
  * メイン処理
  */
 async function main() {
-  console.log('🔨 Building DevContainer configurations...\n');
+  console.log('🔨 Building Self DevContainer configuration...\n');
 
   // dist ディレクトリを作成
   await mkdir('dist', { recursive: true });
@@ -208,12 +67,12 @@ async function main() {
   const baseConfig = generateBaseConfig();
   await writeJsonFile(join('dist', 'base.json'), baseConfig);
 
-  // .devcontainer/devcontainer.json を生成（このリポジトリ自体の開発環境用）
+  // .devcontainer/devcontainer.json を生成（Self DevContainer用）
   await mkdir('.devcontainer', { recursive: true });
   const devContainerConfig = generateDevContainerConfig();
   await writeJsonFile(join('.devcontainer', 'devcontainer.json'), devContainerConfig);
 
-  // プリセットを生成
+  // プリセットを生成（サブモジュール配布用）
   const presets = [
     { name: 'node', config: nodePreset },
     { name: 'python', config: pythonPreset },
@@ -222,11 +81,12 @@ async function main() {
   ];
 
   for (const { name, config } of presets) {
+    // プリセットは projectConfig なしで生成（Client側で読み込むため）
     const presetConfig = generatePresetConfig(config);
     await writeJsonFile(join('dist', 'presets', `${name}.json`), presetConfig);
   }
 
-  // bin/ と post-create.sh を dist/ にコピー（サブモジュール対応）
+  // bin/ と post-create.sh を dist/ にコピー（サブモジュール配布用）
   console.log('\n📦 Copying additional files...');
   await mkdir(join('dist', 'bin'), { recursive: true });
   await cp(join('.devcontainer', 'bin'), join('dist', 'bin'), { recursive: true });
