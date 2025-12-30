@@ -29,7 +29,7 @@ export const base: DevContainerConfig = {
 ## プリセットの追加方法
 
 1. `src/presets/` に新しいファイルを作成
-2. `scripts/build.ts` の `presets` 配列に追加
+2. `scripts/build/build.ts` の `presets` 配列に追加
 3. `bun run build` を実行
 
 ```typescript

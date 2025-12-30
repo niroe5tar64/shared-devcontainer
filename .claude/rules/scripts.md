@@ -4,7 +4,7 @@ paths: scripts/**
 
 # ビルドスクリプトガイド
 
-## scripts/build.ts
+## scripts/build/build.ts
 
 Self DevContainer と Client DevContainer の両方に対応した統合ビルドスクリプト。
 
@@ -61,7 +61,7 @@ const PRESETS: Record<string, DevContainerConfig> = {
 - `../.devcontainer/bin/` - `.devcontainer/bin/` からコピー
 - `../.devcontainer/post-create.sh` - `.devcontainer/post-create.sh` からコピー
 
-## scripts/lib/devcontainer-builder.ts
+## scripts/build/lib/devcontainer-builder.ts
 
 Self/Client 共通のユーティリティ関数を集約。
 
@@ -76,7 +76,7 @@ Self/Client 共通のユーティリティ関数を集約。
 | `writeJsonFile()` | JSON ファイルを書き込み |
 | `loadProjectConfig()` | project-config.ts を動的に読み込み |
 
-## scripts/generate-types.ts
+## scripts/ops/generate-types.ts
 
 公式 DevContainer スキーマから TypeScript 型を生成。
 

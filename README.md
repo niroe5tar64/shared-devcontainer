@@ -21,8 +21,11 @@ shared-devcontainer/
 │       ├── python.ts
 │       └── fullstack.ts
 ├── scripts/
-│   ├── build.ts             # ビルドスクリプト
-│   └── generate-types.ts    # 型生成スクリプト
+│   ├── build/               # ビルド関連
+│   │   ├── build.ts         # ビルドスクリプト
+│   │   └── lib/             # 共通ユーティリティ
+│   └── ops/                 # 運用・メンテナンス
+│       └── generate-types.ts  # 型生成スクリプト
 └── .devcontainer/           # このリポジトリ自体の開発環境
     ├── devcontainer.json    # 自動生成（Self DevContainer）
     ├── project-config.ts    # Self 用の追加設定
@@ -142,7 +145,7 @@ export const rustPreset: DevContainerConfig = {
 };
 ```
 
-2. **`scripts/build.ts` に追加**:
+2. **`scripts/build/build.ts` に追加**:
 
 ```typescript
 import { rustPreset } from '../src/presets/rust';
@@ -458,7 +461,7 @@ ls -la .devcontainer/shared/src/presets/
 新しい技術スタック用のプリセットを追加する場合：
 
 1. `src/presets/` に新しいファイルを作成
-2. `scripts/build.ts` の `PRESETS` に追加
+2. `scripts/build/build.ts` の `PRESETS` に追加
 3. `bun run build` を実行
 
 ## バージョン履歴

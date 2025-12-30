@@ -14,7 +14,7 @@ This file provides guidance to Claude Code when working with this repository.
 | **Self DevContainer** | このプロジェクト自身の開発環境 | `shared-devcontainer/.devcontainer/devcontainer.json` |
 | **Client DevContainer** | このプロジェクトを利用する側の開発環境 | `ai-writing-starter/.devcontainer/devcontainer.json` |
 
-- **Self/Client 共通**: `scripts/build.ts` で生成（統合スクリプト）
+- **Self/Client 共通**: `scripts/build/build.ts` で生成（統合スクリプト）
 - 固有設定は `.devcontainer/project-config.ts` で追加可能
 
 ## ビルドコマンド
@@ -44,7 +44,7 @@ bun run tsc --noEmit   # 型チェック
 |-----|------|
 | `src/base.ts` | 全プリセット共通のベース設定 |
 | `src/presets/*.ts` | 技術スタック別プリセット |
-| `scripts/build.ts` | ビルドスクリプト |
+| `scripts/build/build.ts` | ビルドスクリプト |
 | `.devcontainer/bin/` | AI ツールのラッパースクリプト |
 
 詳細は `.claude/rules/` 配下を参照。

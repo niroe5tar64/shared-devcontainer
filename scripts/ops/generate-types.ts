@@ -12,7 +12,7 @@ import path from 'path';
 
 const BASE_SCHEMA_URL =
   'https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.base.schema.json';
-const OUTPUT_PATH = path.join(import.meta.dir, '../src/types.generated.ts');
+const OUTPUT_PATH = path.join(import.meta.dir, '../../src/types.generated.ts');
 
 async function generateTypes() {
   console.log('🔍 Fetching base schema...');

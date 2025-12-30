@@ -22,10 +22,12 @@ shared-devcontainer/
 │   ├── types.generated.ts   # 自動生成された型（編集禁止）
 │   └── presets/             # プリセット
 ├── scripts/
-│   ├── build.ts             # 統合ビルドスクリプト（Self/Client両対応）
-│   ├── lib/
-│   │   └── devcontainer-builder.ts  # 共通ユーティリティ
-│   └── generate-types.ts    # 型生成スクリプト
+│   ├── build/
+│   │   ├── build.ts             # 統合ビルドスクリプト（Self/Client両対応）
+│   │   └── lib/
+│   │       └── devcontainer-builder.ts  # 共通ユーティリティ
+│   └── ops/
+│       └── generate-types.ts    # 型生成スクリプト
 └── .devcontainer/           # このリポジトリ自体の開発環境
     ├── devcontainer.json    # 自動生成（Self DevContainer）
     ├── project-config.ts    # プロジェクト固有設定
@@ -33,7 +35,7 @@ shared-devcontainer/
     └── post-create.sh       # セットアップスクリプト（ソース）
 ```
 
-## マージロジック（scripts/lib/devcontainer-builder.ts）
+## マージロジック（scripts/build/lib/devcontainer-builder.ts）
 
 ビルド時、base + preset + project-config は以下のルールで3層マージされる：
 

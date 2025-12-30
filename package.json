@@ -4,10 +4,10 @@
   "description": "Shared DevContainer configurations for AI-driven development",
   "type": "module",
   "scripts": {
-    "build": "bun run scripts/build.ts",
-    "build:self": "bun run scripts/build.ts --mode=self",
-    "build:client": "bun run scripts/build.ts --mode=client",
-    "generate-types": "bun run scripts/generate-types.ts"
+    "build": "bun run scripts/build/build.ts",
+    "build:self": "bun run scripts/build/build.ts --mode=self",
+    "build:client": "bun run scripts/build/build.ts --mode=client",
+    "generate-types": "bun run scripts/ops/generate-types.ts"
   },
   "keywords": [
     "devcontainer",

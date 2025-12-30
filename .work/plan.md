@@ -93,7 +93,7 @@ find "$HOME/.vscode-server/extensions" ...
 
 ### 型エラー修正（完了）
 
-`scripts/build.ts` の型エラーを解決済み（コミット: 8f65e5c）
+`scripts/build/build.ts` の型エラーを解決済み（コミット: 8f65e5c）
 
 ---
 
@@ -110,7 +110,7 @@ find "$HOME/.vscode-server/extensions" ...
    - `src/base.ts`, `.devcontainer/bin/claude` を修正
 
 3. **型エラー修正** (8f65e5c)
-   - `scripts/build.ts` のヘルパー関数追加
+   - `scripts/build/build.ts` のヘルパー関数追加
 
 4. **remoteEnv PATH設定の修正** (5785110)
    - `${containerEnv:HOME}` が未定義で空文字列になっていた問題を修正
@@ -192,4 +192,3 @@ which claude
 claude --version
 # ラッパー経由で --dangerously-skip-permissions が付与される
 ```
-

@@ -25,11 +25,11 @@
 import { mkdir, copyFile, cp } from 'node:fs/promises';
 import { join, resolve, basename } from 'node:path';
 import { existsSync } from 'node:fs';
-import { nodePreset } from '../src/presets/node';
-import { pythonPreset } from '../src/presets/python';
-import { fullstackPreset } from '../src/presets/fullstack';
-import { writingPreset } from '../src/presets/writing';
-import type { DevContainerConfig } from '../src/types';
+import { nodePreset } from '../../src/presets/node';
+import { pythonPreset } from '../../src/presets/python';
+import { fullstackPreset } from '../../src/presets/fullstack';
+import { writingPreset } from '../../src/presets/writing';
+import type { DevContainerConfig } from '../../src/types';
 import {
   generatePresetConfig,
   writeJsonFile,
@@ -94,7 +94,7 @@ async function buildSelf(presetName?: string) {
   }
 
   // project-config を読み込み
-  const projectConfigModule = await import('../.devcontainer/project-config');
+  const projectConfigModule = await import('../../.devcontainer/project-config');
   const projectConfig = projectConfigModule.projectConfig;
   const projectConfigMetadata = projectConfigModule.projectConfigMetadata;
 

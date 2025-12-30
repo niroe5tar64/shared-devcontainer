@@ -45,7 +45,7 @@ VS Code: `Cmd+Shift+P` → `Dev Containers: Rebuild Container`
 ```bash
 # 利用可能なプリセットを確認
 ls -la .devcontainer/shared/src/presets/
-rg "const PRESETS" .devcontainer/shared/scripts/build.ts
+rg "const PRESETS" .devcontainer/shared/scripts/build/build.ts
 ```
 
 ## 認証関連
