@@ -9,11 +9,7 @@
     "build:client": "bun run scripts/build/build.ts --mode=client",
     "generate-types": "bun run scripts/ops/generate-types.ts"
   },
-  "keywords": [
-    "devcontainer",
-    "development-environment",
-    "ai-development"
-  ],
+  "keywords": ["devcontainer", "development-environment", "ai-development"],
   "author": "",
   "license": "MIT",
   "devDependencies": {

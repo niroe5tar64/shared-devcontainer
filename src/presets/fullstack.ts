@@ -1,4 +1,4 @@
-import type { DevContainerConfig } from '../types';
+import type { DevContainerConfig } from "../types";
 
 /**
  * Fullstack Preset
@@ -7,16 +7,16 @@ import type { DevContainerConfig } from '../types';
  * フロントエンド + バックエンド + コンテナ開発
  */
 export const fullstackPreset: DevContainerConfig = {
-  name: 'Fullstack Base',
-  image: 'mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye',
+  name: "Fullstack Base",
+  image: "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
 
   features: {
-    'ghcr.io/devcontainers/features/node:1': {
-      version: '20',
+    "ghcr.io/devcontainers/features/node:1": {
+      version: "20",
     },
-    'ghcr.io/devcontainers/features/docker-in-docker:2': {
-      version: 'latest',
-      dockerDashComposeVersion: 'v2',
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      version: "latest",
+      dockerDashComposeVersion: "v2",
     },
   },
 
@@ -24,25 +24,25 @@ export const fullstackPreset: DevContainerConfig = {
     vscode: {
       extensions: [
         // フロントエンド
-        'dbaeumer.vscode-eslint',
-        'esbenp.prettier-vscode',
-        'bradlc.vscode-tailwindcss',
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
 
         // Docker
-        'ms-azuretools.vscode-docker',
+        "ms-azuretools.vscode-docker",
 
         // データベース
-        'mtxr.sqltools',
+        "mtxr.sqltools",
       ],
 
       settings: {
-        'editor.defaultFormatter': 'esbenp.prettier-vscode',
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
       },
     },
   },
 
-  mounts: ['source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind'],
+  mounts: ["source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"],
 
   // Bun は base で既にインストール済み
-  postCreateCommand: 'npm install -g pnpm',
+  postCreateCommand: "npm install -g pnpm",
 };
