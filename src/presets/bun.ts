@@ -25,7 +25,7 @@ export const bunPreset: DevContainerConfig = {
   // },
   //
   // containerEnv: {
-  //   BUN_RUNTIME_TRANSPILER_CACHE_PATH: '/workspace/.bun-cache',
+  //   BUN_RUNTIME_TRANSPILER_CACHE_PATH: '/workspaces/.bun-cache',
   //   BUN_INSTALL_BIN: '/home/dev-user/.bun/bin',
   // },
 };

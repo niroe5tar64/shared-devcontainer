@@ -11,7 +11,11 @@
  * Defines a dev container
  */
 export type DevContainerConfig =
-  | ((((DockerfileContainer | ImageContainer) & NonComposeBase) | ComposeContainer) & DevContainerCommon)
+  | ((
+      | ((DockerfileContainer | ImageContainer) & NonComposeBase)
+      | ComposeContainer
+    ) &
+      DevContainerCommon)
   | DevContainerCommon1;
 export type DockerfileContainer =
   | {
@@ -110,7 +114,7 @@ export interface NonComposeBase {
   /**
    * Action to take when the user disconnects from the container in their editor. The default is to stop the container.
    */
-  shutdownAction?: 'none' | 'stopContainer';
+  shutdownAction?: "none" | "stopContainer";
   /**
    * Whether to overwrite the command specified in the image. The default is true.
    */
@@ -145,7 +149,7 @@ export interface ComposeContainer {
   /**
    * Action to take when the user disconnects from the primary container in their editor. The default is to stop all of the compose containers.
    */
-  shutdownAction?: 'none' | 'stopCompose';
+  shutdownAction?: "none" | "stopCompose";
   /**
    * Whether to overwrite the command specified in the image. The default is false.
    */
@@ -220,7 +224,13 @@ export interface DevContainerCommon {
       /**
        * Defines the action that occurs when the port is discovered for automatic forwarding
        */
-      onAutoForward?: 'notify' | 'openBrowser' | 'openBrowserOnce' | 'openPreview' | 'silent' | 'ignore';
+      onAutoForward?:
+        | "notify"
+        | "openBrowser"
+        | "openBrowserOnce"
+        | "openPreview"
+        | "silent"
+        | "ignore";
       /**
        * Automatically prompt for elevation (if needed) when this port is forwarded. Elevate is required if the local port is a privileged port.
        */
@@ -233,7 +243,7 @@ export interface DevContainerCommon {
       /**
        * The protocol to use when forwarding this port.
        */
-      protocol?: 'http' | 'https';
+      protocol?: "http" | "https";
       [k: string]: unknown;
     };
   };
@@ -241,7 +251,12 @@ export interface DevContainerCommon {
     /**
      * Defines the action that occurs when the port is discovered for automatic forwarding
      */
-    onAutoForward?: 'notify' | 'openBrowser' | 'openPreview' | 'silent' | 'ignore';
+    onAutoForward?:
+      | "notify"
+      | "openBrowser"
+      | "openPreview"
+      | "silent"
+      | "ignore";
     /**
      * Automatically prompt for elevation (if needed) when this port is forwarded. Elevate is required if the local port is a privileged port.
      */
@@ -254,7 +269,7 @@ export interface DevContainerCommon {
     /**
      * The protocol to use when forwarding this port.
      */
-    protocol?: 'http' | 'https';
+    protocol?: "http" | "https";
   };
   /**
    * Controls whether on Linux the container's user should be updated with the local user's UID and GID. On by default when opening from a local folder.
@@ -357,11 +372,20 @@ export interface DevContainerCommon {
   /**
    * The user command to wait for before continuing execution in the background while the UI is starting up. The default is "updateContentCommand".
    */
-  waitFor?: 'initializeCommand' | 'onCreateCommand' | 'updateContentCommand' | 'postCreateCommand' | 'postStartCommand';
+  waitFor?:
+    | "initializeCommand"
+    | "onCreateCommand"
+    | "updateContentCommand"
+    | "postCreateCommand"
+    | "postStartCommand";
   /**
    * User environment probe to run. The default is "loginInteractiveShell".
    */
-  userEnvProbe?: 'none' | 'loginShell' | 'loginInteractiveShell' | 'interactiveShell';
+  userEnvProbe?:
+    | "none"
+    | "loginShell"
+    | "loginInteractiveShell"
+    | "interactiveShell";
   /**
    * Host hardware requirements.
    */
@@ -379,7 +403,7 @@ export interface DevContainerCommon {
      */
     storage?: string;
     gpu?:
-      | (true | false | 'optional')
+      | (true | false | "optional")
       | {
           /**
            * Number of required cores.
@@ -407,7 +431,7 @@ export interface Mount {
   /**
    * Mount type.
    */
-  type: 'bind' | 'volume';
+  type: "bind" | "volume";
   /**
    * Mount source.
    */
@@ -485,7 +509,13 @@ export interface DevContainerCommon1 {
       /**
        * Defines the action that occurs when the port is discovered for automatic forwarding
        */
-      onAutoForward?: 'notify' | 'openBrowser' | 'openBrowserOnce' | 'openPreview' | 'silent' | 'ignore';
+      onAutoForward?:
+        | "notify"
+        | "openBrowser"
+        | "openBrowserOnce"
+        | "openPreview"
+        | "silent"
+        | "ignore";
       /**
        * Automatically prompt for elevation (if needed) when this port is forwarded. Elevate is required if the local port is a privileged port.
        */
@@ -498,7 +528,7 @@ export interface DevContainerCommon1 {
       /**
        * The protocol to use when forwarding this port.
        */
-      protocol?: 'http' | 'https';
+      protocol?: "http" | "https";
       [k: string]: unknown;
     };
   };
@@ -506,7 +536,12 @@ export interface DevContainerCommon1 {
     /**
      * Defines the action that occurs when the port is discovered for automatic forwarding
      */
-    onAutoForward?: 'notify' | 'openBrowser' | 'openPreview' | 'silent' | 'ignore';
+    onAutoForward?:
+      | "notify"
+      | "openBrowser"
+      | "openPreview"
+      | "silent"
+      | "ignore";
     /**
      * Automatically prompt for elevation (if needed) when this port is forwarded. Elevate is required if the local port is a privileged port.
      */
@@ -519,7 +554,7 @@ export interface DevContainerCommon1 {
     /**
      * The protocol to use when forwarding this port.
      */
-    protocol?: 'http' | 'https';
+    protocol?: "http" | "https";
   };
   /**
    * Controls whether on Linux the container's user should be updated with the local user's UID and GID. On by default when opening from a local folder.
@@ -622,11 +657,20 @@ export interface DevContainerCommon1 {
   /**
    * The user command to wait for before continuing execution in the background while the UI is starting up. The default is "updateContentCommand".
    */
-  waitFor?: 'initializeCommand' | 'onCreateCommand' | 'updateContentCommand' | 'postCreateCommand' | 'postStartCommand';
+  waitFor?:
+    | "initializeCommand"
+    | "onCreateCommand"
+    | "updateContentCommand"
+    | "postCreateCommand"
+    | "postStartCommand";
   /**
    * User environment probe to run. The default is "loginInteractiveShell".
    */
-  userEnvProbe?: 'none' | 'loginShell' | 'loginInteractiveShell' | 'interactiveShell';
+  userEnvProbe?:
+    | "none"
+    | "loginShell"
+    | "loginInteractiveShell"
+    | "interactiveShell";
   /**
    * Host hardware requirements.
    */
@@ -644,7 +688,7 @@ export interface DevContainerCommon1 {
      */
     storage?: string;
     gpu?:
-      | (true | false | 'optional')
+      | (true | false | "optional")
       | {
           /**
            * Number of required cores.

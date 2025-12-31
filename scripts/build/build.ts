@@ -24,20 +24,20 @@
  *   bun run build:client writing # Client モード + writing preset
  */
 
-import { mkdir, copyFile, cp } from 'node:fs/promises';
-import { join, resolve, basename } from 'node:path';
 import { existsSync } from 'node:fs';
+import { copyFile, cp, mkdir } from 'node:fs/promises';
+import { basename, join, resolve } from 'node:path';
+import { bunPreset } from '../../src/presets/bun';
+import { fullstackPreset } from '../../src/presets/fullstack';
 import { nodePreset } from '../../src/presets/node';
 import { pythonPreset } from '../../src/presets/python';
-import { fullstackPreset } from '../../src/presets/fullstack';
 import { writingPreset } from '../../src/presets/writing';
-import { bunPreset } from '../../src/presets/bun';
 import type { DevContainerConfig } from '../../src/types';
 import {
   generatePresetConfig,
-  writeJsonFile,
-  loadProjectConfig,
   getPostCreateCommand,
+  loadProjectConfig,
+  writeJsonFile,
 } from './lib/devcontainer-builder';
 
 /**
@@ -171,11 +171,25 @@ async function buildClient(presetName?: string) {
   const sourceDevcontainerDir = resolve(cwd, '.devcontainer');
 
   await mkdir(join(clientDevcontainerDir, 'bin'), { recursive: true });
-  await cp(join(sourceDevcontainerDir, 'bin'), join(clientDevcontainerDir, 'bin'), { recursive: true });
+  await cp(join(sourceDevcontainerDir, 'bin'), join(clientDevcontainerDir, 'bin'), {
+    recursive: true,
+  });
   console.log(`✅ Copied: ${join(clientDevcontainerDir, 'bin')}`);
 
-  await copyFile(join(sourceDevcontainerDir, 'post-create.sh'), join(clientDevcontainerDir, 'post-create.sh'));
+  await copyFile(
+    join(sourceDevcontainerDir, 'post-create.sh'),
+    join(clientDevcontainerDir, 'post-create.sh'),
+  );
   console.log(`✅ Copied: ${join(clientDevcontainerDir, 'post-create.sh')}`);
+
+  // statusline-command.sh を .claude/ にコピー（チーム共有設定として）
+  const claudeDir = resolve(clientDevcontainerDir, '..', '.claude');
+  await mkdir(claudeDir, { recursive: true });
+  await copyFile(
+    join(sourceDevcontainerDir, 'statusline-command.sh'),
+    join(claudeDir, 'statusline-command.sh'),
+  );
+  console.log(`✅ Copied: ${join(claudeDir, 'statusline-command.sh')}`);
 
   console.log('\n✨ Client DevContainer configuration generated successfully!');
   console.log('\n📝 Next steps:');
@@ -190,7 +204,7 @@ async function buildClient(presetName?: string) {
 async function main() {
   // コマンドライン引数から --mode フラグを解析
   const args = process.argv.slice(2);
-  const modeIndex = args.findIndex(arg => arg.startsWith('--mode='));
+  const modeIndex = args.findIndex((arg) => arg.startsWith('--mode='));
 
   let mode: BuildMode;
   if (modeIndex !== -1) {
