@@ -87,7 +87,7 @@ export const base: DevContainerConfig = {
 
   // 環境変数の追加
   containerEnv: {
-    CLAUDE_SETTINGS_PATH: "/workspaces/.claude/settings.json",
+    CLAUDE_SETTINGS_PATH: "${containerWorkspaceFolder}/.claude/settings.json",
     TZ: "Asia/Tokyo",
   },
 
