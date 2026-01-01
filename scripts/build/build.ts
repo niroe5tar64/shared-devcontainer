@@ -182,15 +182,6 @@ async function buildClient(presetName?: string) {
   );
   console.log(`✅ Copied: ${join(clientDevcontainerDir, 'post-create.sh')}`);
 
-  // statusline-command.sh を .claude/ にコピー（チーム共有設定として）
-  const claudeDir = resolve(clientDevcontainerDir, '..', '.claude');
-  await mkdir(claudeDir, { recursive: true });
-  await copyFile(
-    join(sourceDevcontainerDir, 'statusline-command.sh'),
-    join(claudeDir, 'statusline-command.sh'),
-  );
-  console.log(`✅ Copied: ${join(claudeDir, 'statusline-command.sh')}`);
-
   console.log('\n✨ Client DevContainer configuration generated successfully!');
   console.log('\n📝 Next steps:');
   console.log('   1. Return to your project root directory');
