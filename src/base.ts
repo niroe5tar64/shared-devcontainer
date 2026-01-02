@@ -102,9 +102,12 @@ export const base: DevContainerConfig = {
     // Git設定とSSH鍵
     `source=\${localEnv:HOME}/.gitconfig,target=/home/${DEVCONTAINER_USER}/.gitconfig,type=bind,consistency=cached`,
     `source=\${localEnv:HOME}/.ssh,target=/home/${DEVCONTAINER_USER}/.ssh,type=bind,consistency=cached,readonly`,
-    // AI開発ツールの認証情報
-    `source=\${localEnv:HOME}/.claude,target=/home/${DEVCONTAINER_USER}/.claude,type=bind`,
-    `source=\${localEnv:HOME}/.codex,target=/home/${DEVCONTAINER_USER}/.codex,type=bind`,
+    // Claude Code設定（プラグインキャッシュは除外）
+    `source=\${localEnv:HOME}/.claude/settings.json,target=/home/${DEVCONTAINER_USER}/.claude/settings.json,type=bind`,
+    `source=\${localEnv:HOME}/.claude/rules,target=/home/${DEVCONTAINER_USER}/.claude/rules,type=bind`,
+    `source=\${localEnv:HOME}/.claude/ide,target=/home/${DEVCONTAINER_USER}/.claude/ide,type=bind`,
+    `source=\${localEnv:HOME}/.claude/plans,target=/home/${DEVCONTAINER_USER}/.claude/plans,type=bind`,
+    `source=\${localEnv:HOME}/.codex,target=/home/${DEVCONTAINER_USER}/.codex,type=bind`
   ],
 
   // 開発ツールと AI アシスタントをすべての環境に標準装備
