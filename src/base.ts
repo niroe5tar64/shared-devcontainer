@@ -97,6 +97,10 @@ export const base: DevContainerConfig = {
     PATH: `/home/${DEVCONTAINER_USER}/.local/bin:/home/${DEVCONTAINER_USER}/.bun/bin:\${containerEnv:PATH}`,
   },
 
+  // ホストマシン上でコンテナ作成前に必要なディレクトリを作成
+  // マウントに失敗しないよう、事前にディレクトリとファイルを確保
+  initializeCommand: "bash .devcontainer/initialize.sh",
+
   // ホストマシンとバインドマウントで共有
   mounts: [
     // Git設定とSSH鍵
@@ -107,6 +111,7 @@ export const base: DevContainerConfig = {
     `source=\${localEnv:HOME}/.claude/rules,target=/home/${DEVCONTAINER_USER}/.claude/rules,type=bind`,
     `source=\${localEnv:HOME}/.claude/ide,target=/home/${DEVCONTAINER_USER}/.claude/ide,type=bind`,
     `source=\${localEnv:HOME}/.claude/plans,target=/home/${DEVCONTAINER_USER}/.claude/plans,type=bind`,
+    `source=\${localEnv:HOME}/.claude/todos,target=/home/${DEVCONTAINER_USER}/.claude/todos,type=bind`,
     `source=\${localEnv:HOME}/.codex,target=/home/${DEVCONTAINER_USER}/.codex,type=bind`
   ],
 

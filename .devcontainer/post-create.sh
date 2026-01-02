@@ -6,6 +6,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # プロジェクトルートを取得（SCRIPT_DIRの親ディレクトリ）
 PROJECT_ROOT="$(dirname "${SCRIPT_DIR}")"
 
+# Fix ownership of mounted directories
+# マウントされたディレクトリはホストのUID/GIDで作成されるため、
+# コンテナ内ユーザーに所有権を変更する必要がある
+echo "Fixing ownership of mounted directories..."
+sudo chown -R $(id -u):$(id -g) ~/.claude ~/.codex 2>/dev/null || true
+
 # Update system packages
 sudo apt-get update
 sudo apt-get install -y vim tree jq unzip
