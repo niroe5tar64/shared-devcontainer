@@ -107,7 +107,6 @@ export const base: DevContainerConfig = {
     `source=\${localEnv:HOME}/.gitconfig,target=/home/${DEVCONTAINER_USER}/.gitconfig,type=bind,consistency=cached`,
     `source=\${localEnv:HOME}/.ssh,target=/home/${DEVCONTAINER_USER}/.ssh,type=bind,consistency=cached,readonly`,
     // Claude Code設定（プラグインキャッシュは除外）
-    `source=\${localEnv:HOME}/.claude/settings.json,target=/home/${DEVCONTAINER_USER}/.claude/settings.json,type=bind`,
     `source=\${localEnv:HOME}/.claude/rules,target=/home/${DEVCONTAINER_USER}/.claude/rules,type=bind`,
     `source=\${localEnv:HOME}/.claude/ide,target=/home/${DEVCONTAINER_USER}/.claude/ide,type=bind`,
     `source=\${localEnv:HOME}/.claude/plans,target=/home/${DEVCONTAINER_USER}/.claude/plans,type=bind`,
