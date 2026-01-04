@@ -7,7 +7,7 @@
 import { writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import type { DevContainerConfig } from '../../../src/types';
+import type { DevContainerConfig, Mount } from '../../../src/types';
 import { base } from '../../../src/base';
 
 /**
@@ -56,7 +56,12 @@ export function mergeArrays<T>(base?: T[], preset?: T[]): T[] | undefined {
 /**
  * マウント指定から target を取得
  */
-function getMountTarget(mount: string): string | undefined {
+function getMountTarget(mount: string | Mount): string | undefined {
+  // Mount オブジェクトの場合
+  if (typeof mount === 'object') {
+    return mount.target;
+  }
+  // 文字列の場合
   const parts = mount.split(',');
   for (const part of parts) {
     const trimmed = part.trim();
@@ -72,14 +77,14 @@ function getMountTarget(mount: string): string | undefined {
  * mounts をマージ（target が同一なら後勝ち）
  */
 export function mergeMounts(
-  base?: string[],
-  preset?: string[],
-  project?: string[]
-): string[] | undefined {
+  base?: (string | Mount)[],
+  preset?: (string | Mount)[],
+  project?: (string | Mount)[]
+): (string | Mount)[] | undefined {
   const lists = [base, preset, project];
-  const result: string[] = [];
+  const result: (string | Mount)[] = [];
   const targetIndex = new Map<string, number>();
-  const seen = new Set<string>();
+  const seen = new Set<string | Mount>();
 
   for (const list of lists) {
     if (!list) continue;
