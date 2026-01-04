@@ -1,30 +1,30 @@
 #!/usr/bin/env bun
-import fs from "node:fs/promises";
-import path from "node:path";
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import type { JSONSchema } from 'json-schema-to-typescript';
 /**
  * DevContainer型定義生成スクリプト
  *
  * 公式のdevcontainer.json JSON Schemaから
  * TypeScript型定義を自動生成します。
  */
-import { compile } from "json-schema-to-typescript";
-import type { JSONSchema } from "json-schema-to-typescript";
+import { compile } from 'json-schema-to-typescript';
 
 const BASE_SCHEMA_URL =
-  "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.base.schema.json";
-const OUTPUT_PATH = path.join(import.meta.dir, "../../src/types.generated.ts");
+  'https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.base.schema.json';
+const OUTPUT_PATH = path.join(import.meta.dir, '../../src/types.generated.ts');
 
 async function generateTypes() {
-  console.log("🔍 Fetching base schema...");
+  console.log('🔍 Fetching base schema...');
   const baseResponse = await fetch(BASE_SCHEMA_URL);
   if (!baseResponse.ok) {
     throw new Error(`Failed to fetch base schema: ${baseResponse.statusText}`);
   }
   const baseSchema = (await baseResponse.json()) as JSONSchema;
-  console.log("✅ Schema fetched successfully");
+  console.log('✅ Schema fetched successfully');
 
-  console.log("🔨 Generating TypeScript types...");
-  const types = await compile(baseSchema, "DevContainerConfig", {
+  console.log('🔨 Generating TypeScript types...');
+  const types = await compile(baseSchema, 'DevContainerConfig', {
     bannerComment: `/**
  * Auto-generated from official devcontainer.json base schema
  * Source: ${BASE_SCHEMA_URL}
@@ -38,12 +38,12 @@ async function generateTypes() {
     },
   });
 
-  console.log("💾 Writing types to file...");
+  console.log('💾 Writing types to file...');
   await fs.writeFile(OUTPUT_PATH, types);
   console.log(`✅ Types generated successfully: ${OUTPUT_PATH}`);
 }
 
 generateTypes().catch((error) => {
-  console.error("❌ Error generating types:", error);
+  console.error('❌ Error generating types:', error);
   process.exit(1);
 });

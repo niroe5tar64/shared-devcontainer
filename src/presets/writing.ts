@@ -1,4 +1,4 @@
-import type { DevContainerConfig } from "../types";
+import type { DevContainerConfig } from '../types';
 
 /**
  * AI Writing / Content Creation Preset
@@ -7,5 +7,5 @@ import type { DevContainerConfig } from "../types";
  * 将来的にプロジェクト固有の設定を追加する場合はここで定義可能。
  */
 export const writingPreset: DevContainerConfig = {
-  name: "AI Writing Base",
+  name: 'AI Writing Base',
 };

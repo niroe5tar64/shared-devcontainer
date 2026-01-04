@@ -1,4 +1,4 @@
-import type { DevContainerConfig } from "./types";
+import type { DevContainerConfig } from './types';
 
 /**
  * DevContainer ユーザー名
@@ -6,7 +6,7 @@ import type { DevContainerConfig } from "./types";
  * 環境変数 DEVCONTAINER_USER で上書き可能。
  * 例: DEVCONTAINER_USER=myuser bun run build
  */
-const DEVCONTAINER_USER = process.env.DEVCONTAINER_USER || "dev-user";
+const DEVCONTAINER_USER = process.env.DEVCONTAINER_USER || 'dev-user';
 
 /**
  * Base DevContainer Configuration
@@ -18,23 +18,23 @@ const DEVCONTAINER_USER = process.env.DEVCONTAINER_USER || "dev-user";
  * - 開発ツール（vim, tree, jq, Bun）
  */
 export const base: DevContainerConfig = {
-  image: "mcr.microsoft.com/devcontainers/base:ubuntu",
+  image: 'mcr.microsoft.com/devcontainers/base:ubuntu',
 
   features: {
-    "ghcr.io/devcontainers/features/git:1": {
-      version: "latest",
+    'ghcr.io/devcontainers/features/git:1': {
+      version: 'latest',
     },
-    "ghcr.io/devcontainers/features/github-cli:1": {
-      version: "latest",
+    'ghcr.io/devcontainers/features/github-cli:1': {
+      version: 'latest',
     },
-    "ghcr.io/devcontainers/features/node:1": {
-      version: "lts",
+    'ghcr.io/devcontainers/features/node:1': {
+      version: 'lts',
     },
-    "ghcr.io/devcontainers/features/common-utils:2": {
+    'ghcr.io/devcontainers/features/common-utils:2': {
       installZsh: true,
       installOhMyZsh: true,
       upgradePackages: true,
-      timezone: "Asia/Tokyo",
+      timezone: 'Asia/Tokyo',
       username: DEVCONTAINER_USER,
     },
   },
@@ -43,52 +43,53 @@ export const base: DevContainerConfig = {
     vscode: {
       extensions: [
         // AI アシスタント
-        "GitHub.copilot",
-        "GitHub.copilot-chat",
-        "anthropic.claude-code",
+        'GitHub.copilot',
+        'GitHub.copilot-chat',
+        'anthropic.claude-code',
 
         // Git 関連
-        "eamodio.gitlens",
-        "mhutchie.git-graph",
+        'eamodio.gitlens',
+        'mhutchie.git-graph',
 
         // エディタ支援
-        "usernamehw.errorlens",
-        "wayou.vscode-todo-highlight",
+        'usernamehw.errorlens',
+        'wayou.vscode-todo-highlight',
 
         // リンター/フォーマッター
-        "biomejs.biome",
+        'biomejs.biome',
 
         // 開発ツール
-        "oven.bun-vscode",
+        'oven.bun-vscode',
 
         // ドキュメント
-        "bierner.markdown-mermaid",
+        'bierner.markdown-mermaid',
       ],
 
       settings: {
         // エディタ基本設定
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "biomejs.biome",
-        "editor.codeActionsOnSave": {
-          "source.fixAll": "explicit",
+        'editor.formatOnSave': true,
+        'editor.defaultFormatter': 'biomejs.biome',
+        'editor.codeActionsOnSave': {
+          'source.fixAll': 'explicit',
         },
-        "files.autoSave": "onFocusChange",
-        "files.trimTrailingWhitespace": true,
+        'files.autoSave': 'onFocusChange',
+        'files.trimTrailingWhitespace': true,
 
         // ターミナル設定
-        "terminal.integrated.defaultProfile.linux": "bash",
+        'terminal.integrated.defaultProfile.linux': 'bash',
 
         // Git 設定
-        "git.autofetch": true,
-        "git.confirmSync": false,
+        'git.autofetch': true,
+        'git.confirmSync': false,
       },
     },
   },
 
   // 環境変数の追加
   containerEnv: {
-    CLAUDE_SETTINGS_PATH: "${containerWorkspaceFolder}/.claude/settings.json",
-    TZ: "Asia/Tokyo",
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: DevContainer variable
+    CLAUDE_SETTINGS_PATH: '${containerWorkspaceFolder}/.claude/settings.json',
+    TZ: 'Asia/Tokyo',
   },
 
   // PATH設定：ユーザーローカルのバイナリを優先
@@ -99,7 +100,7 @@ export const base: DevContainerConfig = {
 
   // ホストマシン上でコンテナ作成前に必要なディレクトリを作成
   // マウントに失敗しないよう、事前にディレクトリとファイルを確保
-  initializeCommand: "bash .devcontainer/initialize.sh",
+  initializeCommand: 'bash .devcontainer/initialize.sh',
 
   // ホストマシンとバインドマウントで共有
   mounts: [
@@ -111,14 +112,14 @@ export const base: DevContainerConfig = {
     `source=\${localEnv:HOME}/.claude/ide,target=/home/${DEVCONTAINER_USER}/.claude/ide,type=bind`,
     `source=\${localEnv:HOME}/.claude/plans,target=/home/${DEVCONTAINER_USER}/.claude/plans,type=bind`,
     `source=\${localEnv:HOME}/.claude/todos,target=/home/${DEVCONTAINER_USER}/.claude/todos,type=bind`,
-    `source=\${localEnv:HOME}/.codex,target=/home/${DEVCONTAINER_USER}/.codex,type=bind`
+    `source=\${localEnv:HOME}/.codex,target=/home/${DEVCONTAINER_USER}/.codex,type=bind`,
   ],
 
   // 開発ツールと AI アシスタントをすべての環境に標準装備
   // 1. 基本ツール（vim, tree, jq）
   // 2. Bun（高速パッケージマネージャー）
   // 3. AI 開発ツール（Claude Code, Codex）のインストールとラッパースクリプト設定
-  postCreateCommand: "bash ./post-create.sh",
+  postCreateCommand: 'bash ./post-create.sh',
 
   remoteUser: DEVCONTAINER_USER,
 };

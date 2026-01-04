@@ -1,4 +1,4 @@
-import type { DevContainerConfig } from "../types";
+import type { DevContainerConfig } from '../types';
 
 /**
  * Node.js/TypeScript Preset
@@ -7,12 +7,12 @@ import type { DevContainerConfig } from "../types";
  * ESLint + Prettier
  */
 export const nodePreset: DevContainerConfig = {
-  name: "Node.js Base",
-  image: "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+  name: 'Node.js Base',
+  image: 'mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye',
 
   features: {
-    "ghcr.io/devcontainers/features/node:1": {
-      version: "20",
+    'ghcr.io/devcontainers/features/node:1': {
+      version: '20',
       nodeGypDependencies: true,
     },
   },
@@ -21,27 +21,27 @@ export const nodePreset: DevContainerConfig = {
     vscode: {
       extensions: [
         // Node.js/TypeScript 開発
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "orta.vscode-jest",
+        'dbaeumer.vscode-eslint',
+        'esbenp.prettier-vscode',
+        'orta.vscode-jest',
 
         // Package.json 支援
-        "christian-kohler.npm-intellisense",
+        'christian-kohler.npm-intellisense',
       ],
 
       settings: {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "[javascript]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode",
+        'editor.defaultFormatter': 'esbenp.prettier-vscode',
+        '[javascript]': {
+          'editor.defaultFormatter': 'esbenp.prettier-vscode',
         },
-        "[typescript]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode",
+        '[typescript]': {
+          'editor.defaultFormatter': 'esbenp.prettier-vscode',
         },
-        "eslint.validate": ["javascript", "typescript"],
+        'eslint.validate': ['javascript', 'typescript'],
       },
     },
   },
 
   // Bun は base で既にインストール済み
-  postCreateCommand: "npm install -g pnpm",
+  postCreateCommand: 'npm install -g pnpm',
 };

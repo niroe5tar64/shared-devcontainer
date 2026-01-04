@@ -1,4 +1,4 @@
-import type { DevContainerConfig } from "../types";
+import type { DevContainerConfig } from '../types';
 
 /**
  * Bun Development Preset
@@ -11,7 +11,7 @@ import type { DevContainerConfig } from "../types";
  * - 将来的にBun固有の設定を追加可能
  */
 export const bunPreset: DevContainerConfig = {
-  name: "Bun Development",
+  name: 'Bun Development',
 
   // 将来的に以下のような設定を追加可能:
   //

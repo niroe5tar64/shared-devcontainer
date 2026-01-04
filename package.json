@@ -13,7 +13,11 @@
     "lint": "biome lint --write .",
     "check": "biome check --write ."
   },
-  "keywords": ["devcontainer", "development-environment", "ai-development"],
+  "keywords": [
+    "devcontainer",
+    "development-environment",
+    "ai-development"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
