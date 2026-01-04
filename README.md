@@ -218,10 +218,31 @@ cd ../..
 
 ### 共通設定の更新
 
-共通設定の更新を各プロジェクトに反映：
+共通設定の更新を各プロジェクトに反映する方法は2つあります：
+
+**方法1: 親リポジトリのルートから実行**（推奨）
 
 ```bash
-# サブモジュールを最新化
+# サブモジュールを最新の main ブランチに更新
+git submodule update --remote .devcontainer/shared
+
+# devcontainer.json を再生成
+cd .devcontainer/shared
+bun run build:client node
+cd ../..
+
+# サブモジュールの更新を親リポジトリにコミット
+git add .devcontainer/shared
+git commit -m "chore: Update shared-devcontainer submodule"
+
+# DevContainer を再ビルド
+# VS Code: Cmd+Shift+P → "Dev Containers: Rebuild Container"
+```
+
+**方法2: サブモジュール内で直接実行**
+
+```bash
+# サブモジュール内に移動して更新
 cd .devcontainer/shared
 git pull origin main
 
@@ -229,9 +250,18 @@ git pull origin main
 bun run build:client node
 cd ../..
 
+# サブモジュールの更新を親リポジトリにコミット
+git add .devcontainer/shared
+git commit -m "chore: Update shared-devcontainer submodule"
+
 # DevContainer を再ビルド
 # VS Code: Cmd+Shift+P → "Dev Containers: Rebuild Container"
 ```
+
+**注意**:
+- `git submodule update --init --recursive` は**初回セットアップ専用**のコマンドです
+- このコマンドは親リポジトリが記録している特定のコミットに戻すため、最新版への更新には使えません
+- 最新版に更新するには `git submodule update --remote` または `git pull` を使用してください
 
 ### 特定バージョンの使用
 
