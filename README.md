@@ -8,6 +8,8 @@
 - ✅ ビルドスクリプトで JSON を自動生成
 - ✅ Client 側でビルドして `.devcontainer/` を生成
 
+**クイックスタート**: よく使うコマンドは [COMMANDS.md](./COMMANDS.md) を参照してください。
+
 ## 構成
 
 ```
@@ -47,7 +49,7 @@ shared-devcontainer/
 
 - [Bun](https://bun.sh/) がインストールされていること
 
-### セットアップ
+### クイックスタート
 
 ```bash
 # 依存関係をインストール
@@ -57,18 +59,15 @@ bun install
 bun run build
 ```
 
-### 設定の編集
+### 設定の編集ワークフロー
 
 1. **共通設定の変更**: `src/base.ts` を編集
 2. **プリセットの変更**: `src/presets/*.ts` を編集
-3. **ビルドして JSON を生成**:
-
-```bash
-# Self DevContainer の生成
-bun run build
-```
+3. **ビルドして JSON を生成**: `bun run build`
 
 **重要**: `.devcontainer/devcontainer.json` は生成ファイルのため直接編集せず、`src/` を編集して `bun run build` を実行してください。
+
+**詳細なコマンドは [COMMANDS.md](./COMMANDS.md#開発者向けself) を参照してください。**
 
 ### 変更例：新しい拡張機能を全プロジェクトに追加
 
@@ -159,122 +158,52 @@ const PRESETS: Record<string, DevContainerConfig> = {
 };
 ```
 
-3. **ビルド**:
-
-```bash
-bun run build
-```
-
-### 型チェック
-
-TypeScript の型チェックで設定ミスを防げます：
-
-```bash
-# 型チェック
-bun run tsc --noEmit
-```
+3. **ビルド**: `bun run build`
 
 ## 使用方法
 
 ### 新規プロジェクトへの適用
 
-1. **プロジェクトルートで Git Submodule として追加**:
-
 ```bash
+# 1. Submodule として追加
 cd /path/to/your/project
 git submodule add https://github.com/niroe5tar64/shared-devcontainer.git .devcontainer/shared
-```
 
-2. **Client DevContainer を生成**:
-
-```bash
+# 2. Client DevContainer を生成
 cd .devcontainer/shared
 bun install
-bun run build:client node
+bun run build:client node  # プリセット選択: node, python, fullstack, writing
 cd ../..
+
+# 3. DevContainer を開く
+# VS Code: Cmd+Shift+P → "Dev Containers: Reopen in Container"
 ```
 
-3. **DevContainer を開く**:
-
-VS Code で `Cmd+Shift+P` → `Dev Containers: Reopen in Container`
+**詳細な手順は [COMMANDS.md](./COMMANDS.md#ユーザー向けclient) を参照してください。**
 
 ### 既存プロジェクトへの適用
 
-既存の `.devcontainer/devcontainer.json` がある場合：
+既存の `.devcontainer/devcontainer.json` がある場合は、まずバックアップしてから Submodule を追加します。
 
-```bash
-# 1. 既存設定をバックアップ
-mv .devcontainer/devcontainer.json .devcontainer/devcontainer.json.backup
-
-# 2. Submodule を追加
-git submodule add https://github.com/niroe5tar64/shared-devcontainer.git .devcontainer/shared
-
-# 3. Client DevContainer を生成
-cd .devcontainer/shared
-bun install
-bun run build:client node
-cd ../..
-```
+**詳細な手順は [COMMANDS.md](./COMMANDS.md#既存プロジェクトへの適用) を参照してください。**
 
 ### 共通設定の更新
 
-共通設定の更新を各プロジェクトに反映する方法は2つあります：
-
-**方法1: 親リポジトリのルートから実行**（推奨）
+サブモジュールを最新版に更新する方法：
 
 ```bash
-# サブモジュールを最新の main ブランチに更新
+# 推奨：親リポジトリのルートから実行
 git submodule update --remote .devcontainer/shared
-
-# devcontainer.json を再生成
-cd .devcontainer/shared
-bun run build:client node
-cd ../..
-
-# サブモジュールの更新を親リポジトリにコミット
+cd .devcontainer/shared && bun run build:client node && cd ../..
 git add .devcontainer/shared
 git commit -m "chore: Update shared-devcontainer submodule"
-
-# DevContainer を再ビルド
-# VS Code: Cmd+Shift+P → "Dev Containers: Rebuild Container"
 ```
 
-**方法2: サブモジュール内で直接実行**
+**重要**:
+- `git submodule update --init --recursive` は**初回セットアップ専用**です
+- 最新版への更新には `git submodule update --remote` を使用してください
 
-```bash
-# サブモジュール内に移動して更新
-cd .devcontainer/shared
-git pull origin main
-
-# devcontainer.json を再生成
-bun run build:client node
-cd ../..
-
-# サブモジュールの更新を親リポジトリにコミット
-git add .devcontainer/shared
-git commit -m "chore: Update shared-devcontainer submodule"
-
-# DevContainer を再ビルド
-# VS Code: Cmd+Shift+P → "Dev Containers: Rebuild Container"
-```
-
-**注意**:
-- `git submodule update --init --recursive` は**初回セットアップ専用**のコマンドです
-- このコマンドは親リポジトリが記録している特定のコミットに戻すため、最新版への更新には使えません
-- 最新版に更新するには `git submodule update --remote` または `git pull` を使用してください
-
-### 特定バージョンの使用
-
-特定のバージョンタグを使用したい場合：
-
-```bash
-cd .devcontainer/shared
-git checkout v1.0.0
-
-# devcontainer.json を再生成
-bun run build:client node
-cd ../..
-```
+**詳細は [COMMANDS.md](./COMMANDS.md#共通設定の更新) を参照してください。**
 
 ## プリセット選択ガイド
 
@@ -322,15 +251,11 @@ export const projectConfig: DevContainerConfig = {
 export default projectConfig;
 ```
 
-変更後はサブモジュール内で再生成します：
-
-```bash
-cd .devcontainer/shared
-bun run build:client node
-cd ../..
-```
+変更後は `cd .devcontainer/shared && bun run build:client node` で再生成してください。
 
 ⚠️ **注意**: `extensions` 配列は上書きではなく、プリセットの拡張機能に追加されます（devcontainer の仕様）。
+
+**詳細は [COMMANDS.md](./COMMANDS.md#プロジェクト固有のカスタマイズ) を参照してください。**
 
 ## コマンドラインツールの自動設定
 
@@ -372,86 +297,19 @@ DevContainer では、Claude Code と Codex の認証情報を **ホストマシ
 - ホストマシンから直接認証情報にアクセス可能
 - Rebuild 後も **確実に維持**される
 
-#### 初回セットアップ手順
-
-**1. DevContainer を起動**
-
-VS Code で `Cmd+Shift+P` → `Dev Containers: Reopen in Container`
-
-**2. 認証を実行**
-
-コンテナ内またはホストマシンで以下のコマンドを実行：
+### 初回セットアップ
 
 ```bash
 # Claude Code にログイン
 claude login
 
-# Codex にログイン（OpenAI API キーが必要）
+# Codex にログイン
 codex login
 ```
 
-認証情報はホストマシンの以下のディレクトリに保存されます：
-- `~/.claude/` (Mac/Linux) または `%USERPROFILE%\.claude\` (Windows)
-- `~/.codex/` (Mac/Linux) または `%USERPROFILE%\.codex\` (Windows)
+認証情報はホストマシンの `~/.claude/` と `~/.codex/` に保存されます。
 
-**3. 認証状態の確認**
-
-DevContainer のビルド完了時に自動的に認証状態がチェックされ、未認証の場合は警告が表示されます。
-
-#### Rebuild 後の挙動
-
-DevContainer を Rebuild しても：
-- ✅ 認証情報はホストマシンに保存されているため、**確実に維持される**
-- ✅ **再ログイン不要**で `claude` および `codex` コマンドをすぐに使用可能
-- ✅ コマンド履歴や設定も維持される
-- ✅ 複数のプロジェクト間で同じ認証情報を共有できる
-
-#### 認証情報の管理
-
-**認証情報の確認**:
-```bash
-# ホストマシンで実行
-ls -la ~/.claude/
-ls -la ~/.codex/
-```
-
-**認証情報のバックアップ（オプション）**:
-```bash
-# 認証情報をバックアップしたい場合
-tar czf claude-backup.tar.gz ~/.claude ~/.codex
-```
-
-**認証情報の削除（リセットしたい場合）**:
-```bash
-# 警告: 認証情報が完全に削除されます
-rm -rf ~/.claude ~/.codex
-```
-
-#### トラブルシューティング
-
-**症状**: 初回ログイン後も認証が保存されない
-
-**確認事項**:
-1. **ホストマシンにディレクトリが作成されているか確認**:
-   ```bash
-   # ホストマシンで実行
-   ls -la ~/.claude
-   ls -la ~/.codex
-   ```
-
-2. **devcontainer.json のマウント設定を確認**:
-   - `type=bind` になっているか
-   - `source=${localEnv:HOME}/.claude` のパスが正しいか
-
-3. **ディレクトリの権限を確認**:
-   ```bash
-   # ホストマシンで実行
-   chmod 700 ~/.claude ~/.codex
-   ```
-
-**症状**: 複数のプロジェクトで認証情報を共有したい
-
-**解決策**: バインドマウント方式では、すべてのプロジェクトでホストマシンの `~/.claude` と `~/.codex` を共有します。一度ログインすれば、すべてのプロジェクトで認証情報が利用可能です。
+**詳細な手順とトラブルシューティングは [COMMANDS.md](./COMMANDS.md#認証関連) を参照してください。**
 
 ## Claude Code プラグインの管理
 
@@ -481,22 +339,13 @@ Claude Code には3つの設定スコープがあります：
 
 ### プラグインの自動セットアップ
 
-推奨プラグイン（`git-ops`, `decision-support`, `statusline`, `bash-safety`）を自動で一括セットアップできるスクリプトを用意しています：
+推奨プラグイン（`git-ops`, `decision-support`, `statusline`, `bash-safety`）を自動で一括セットアップ：
 
 ```bash
 bun run setup-claude-plugins
 ```
 
-このスクリプトが実行する内容：
-1. マーケットプレイス `niroe5tar64/niro-agent-plugins` を追加（未追加の場合）
-2. 4つの推奨プラグインをユーザースコープで自動追加（未インストールの場合）
-
-既にインストール済みのプラグインは自動的にスキップされます。
-
-**実行後の確認**：
-```bash
-cat ~/.claude/settings.json
-```
+**詳細は [COMMANDS.md](./COMMANDS.md#プラグイン管理) を参照してください。**
 
 ### ユーザースコープを推奨する理由
 
@@ -560,32 +409,13 @@ claude plugin marketplace add <marketplace-name>
 
 ## トラブルシューティング
 
-### サブモジュールが初期化されていない
+よくある問題と解決方法は [COMMANDS.md](./COMMANDS.md#トラブルシューティング) を参照してください。
 
-**症状**: 新しくクローンしたプロジェクトで `.devcontainer/shared` が空
-
-**解決策**:
-```bash
-git submodule update --init --recursive
-```
-
-### 拡張機能が反映されない
-
-**症状**: プリセットで指定した拡張機能がインストールされない
-
-**解決策**: DevContainer を再ビルド
-```bash
-# VS Code: Cmd+Shift+P → "Dev Containers: Rebuild Container"
-```
-
-### プリセット名が見つからない
-
-**症状**: `bun run build:client <preset>` でエラーが発生
-
-**解決策**: プリセット名を確認
-```bash
-ls -la .devcontainer/shared/src/presets/
-```
+主な問題：
+- サブモジュールが初期化されていない
+- 拡張機能が反映されない
+- 認証情報が保存されない
+- ラッパースクリプトが動作しない
 
 ## 貢献
 
@@ -607,6 +437,10 @@ ls -la .devcontainer/shared/src/presets/
 ## ライセンス
 
 MIT License
+
+## クイックリファレンス
+
+- **[COMMANDS.md](./COMMANDS.md)** - よく使うコマンドのチートシート
 
 ## 関連リンク
 
