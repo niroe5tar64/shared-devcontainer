@@ -12,6 +12,7 @@
 
 - `.devcontainer/devcontainer.json` を直接編集しない（`src/base.ts` を編集して `bun run build`）
 - `src/types.generated.ts` は手動編集禁止（`bun run generate-types` で再生成）
+- **Claude Code プラグインはユーザースコープ** (`~/.claude/settings.json`) での追加を推奨
 
 ## 主要コマンド
 
@@ -27,3 +28,4 @@
 - `.claude/rules/src.md`: `src/` 編集ガイド、プリセット追加手順、型再生成
 - `.claude/rules/troubleshooting.md`: ビルド/DevContainer/認証/ラッパーのトラブル対応
 - `.claude/rules/wrapper-scripts.md`: ラッパースクリプトと post-create の概要
+- `.claude/rules/plugins.md`: Claude Code プラグインのローカルスコープ管理ガイド

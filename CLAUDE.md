@@ -48,3 +48,13 @@ bun run tsc --noEmit   # 型チェック
 | `.devcontainer/bin/` | AI ツールのラッパースクリプト |
 
 詳細は `.claude/rules/` 配下を参照。
+
+## Claude Code プラグイン
+
+このプロジェクトでは、**Claude Code プラグインはユーザースコープでの追加を推奨**しています。
+
+- **ユーザースコープ** (`~/.claude/settings.json`) - ⭐️ 推奨：全プロジェクト共通の個人設定
+- **ローカルスコープ** (`.claude/settings.local.json`) - ⚠️ 非推奨：プラグイン管理ファイルと干渉
+- **プロジェクトスコープ** (`.claude/settings.json`) - ❌ 避ける：Git管理で不整合が生じる
+
+詳細は `README.md` の「Claude Code プラグインの管理」セクションまたは `.claude/rules/plugins.md` を参照。
