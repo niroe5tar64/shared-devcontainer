@@ -7,7 +7,8 @@
     "build": "bun run scripts/build/build.ts",
     "build:self": "bun run scripts/build/build.ts --mode=self",
     "build:client": "bun run scripts/build/build.ts --mode=client",
-    "generate-types": "bun run scripts/ops/generate-types.ts"
+    "generate-types": "bun run scripts/ops/generate-types.ts",
+    "setup-claude-plugins": "bash scripts/setup-claude-plugins.sh"
   },
   "keywords": ["devcontainer", "development-environment", "ai-development"],
   "author": "",

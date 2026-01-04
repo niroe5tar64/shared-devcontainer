@@ -437,6 +437,39 @@ Claude Code には3つの設定スコープがあります：
 | **Local** | `.claude/settings.local.json` | 個人のみ | なし（`.gitignore`） | ⚠️ 非推奨 | プラグイン管理ファイルと干渉の可能性 |
 | **Project** | `.claude/settings.json` | チーム全員 | あり | ❌ 避ける | Git管理で不整合が生じる |
 
+### 推奨プラグイン
+
+このプロジェクトでは、以下のプラグインの使用を推奨しています：
+
+**[niro-agent-plugins](https://github.com/niroe5tar64/niro-agent-plugins)**
+
+開発効率を向上させる便利なプラグイン集：
+- `statusline@niro-agent-plugins` - ステータスライン表示機能
+- `git-ops@niro-agent-plugins` - Git操作支援機能
+
+プラグインのインストール方法は「プラグインの追加方法」セクションを参照してください。
+
+### プラグインの自動セットアップ
+
+推奨プラグイン（`git-ops`, `decision-support`, `statusline`, `bash-safety`）を自動で一括セットアップできるスクリプトを用意しています：
+
+```bash
+bash scripts/setup-claude-plugins.sh
+```
+
+このスクリプトが実行する内容：
+1. マーケットプレイス `niroe5tar64/niro-agent-plugins` を追加
+2. 4つの推奨プラグインをユーザースコープで自動追加
+
+**実行後の確認**：
+```bash
+# プラグイン設定を確認
+cat ~/.claude/settings.json
+
+# JSON形式で詳細確認（jq が利用可能な場合）
+cat ~/.claude/settings.json | jq '.enabledPlugins'
+```
+
 ### ユーザースコープを推奨する理由
 
 1. **DevContainer 再作成時の干渉を回避**
