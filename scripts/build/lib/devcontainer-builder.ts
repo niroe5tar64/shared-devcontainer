@@ -111,7 +111,7 @@ export function mergeMounts(
 /**
  * オブジェクトを深くマージ
  */
-export function deepMerge<T extends Record<string, any>>(base?: T, preset?: T): T | undefined {
+export function deepMerge<T extends Record<string, unknown>>(base?: T, preset?: T): T | undefined {
   if (!base && !preset) return undefined;
   if (!base) return preset;
   if (!preset) return base;
@@ -119,7 +119,7 @@ export function deepMerge<T extends Record<string, any>>(base?: T, preset?: T): 
   const result = { ...base } as T;
   for (const key in preset) {
     if (preset[key] && typeof preset[key] === 'object' && !Array.isArray(preset[key])) {
-      result[key] = deepMerge(base[key], preset[key]) as any;
+      result[key] = deepMerge(base[key] as Record<string, unknown>, preset[key] as Record<string, unknown>) as T[Extract<keyof T, string>];
     } else {
       result[key] = preset[key];
     }
@@ -215,7 +215,7 @@ export function generatePresetConfig(
  */
 export async function writeJsonFile(filePath: string, data: unknown): Promise<void> {
   const json = JSON.stringify(data, null, 2);
-  await writeFile(filePath, json + '\n', 'utf-8');
+  await writeFile(filePath, `${json}\n`, 'utf-8');
   console.log(`✅ Generated: ${filePath}`);
 }
 

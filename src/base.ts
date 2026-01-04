@@ -87,7 +87,6 @@ export const base: DevContainerConfig = {
 
   // 環境変数の追加
   containerEnv: {
-    // biome-ignore lint/suspicious/noTemplateCurlyInString: DevContainer variable
     CLAUDE_SETTINGS_PATH: '${containerWorkspaceFolder}/.claude/settings.json',
     TZ: 'Asia/Tokyo',
   },
