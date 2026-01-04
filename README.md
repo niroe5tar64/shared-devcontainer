@@ -454,20 +454,18 @@ Claude Code には3つの設定スコープがあります：
 推奨プラグイン（`git-ops`, `decision-support`, `statusline`, `bash-safety`）を自動で一括セットアップできるスクリプトを用意しています：
 
 ```bash
-bash scripts/setup-claude-plugins.sh
+bun run setup-claude-plugins
 ```
 
 このスクリプトが実行する内容：
-1. マーケットプレイス `niroe5tar64/niro-agent-plugins` を追加
-2. 4つの推奨プラグインをユーザースコープで自動追加
+1. マーケットプレイス `niroe5tar64/niro-agent-plugins` を追加（未追加の場合）
+2. 4つの推奨プラグインをユーザースコープで自動追加（未インストールの場合）
+
+既にインストール済みのプラグインは自動的にスキップされます。
 
 **実行後の確認**：
 ```bash
-# プラグイン設定を確認
 cat ~/.claude/settings.json
-
-# JSON形式で詳細確認（jq が利用可能な場合）
-cat ~/.claude/settings.json | jq '.enabledPlugins'
 ```
 
 ### ユーザースコープを推奨する理由
