@@ -1,20 +1,42 @@
-# macOS
-.DS_Store
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
 
-# Editor
+# Testing
+coverage/
+*.log
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
 .vscode/
 .idea/
-
-# Temporary files
-*.tmp
-*.bak
+*.swp
+*.swo
 *~
 
-# Node.js
-node_modules/
+# Bun
+.bun/
+bun.lockb
 
-# Test directories
-test-extends/
-
-# Claude Code local settings
+# Claude Code local overrides
 .claude/settings.local.json
+
+# Codex (local state)
+.codex/
+!.codex/skills/
+!.codex/skills/**
+.codex/skills/.system/
