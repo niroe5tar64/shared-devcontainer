@@ -177,6 +177,12 @@ async function buildClient(presetName?: string) {
   console.log(`✅ Copied: ${join(clientDevcontainerDir, 'bin')}`);
 
   await copyFile(
+    join(sourceDevcontainerDir, 'initialize.sh'),
+    join(clientDevcontainerDir, 'initialize.sh'),
+  );
+  console.log(`✅ Copied: ${join(clientDevcontainerDir, 'initialize.sh')}`);
+
+  await copyFile(
     join(sourceDevcontainerDir, 'post-create.sh'),
     join(clientDevcontainerDir, 'post-create.sh'),
   );
