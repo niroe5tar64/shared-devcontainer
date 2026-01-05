@@ -27,18 +27,18 @@
 import { existsSync } from 'node:fs';
 import { copyFile, cp, mkdir } from 'node:fs/promises';
 import { basename, join, resolve } from 'node:path';
-import { bunPreset } from '../../src/presets/bun';
-import { fullstackPreset } from '../../src/presets/fullstack';
-import { nodePreset } from '../../src/presets/node';
-import { pythonPreset } from '../../src/presets/python';
-import { writingPreset } from '../../src/presets/writing';
+import { bunPreset } from '../../src/config/presets/bun';
+import { fullstackPreset } from '../../src/config/presets/fullstack';
+import { nodePreset } from '../../src/config/presets/node';
+import { pythonPreset } from '../../src/config/presets/python';
+import { writingPreset } from '../../src/config/presets/writing';
 import type { DevContainerConfig } from '../../src/types';
 import {
   generatePresetConfig,
   getPostCreateCommand,
   loadProjectConfig,
   writeJsonFile,
-} from './lib/devcontainer-builder';
+} from '../../src/lib/devcontainer-builder';
 
 /**
  * プリセットマップ（Self/Client 共通）
@@ -63,8 +63,8 @@ type BuildMode = 'self' | 'client';
 async function detectBuildMode(): Promise<BuildMode> {
   const cwd = process.cwd();
 
-  // src/base.ts が存在すれば Self モード
-  if (existsSync(join(cwd, 'src', 'base.ts'))) {
+  // src/config/base.ts が存在すれば Self モード
+  if (existsSync(join(cwd, 'src', 'config', 'base.ts'))) {
     return 'self';
   }
 

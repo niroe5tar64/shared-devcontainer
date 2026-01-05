@@ -7,8 +7,8 @@
 import { writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import type { DevContainerConfig, Mount } from '../../../src/types';
-import { base } from '../../../src/base';
+import type { DevContainerConfig, Mount } from '../types';
+import { base } from '../config/base';
 
 /**
  * DevContainer スキーマ URL
