@@ -1,12 +1,15 @@
 {
   "name": "@niroe5tar64/devcontainer",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Shared DevContainer configurations for AI-driven development",
   "type": "module",
   "bin": {
     "devcontainer": "./dist/cli/index.js"
   },
-  "files": ["dist", "templates"],
+  "files": [
+    "dist",
+    "templates"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/niroe5tar64/shared-devcontainer.git"
@@ -28,7 +31,11 @@
     "validate": "bun run typecheck && bun run check",
     "prepublishOnly": "bun run build:cli"
   },
-  "keywords": ["devcontainer", "development-environment", "ai-development"],
+  "keywords": [
+    "devcontainer",
+    "development-environment",
+    "ai-development"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
