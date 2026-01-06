@@ -59,6 +59,7 @@
   "mounts": [
     "source=${localEnv:HOME}/.gitconfig,target=/home/dev-user/.gitconfig,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.ssh,target=/home/dev-user/.ssh,type=bind,consistency=cached,readonly",
+    "source=${localEnv:HOME}/.npmrc,target=/home/dev-user/.npmrc,type=bind,consistency=cached,readonly",
     "source=${localEnv:HOME}/.claude/rules,target=/home/dev-user/.claude/rules,type=bind",
     "source=${localEnv:HOME}/.claude/ide,target=/home/dev-user/.claude/ide,type=bind",
     "source=${localEnv:HOME}/.claude/plans,target=/home/dev-user/.claude/plans,type=bind",
