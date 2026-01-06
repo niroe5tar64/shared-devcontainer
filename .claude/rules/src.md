@@ -6,7 +6,7 @@ paths: src/**
 
 ## base.ts の構造
 
-`src/base.ts` は全プリセットの基盤となる設定を定義：
+`src/config/base.ts` は全プリセットの基盤となる設定を定義：
 
 ```typescript
 export const base: DevContainerConfig = {
@@ -28,13 +28,13 @@ export const base: DevContainerConfig = {
 
 ## プリセットの追加方法
 
-1. `src/presets/` に新しいファイルを作成
-2. `scripts/build/build.ts` の `presets` 配列に追加
-3. `bun run build` を実行
+1. `src/config/presets/` に新しいファイルを作成
+2. `scripts/build/build.ts` と `src/cli/commands/init.ts` の `PRESETS` に追加
+3. `bun run build` と `bun run build:cli` を実行
 
 ```typescript
-// src/presets/rust.ts
-import type { DevContainerConfig } from '../types';
+// src/config/presets/rust.ts
+import type { DevContainerConfig } from '../../types';
 
 export const rustPreset: DevContainerConfig = {
   name: 'Rust Base',

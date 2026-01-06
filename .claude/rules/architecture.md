@@ -2,8 +2,22 @@
 
 ## ソース → ビルド → 配布フロー
 
+### 推奨: npx/bunx ベース
+
 ```
-src/base.ts + src/presets/*.ts + .devcontainer/project-config.ts
+src/config/base.ts + src/config/presets/*.ts + project-config.ts
+        ↓ bun run build:cli
+dist/cli/index.js + templates/
+        ↓ npm publish (GitHub Packages)
+他プロジェクトで npx @niroe5tar64/devcontainer init --preset <name>
+        ↓
+.devcontainer/devcontainer.json + bin/ + post-create.sh + initialize.sh を生成
+```
+
+### 従来: git submodule ベース
+
+```
+src/config/base.ts + src/config/presets/*.ts + .devcontainer/project-config.ts
         ↓ bun run build (Self DevContainer)
 .devcontainer/devcontainer.json
         ↓ git submodule
@@ -17,17 +31,27 @@ src/base.ts + src/presets/*.ts + .devcontainer/project-config.ts
 ```
 shared-devcontainer/
 ├── src/                      # 設定のソースファイル（編集するのはここ）
-│   ├── base.ts              # 共通設定
+│   ├── cli/                 # CLI コード
+│   │   ├── index.ts         # エントリポイント
+│   │   └── commands/        # コマンド実装
+│   ├── config/              # 設定ファイル
+│   │   ├── base.ts          # 共通設定
+│   │   └── presets/         # プリセット
+│   ├── lib/                 # ユーティリティ
+│   │   └── devcontainer-builder.ts
 │   ├── types.ts             # カスタム型定義
-│   ├── types.generated.ts   # 自動生成された型（編集禁止）
-│   └── presets/             # プリセット
+│   └── types.generated.ts   # 自動生成された型（編集禁止）
+├── templates/               # 配布用テンプレート
+│   ├── bin/                 # ラッパースクリプト
+│   ├── post-create.sh       # セットアップスクリプト
+│   └── initialize.sh        # 初期化スクリプト
 ├── scripts/
 │   ├── build/
-│   │   ├── build.ts             # 統合ビルドスクリプト（Self/Client両対応）
-│   │   └── lib/
-│   │       └── devcontainer-builder.ts  # 共通ユーティリティ
+│   │   └── build.ts         # Self DevContainer ビルドスクリプト
 │   └── ops/
 │       └── generate-types.ts    # 型生成スクリプト
+├── dist/                    # ビルド成果物（CLI）
+│   └── cli/
 └── .devcontainer/           # このリポジトリ自体の開発環境
     ├── devcontainer.json    # 自動生成（Self DevContainer）
     ├── project-config.ts    # プロジェクト固有設定
@@ -35,7 +59,7 @@ shared-devcontainer/
     └── post-create.sh       # セットアップスクリプト（ソース）
 ```
 
-## マージロジック（scripts/build/lib/devcontainer-builder.ts）
+## マージロジック（src/lib/devcontainer-builder.ts）
 
 ビルド時、base + preset + project-config は以下のルールで3層マージされる：
 

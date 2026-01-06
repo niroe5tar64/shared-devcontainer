@@ -15,33 +15,48 @@
 ```
 shared-devcontainer/
 ├── src/                      # 設定のソースファイル（編集するのはここ）
-│   ├── base.ts              # 共通設定
+│   ├── cli/                 # CLI コード
+│   │   ├── index.ts         # エントリポイント
+│   │   └── commands/        # コマンド実装
+│   ├── config/              # 設定ファイル
+│   │   ├── base.ts          # 共通設定
+│   │   └── presets/         # プリセット
+│   ├── lib/                 # ユーティリティ
+│   │   └── devcontainer-builder.ts
 │   ├── types.ts             # 型定義
-│   ├── types.generated.ts   # 自動生成された型（編集禁止）
-│   └── presets/             # プリセット
-│       ├── node.ts
-│       ├── python.ts
-│       └── fullstack.ts
+│   └── types.generated.ts   # 自動生成された型（編集禁止）
+├── templates/               # 配布用テンプレート
+│   ├── bin/                 # ラッパースクリプト
+│   ├── post-create.sh       # セットアップスクリプト
+│   └── initialize.sh        # 初期化スクリプト
 ├── scripts/
 │   ├── build/               # ビルド関連
-│   │   ├── build.ts         # ビルドスクリプト
-│   │   └── lib/             # 共通ユーティリティ
+│   │   └── build.ts         # Self DevContainer ビルドスクリプト
 │   └── ops/                 # 運用・メンテナンス
 │       └── generate-types.ts  # 型生成スクリプト
-└── .devcontainer/           # このリポジトリ自体の開発環境
-    ├── devcontainer.json    # 自動生成（Self DevContainer）
-    ├── project-config.ts    # Self 用の追加設定
-    ├── bin/                 # ラッパースクリプト（ソース）
-    └── post-create.sh       # セットアップスクリプト（ソース）
+├── dist/                    # ビルド成果物（CLI）
+│   └── cli/
+├── .devcontainer/           # このリポジトリ自体の開発環境
+│   ├── devcontainer.json    # 自動生成（Self DevContainer）
+│   ├── project-config.ts    # Self 用の追加設定
+│   ├── bin/                 # ラッパースクリプト（ソース）
+│   └── post-create.sh       # セットアップスクリプト（ソース）
+└── package.json             # CLI パッケージ設定
 ```
 
 ### 生成されるファイル
 
-- **Self**: `.devcontainer/devcontainer.json`
-- **Client**: 親プロジェクトの `.devcontainer/` に以下を生成
+- **Self**: `.devcontainer/devcontainer.json`（開発者向け）
+- **Client (npx/bunx)**: 指定したディレクトリに以下を生成
+  - `devcontainer.json`
+  - `bin/`（ラッパースクリプト）
+  - `post-create.sh`（セットアップスクリプト）
+  - `initialize.sh`（初期化スクリプト）
+- **Client (git submodule)**: 親プロジェクトの `.devcontainer/` に以下を生成
   - `devcontainer.json`
   - `bin/`（ラッパースクリプトのコピー）
   - `post-create.sh`（セットアップスクリプトのコピー）
+  - `initialize.sh`（初期化スクリプトのコピー）
 
 ## 開発者向け：設定の変更方法
 
@@ -61,18 +76,19 @@ bun run build
 
 ### 設定の編集ワークフロー
 
-1. **共通設定の変更**: `src/base.ts` を編集
-2. **プリセットの変更**: `src/presets/*.ts` を編集
+1. **共通設定の変更**: `src/config/base.ts` を編集
+2. **プリセットの変更**: `src/config/presets/*.ts` を編集
 3. **ビルドして JSON を生成**: `bun run build`
+4. **CLI のビルド** (公開用): `bun run build:cli`
 
-**重要**: `.devcontainer/devcontainer.json` は生成ファイルのため直接編集せず、`src/` を編集して `bun run build` を実行してください。
+**重要**: `.devcontainer/devcontainer.json` は生成ファイルのため直接編集せず、`src/config/` を編集して `bun run build` を実行してください。
 
 **詳細なコマンドは [COMMANDS.md](./COMMANDS.md#開発者向けself) を参照してください。**
 
 ### 変更例：新しい拡張機能を全プロジェクトに追加
 
 ```typescript
-// src/base.ts
+// src/config/base.ts
 export const base: DevContainerConfig = {
   // ...
   customizations: {
@@ -99,7 +115,7 @@ bun run build
 ### 変更例：Node.js プリセットに拡張機能を追加
 
 ```typescript
-// src/presets/node.ts
+// src/config/presets/node.ts
 export const nodePreset: DevContainerConfig = {
   // ...
   customizations: {
@@ -119,10 +135,10 @@ export const nodePreset: DevContainerConfig = {
 
 新しいプリセット（例：Rust）を追加する場合：
 
-1. **`src/presets/rust.ts` を作成**:
+1. **`src/config/presets/rust.ts` を作成**:
 
 ```typescript
-import type { DevContainerConfig } from '../types';
+import type { DevContainerConfig } from '../../types';
 
 export const rustPreset: DevContainerConfig = {
   name: 'Rust Base',
@@ -144,10 +160,11 @@ export const rustPreset: DevContainerConfig = {
 };
 ```
 
-2. **`scripts/build/build.ts` に追加**:
+2. **`scripts/build/build.ts` と `src/cli/commands/init.ts` に追加**:
 
 ```typescript
-import { rustPreset } from '../src/presets/rust';
+// scripts/build/build.ts
+import { rustPreset } from '../../src/config/presets/rust';
 
 const PRESETS: Record<string, DevContainerConfig> = {
   node: nodePreset,
@@ -158,11 +175,60 @@ const PRESETS: Record<string, DevContainerConfig> = {
 };
 ```
 
-3. **ビルド**: `bun run build`
+```typescript
+// src/cli/commands/init.ts
+import { rustPreset } from '../../config/presets/rust';
+
+const PRESETS: Record<string, DevContainerConfig> = {
+  node: nodePreset,
+  python: pythonPreset,
+  fullstack: fullstackPreset,
+  writing: writingPreset,
+  rust: rustPreset, // ← 追加
+};
+```
+
+3. **ビルド**: `bun run build` と `bun run build:cli`
 
 ## 使用方法
 
-### 新規プロジェクトへの適用
+### Quick Start (推奨: npx/bunx)
+
+**新しい配布方式**: GitHub Packages経由でパッケージを取得し、1コマンドでDevContainerを生成します。
+
+#### 1. .npmrc の設定
+
+プロジェクトルートまたはホームディレクトリに `.npmrc` を作成：
+
+```bash
+echo "@niroe5tar64:registry=https://npm.pkg.github.com" >> .npmrc
+```
+
+#### 2. DevContainer の生成
+
+```bash
+# 利用可能なプリセットを確認
+npx @niroe5tar64/devcontainer list-presets
+
+# DevContainer を初期化
+npx @niroe5tar64/devcontainer init --preset node
+```
+
+または Bun を使用：
+
+```bash
+bunx @niroe5tar64/devcontainer init --preset node
+```
+
+#### 3. DevContainer を開く
+
+```bash
+# VS Code: Cmd+Shift+P → "Dev Containers: Reopen in Container"
+```
+
+### 従来の方法 (git submodule)
+
+従来通り、git submodule として追加することも可能です：
 
 ```bash
 # 1. Submodule として追加
@@ -178,6 +244,8 @@ cd ../..
 # 3. DevContainer を開く
 # VS Code: Cmd+Shift+P → "Dev Containers: Reopen in Container"
 ```
+
+**git submodule から npx/bunx への移行**: [docs/migration-from-submodule.md](./docs/migration-from-submodule.md) を参照してください。
 
 **詳細な手順は [COMMANDS.md](./COMMANDS.md#ユーザー向けclient) を参照してください。**
 

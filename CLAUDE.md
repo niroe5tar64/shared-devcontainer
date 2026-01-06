@@ -5,7 +5,10 @@ This file provides guidance to Claude Code when working with this repository.
 ## プロジェクト概要
 
 チーム共通の DevContainer 設定を TypeScript で管理し、JSON 設定ファイルを自動生成するリポジトリ。
-他プロジェクトから Git サブモジュールとして利用することを想定。
+
+**配布方式**:
+- **推奨**: npx/bunx 経由で GitHub Packages からパッケージを取得
+- **従来**: Git サブモジュールとして利用
 
 ## 用語定義
 
@@ -28,6 +31,9 @@ bun run build:self node    # Self モード + node preset
 # Client DevContainer（サブモジュールとして利用時）
 bun run build:client writing  # 明示的に Client モード + preset
 
+# CLI ビルド（パッケージ公開用）
+bun run build:cli          # CLI パッケージをビルド
+
 # その他
 bun run generate-types # 公式スキーマから TypeScript 型を再生成
 bun run tsc --noEmit   # 型チェック
@@ -35,17 +41,20 @@ bun run tsc --noEmit   # 型チェック
 
 ## 絶対ルール
 
-- **`.devcontainer/devcontainer.json` を直接編集しない** - `src/base.ts` を編集して `bun run build` で生成
+- **`.devcontainer/devcontainer.json` を直接編集しない** - `src/config/base.ts` を編集して `bun run build` で生成
 - **型定義の手動編集禁止** - `src/types.generated.ts` は `bun run generate-types` で生成
 
 ## 主要ファイル
 
 | パス | 役割 |
 |-----|------|
-| `src/base.ts` | 全プリセット共通のベース設定 |
-| `src/presets/*.ts` | 技術スタック別プリセット |
-| `scripts/build/build.ts` | ビルドスクリプト |
-| `.devcontainer/bin/` | AI ツールのラッパースクリプト |
+| `src/config/base.ts` | 全プリセット共通のベース設定 |
+| `src/config/presets/*.ts` | 技術スタック別プリセット |
+| `src/cli/` | CLI コマンド実装 |
+| `src/lib/devcontainer-builder.ts` | 共通ユーティリティ |
+| `scripts/build/build.ts` | Self DevContainer ビルドスクリプト |
+| `templates/` | 配布用テンプレートファイル |
+| `.devcontainer/bin/` | AI ツールのラッパースクリプト（ソース） |
 
 詳細は `.claude/rules/` 配下を参照。
 
