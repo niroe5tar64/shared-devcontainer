@@ -1,6 +1,6 @@
 {
   "name": "@niroe5tar64/devcontainer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shared DevContainer configurations for AI-driven development",
   "type": "module",
   "bin": {
