@@ -5,7 +5,7 @@
 ## リポジトリ概要
 
 - TypeScript で共通 DevContainer 設定を管理し、JSON を自動生成する
-- 他リポジトリから Git サブモジュールとして利用する想定
+- CLI (`npx @niroe5tar64/devcontainer`) で他プロジェクトに配布
 - エージェントとの会話は日本語で行なう
 
 ## 絶対ルール
@@ -16,7 +16,8 @@
 
 ## 主要コマンド
 
-- `bun run build` / `bun run build:self` / `bun run build:client <preset>`
+- `bun run build` / `bun run build:self` / `bun run build:self <preset>`
+- `bun run build:cli`
 - `bun run generate-types`
 - `bun run tsc --noEmit`
 

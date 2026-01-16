@@ -4,21 +4,9 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineCommand } from 'citty';
 import { createJiti } from 'jiti';
-import { bunPreset } from '../../config/presets/bun';
-import { fullstackPreset } from '../../config/presets/fullstack';
-import { nodePreset } from '../../config/presets/node';
-import { pythonPreset } from '../../config/presets/python';
-import { writingPreset } from '../../config/presets/writing';
+import { PRESETS } from '../../config/presets/index';
 import { generatePresetConfig, writeJsonFile } from '../../lib/devcontainer-builder';
 import type { DevContainerConfig } from '../../types';
-
-const PRESETS: Record<string, DevContainerConfig> = {
-  node: nodePreset,
-  python: pythonPreset,
-  fullstack: fullstackPreset,
-  writing: writingPreset,
-  bun: bunPreset,
-};
 
 /**
  * 値が DevContainerConfig かどうかを検証する型ガード

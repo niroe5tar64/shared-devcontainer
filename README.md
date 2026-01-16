@@ -46,17 +46,12 @@ shared-devcontainer/
 
 ### 生成されるファイル
 
-- **Self**: `.devcontainer/devcontainer.json`（開発者向け）
-- **Client (npx/bunx)**: 指定したディレクトリに以下を生成
+- **Self**: `.devcontainer/devcontainer.json`（このリポジトリの開発環境）
+- **Client (CLI)**: `npx @niroe5tar64/devcontainer init` で、指定したディレクトリに以下を生成
   - `devcontainer.json`
   - `bin/`（ラッパースクリプト）
   - `post-create.sh`（セットアップスクリプト）
   - `initialize.sh`（初期化スクリプト）
-- **Client (git submodule)**: 親プロジェクトの `.devcontainer/` に以下を生成
-  - `devcontainer.json`
-  - `bin/`（ラッパースクリプトのコピー）
-  - `post-create.sh`（セットアップスクリプトのコピー）
-  - `initialize.sh`（初期化スクリプトのコピー）
 
 ## 開発者向け：設定の変更方法
 
@@ -226,53 +221,6 @@ bunx @niroe5tar64/devcontainer init --preset node
 # VS Code: Cmd+Shift+P → "Dev Containers: Reopen in Container"
 ```
 
-### 従来の方法 (git submodule)
-
-従来通り、git submodule として追加することも可能です：
-
-```bash
-# 1. Submodule として追加
-cd /path/to/your/project
-git submodule add https://github.com/niroe5tar64/shared-devcontainer.git .devcontainer/shared
-
-# 2. Client DevContainer を生成
-cd .devcontainer/shared
-bun install
-bun run build:client node  # プリセット選択: node, python, fullstack, writing
-cd ../..
-
-# 3. DevContainer を開く
-# VS Code: Cmd+Shift+P → "Dev Containers: Reopen in Container"
-```
-
-**git submodule から npx/bunx への移行**: [docs/migration-from-submodule.md](./docs/migration-from-submodule.md) を参照してください。
-
-**詳細な手順は [COMMANDS.md](./COMMANDS.md#ユーザー向けclient) を参照してください。**
-
-### 既存プロジェクトへの適用
-
-既存の `.devcontainer/devcontainer.json` がある場合は、まずバックアップしてから Submodule を追加します。
-
-**詳細な手順は [COMMANDS.md](./COMMANDS.md#既存プロジェクトへの適用) を参照してください。**
-
-### 共通設定の更新
-
-サブモジュールを最新版に更新する方法：
-
-```bash
-# 推奨：親リポジトリのルートから実行
-git submodule update --remote .devcontainer/shared
-cd .devcontainer/shared && bun run build:client node && cd ../..
-git add .devcontainer/shared
-git commit -m "chore: Update shared-devcontainer submodule"
-```
-
-**重要**:
-- `git submodule update --init --recursive` は**初回セットアップ専用**です
-- 最新版への更新には `git submodule update --remote` を使用してください
-
-**詳細は [COMMANDS.md](./COMMANDS.md#共通設定の更新) を参照してください。**
-
 ## プリセット選択ガイド
 
 プロジェクトの技術スタックに応じて適切なプリセットを選択：
@@ -319,7 +267,7 @@ export const projectConfig: DevContainerConfig = {
 export default projectConfig;
 ```
 
-変更後は `cd .devcontainer/shared && bun run build:client node` で再生成してください。
+変更後は `bun run build` で再生成してください。
 
 ⚠️ **注意**: `extensions` 配列は上書きではなく、プリセットの拡張機能に追加されます（devcontainer の仕様）。
 

@@ -1,27 +1,5 @@
 import { defineCommand } from 'citty';
-
-const PRESETS = {
-  node: {
-    name: 'Node.js/TypeScript',
-    description: 'Node.js and TypeScript development environment',
-  },
-  python: {
-    name: 'Python',
-    description: 'Python development environment',
-  },
-  fullstack: {
-    name: 'Full-stack',
-    description: 'Full-stack development with Docker-in-Docker',
-  },
-  writing: {
-    name: 'AI Writing',
-    description: 'AI-assisted writing environment',
-  },
-  bun: {
-    name: 'Bun',
-    description: 'Bun development environment',
-  },
-};
+import { PRESET_METADATA } from '../../config/presets/index';
 
 export const listPresets = defineCommand({
   meta: {
@@ -31,7 +9,7 @@ export const listPresets = defineCommand({
   async run() {
     console.log('📦 Available Presets:\n');
 
-    for (const [key, preset] of Object.entries(PRESETS)) {
+    for (const [key, preset] of Object.entries(PRESET_METADATA)) {
       console.log(`  ${key.padEnd(12)} - ${preset.name}`);
       console.log(`  ${' '.repeat(16)}${preset.description}`);
       console.log('');

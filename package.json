@@ -1,6 +1,6 @@
 {
   "name": "@niroe5tar64/devcontainer",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "Shared DevContainer configurations for AI-driven development",
   "type": "module",
   "bin": {
@@ -19,8 +19,7 @@
   },
   "scripts": {
     "build": "bun run scripts/build/build.ts",
-    "build:self": "bun run scripts/build/build.ts --mode=self",
-    "build:client": "bun run scripts/build/build.ts --mode=client",
+    "build:self": "bun run scripts/build/build.ts",
     "build:cli": "tsup",
     "generate-types": "bun run scripts/ops/generate-types.ts",
     "setup-claude-plugins": "bun run scripts/ops/setup-claude-plugins.ts",

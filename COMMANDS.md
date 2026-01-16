@@ -5,7 +5,6 @@
 ## 目次
 
 - [開発者向け（Self）](#開発者向けself)
-- [ユーザー向け（Client）](#ユーザー向けclient)
 - [認証関連](#認証関連)
 - [プラグイン管理](#プラグイン管理)
 - [トラブルシューティング](#トラブルシューティング)
@@ -46,12 +45,9 @@ bun run generate-types
 
 ```bash
 # Self DevContainer（このプロジェクト自身）
-bun run build              # 自動判定（preset なし）
+bun run build              # preset なし（base のみ）
 bun run build:self         # 明示的に Self モード
 bun run build:self node    # Self モード + node preset
-
-# Client DevContainer（テスト用）
-bun run build:client writing  # Client モード + preset
 ```
 
 ### プリセットの追加
@@ -66,127 +62,6 @@ bun run build
 ### DevContainer の再ビルド
 
 VS Code: `Cmd+Shift+P` → `Dev Containers: Rebuild Container`
-
----
-
-## ユーザー向け（Client）
-
-このリポジトリを Git サブモジュールとして利用する側のコマンド。
-
-### 初回セットアップ
-
-```bash
-# 1. プロジェクトルートで Submodule として追加
-cd /path/to/your/project
-git submodule add https://github.com/niroe5tar64/shared-devcontainer.git .devcontainer/shared
-
-# 2. Submodule 内に移動して依存関係をインストール
-cd .devcontainer/shared
-bun install
-
-# 3. Client DevContainer を生成（プリセット選択）
-bun run build:client node    # Node.js プロジェクト
-# または
-bun run build:client python  # Python プロジェクト
-# または
-bun run build:client fullstack  # フルスタックプロジェクト
-# または
-bun run build:client writing  # 文章執筆プロジェクト
-
-# 4. 親ディレクトリに戻る
-cd ../..
-
-# 5. DevContainer を開く
-# VS Code: Cmd+Shift+P → "Dev Containers: Reopen in Container"
-```
-
-### 既存プロジェクトへの適用
-
-```bash
-# 1. 既存設定をバックアップ
-mv .devcontainer/devcontainer.json .devcontainer/devcontainer.json.backup
-
-# 2. Submodule を追加
-git submodule add https://github.com/niroe5tar64/shared-devcontainer.git .devcontainer/shared
-
-# 3. Submodule 内で依存関係をインストール
-cd .devcontainer/shared
-bun install
-
-# 4. Client DevContainer を生成
-bun run build:client node
-cd ../..
-
-# 5. DevContainer を開く
-# VS Code: Cmd+Shift+P → "Dev Containers: Reopen in Container"
-```
-
-### 共通設定の更新
-
-**方法1: 親リポジトリのルートから実行**（推奨）
-
-```bash
-# サブモジュールを最新の main ブランチに更新
-git submodule update --remote .devcontainer/shared
-
-# devcontainer.json を再生成
-cd .devcontainer/shared
-bun run build:client node
-cd ../..
-
-# サブモジュールの更新を親リポジトリにコミット
-git add .devcontainer/shared
-git commit -m "chore: Update shared-devcontainer submodule"
-
-# DevContainer を再ビルド
-# VS Code: Cmd+Shift+P → "Dev Containers: Rebuild Container"
-```
-
-**方法2: サブモジュール内で直接実行**
-
-```bash
-# サブモジュール内に移動して更新
-cd .devcontainer/shared
-git pull origin main
-
-# devcontainer.json を再生成
-bun run build:client node
-cd ../..
-
-# サブモジュールの更新を親リポジトリにコミット
-git add .devcontainer/shared
-git commit -m "chore: Update shared-devcontainer submodule"
-
-# DevContainer を再ビルド
-# VS Code: Cmd+Shift+P → "Dev Containers: Rebuild Container"
-```
-
-### 特定バージョンの使用
-
-```bash
-cd .devcontainer/shared
-git checkout v1.0.0
-
-# devcontainer.json を再生成
-bun run build:client node
-cd ../..
-
-# DevContainer を再ビルド
-# VS Code: Cmd+Shift+P → "Dev Containers: Rebuild Container"
-```
-
-### プロジェクト固有のカスタマイズ
-
-```bash
-# 1. .devcontainer/project-config.ts を編集
-# 2. サブモジュール内で再生成
-cd .devcontainer/shared
-bun run build:client node
-cd ../..
-
-# 3. DevContainer を再ビルド
-# VS Code: Cmd+Shift+P → "Dev Containers: Rebuild Container"
-```
 
 ---
 
@@ -263,13 +138,6 @@ claude plugin marketplace add <marketplace-name>
 ---
 
 ## トラブルシューティング
-
-### サブモジュールが初期化されていない
-
-```bash
-# サブモジュールを初期化
-git submodule update --init --recursive
-```
 
 ### 拡張機能が反映されない
 
@@ -358,5 +226,4 @@ chmod 700 ~/.claude ~/.codex
 ## 注意事項
 
 - **`.devcontainer/devcontainer.json` を直接編集しない** - `src/` を編集して `bun run build` で生成
-- **`git submodule update --init --recursive` は初回セットアップ専用** - 最新版への更新には `git submodule update --remote` または `git pull` を使用
 - **プラグインはユーザースコープ（`~/.claude/settings.json`）で管理** - プロジェクトスコープは避ける

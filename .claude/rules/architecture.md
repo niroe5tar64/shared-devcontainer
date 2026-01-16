@@ -2,8 +2,6 @@
 
 ## ソース → ビルド → 配布フロー
 
-### 推奨: npx/bunx ベース
-
 ```
 src/config/base.ts + src/config/presets/*.ts + project-config.ts
         ↓ bun run build:cli
@@ -12,18 +10,6 @@ dist/cli/index.js + templates/
 他プロジェクトで npx @niroe5tar64/devcontainer init --preset <name>
         ↓
 .devcontainer/devcontainer.json + bin/ + post-create.sh + initialize.sh を生成
-```
-
-### 従来: git submodule ベース
-
-```
-src/config/base.ts + src/config/presets/*.ts + .devcontainer/project-config.ts
-        ↓ bun run build (Self DevContainer)
-.devcontainer/devcontainer.json
-        ↓ git submodule
-他プロジェクトで bun run build:client <preset> を実行
-        ↓
-親プロジェクトの .devcontainer/devcontainer.json + bin/ + post-create.sh を生成
 ```
 
 ## ディレクトリ構成
@@ -72,28 +58,13 @@ shared-devcontainer/
 | `postCreateCommand` | project-config で明示指定すれば上書き、なければマージ |
 | その他 | 後から指定したもので上書き |
 
-## 生成されるファイルの関係
+## 生成されるファイル
 
-- `.devcontainer/devcontainer.json`: base + (preset) + project-config をマージ（Self DevContainer）
-- Client 実行時は親プロジェクトの `.devcontainer/` に以下を生成:
-  - `devcontainer.json`
-  - `bin/`（ラッパースクリプトをコピー）
-  - `post-create.sh`（セットアップスクリプトをコピー）
-
-## 配布先での利用方法
-
-**注意**: DevContainer の `extends` プロパティはサブモジュール（別リポジトリ）には対応していません。
-代わりに、ビルドスクリプトで完全な `devcontainer.json` を生成する方式を採用しています。
-
-```bash
-# Client プロジェクトでの利用手順
-cd .devcontainer/shared
-bun run build:client writing  # writing プリセットで devcontainer.json を生成
-```
-
-これにより、親プロジェクトの `.devcontainer/` に以下が生成されます：
-- `devcontainer.json` - 完全な設定ファイル
-- `bin/` - ラッパースクリプト（`.devcontainer/bin` からコピー）
-- `post-create.sh` - セットアップスクリプト（`.devcontainer/post-create.sh` からコピー）
+- **Self**: `.devcontainer/devcontainer.json` - このリポジトリの開発環境
+- **CLI**: `npx @niroe5tar64/devcontainer init --preset <name>` で、指定したディレクトリに以下を生成
+  - `devcontainer.json` - 完全な設定ファイル
+  - `bin/` - ラッパースクリプト
+  - `post-create.sh` - セットアップスクリプト
+  - `initialize.sh` - 初期化スクリプト
 
 プロジェクト固有の設定は `.devcontainer/project-config.ts` で追加可能です。

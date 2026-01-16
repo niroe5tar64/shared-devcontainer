@@ -7,29 +7,24 @@ This file provides guidance to Claude Code when working with this repository.
 チーム共通の DevContainer 設定を TypeScript で管理し、JSON 設定ファイルを自動生成するリポジトリ。
 
 **配布方式**:
-- **推奨**: npx/bunx 経由で GitHub Packages からパッケージを取得
-- **従来**: Git サブモジュールとして利用
+- npx/bunx 経由で GitHub Packages からパッケージを取得
 
 ## 用語定義
 
 | 用語 | 意味 | 具体例 |
 |-----|------|--------|
 | **Self DevContainer** | このプロジェクト自身の開発環境 | `shared-devcontainer/.devcontainer/devcontainer.json` |
-| **Client DevContainer** | このプロジェクトを利用する側の開発環境 | `ai-writing-starter/.devcontainer/devcontainer.json` |
 
-- **Self/Client 共通**: `scripts/build/build.ts` で生成（統合スクリプト）
+- `scripts/build/build.ts` で生成
 - 固有設定は `.devcontainer/project-config.ts` で追加可能
 
 ## ビルドコマンド
 
 ```bash
 # Self DevContainer（このプロジェクト自身）
-bun run build              # 自動判定（preset なし）
+bun run build              # preset なし（base のみ）
 bun run build:self         # 明示的に Self モード
 bun run build:self node    # Self モード + node preset
-
-# Client DevContainer（サブモジュールとして利用時）
-bun run build:client writing  # 明示的に Client モード + preset
 
 # CLI ビルド（パッケージ公開用）
 bun run build:cli          # CLI パッケージをビルド

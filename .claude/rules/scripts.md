@@ -6,43 +6,32 @@ paths: scripts/**
 
 ## scripts/build/build.ts
 
-Self DevContainer と Client DevContainer の両方に対応した統合ビルドスクリプト。
+このリポジトリ自身の Self DevContainer 設定を生成するビルドスクリプト。
 
 ### 使用方法
 
 ```bash
-# 自動判定モード（実行ディレクトリから Self/Client を判定）
-bun run build              # preset なし
-bun run build node         # node preset
-
-# 明示的指定モード（実行ディレクトリに依存しない）
-bun run build:self           # Self モード
-bun run build:self node      # Self モード + node preset
-bun run build:client writing # Client モード + writing preset
+bun run build              # preset なし（base のみ）
+bun run build node         # node preset を使用
+bun run build:self         # 明示的に Self モード
+bun run build:self node    # Self モード + node preset
 ```
 
 ### 主要な関数
 
 | 関数 | 役割 |
 |-----|------|
-| `detectBuildMode()` | 実行ディレクトリから Self/Client を自動判定 |
 | `buildSelf(presetName?)` | Self DevContainer のビルド |
-| `buildClient(presetName)` | Client DevContainer のビルド |
-
-### モード判定ロジック
-
-1. `src/base.ts` が存在すれば **Self モード**
-2. カレントディレクトリ名が `shared` で、親に `.devcontainer` があれば **Client モード**
-3. `--mode=self` / `--mode=client` フラグで明示的に指定可能
 
 ### プリセットの追加
 
-`PRESETS` オブジェクトに新しいエントリを追加：
+`src/config/presets/index.ts` の `PRESETS` オブジェクトに新しいエントリを追加：
 
 ```typescript
-import { newPreset } from '../src/presets/new';
+// src/config/presets/index.ts
+import { newPreset } from './new';
 
-const PRESETS: Record<string, DevContainerConfig> = {
+export const PRESETS: Record<string, DevContainerConfig> = {
   node: nodePreset,
   python: pythonPreset,
   fullstack: fullstackPreset,
@@ -53,13 +42,7 @@ const PRESETS: Record<string, DevContainerConfig> = {
 
 ### 出力先
 
-**Self モード**:
-- `.devcontainer/devcontainer.json` - Self DevContainer
-
-**Client モード**:
-- `../.devcontainer/devcontainer.json` - Client DevContainer
-- `../.devcontainer/bin/` - `.devcontainer/bin/` からコピー
-- `../.devcontainer/post-create.sh` - `.devcontainer/post-create.sh` からコピー
+- `.devcontainer/devcontainer.json` - このリポジトリの Self DevContainer 設定
 
 ## scripts/build/lib/devcontainer-builder.ts
 

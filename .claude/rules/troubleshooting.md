@@ -24,29 +24,11 @@ rm -rf node_modules && bun install
 
 ## DevContainer 関連
 
-### サブモジュールが初期化されていない
-
-**症状**: `.devcontainer/shared` が空
-
-```bash
-git submodule update --init --recursive
-```
-
 ### 拡張機能が反映されない
 
 **症状**: プリセットで指定した拡張機能がインストールされない
 
 VS Code: `Cmd+Shift+P` → `Dev Containers: Rebuild Container`
-
-### プリセット名が見つからない
-
-**症状**: `bun run build:client <preset>` でエラー
-
-```bash
-# 利用可能なプリセットを確認
-ls -la .devcontainer/shared/src/presets/
-rg "const PRESETS" .devcontainer/shared/scripts/build/build.ts
-```
 
 ## 認証関連
 
