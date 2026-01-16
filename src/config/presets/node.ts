@@ -1,4 +1,4 @@
-import type { DevContainerConfig } from '../types';
+import type { DevContainerConfig } from '../../types';
 
 /**
  * Node.js/TypeScript Preset

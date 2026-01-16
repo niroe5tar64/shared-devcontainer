@@ -1,4 +1,4 @@
-import type { DevContainerConfig } from './types';
+import type { DevContainerConfig } from '../types';
 
 /**
  * DevContainer ユーザー名
@@ -87,6 +87,7 @@ export const base: DevContainerConfig = {
 
   // 環境変数の追加
   containerEnv: {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: DevContainer の予約変数プレースホルダー
     CLAUDE_SETTINGS_PATH: '${containerWorkspaceFolder}/.claude/settings.json',
     TZ: 'Asia/Tokyo',
   },

@@ -1,16 +1,16 @@
-import { defineCommand } from 'citty';
 import { existsSync } from 'node:fs';
 import { copyFile, cp, mkdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { defineCommand } from 'citty';
 import { createJiti } from 'jiti';
-import type { DevContainerConfig } from '../../types';
 import { bunPreset } from '../../config/presets/bun';
 import { fullstackPreset } from '../../config/presets/fullstack';
 import { nodePreset } from '../../config/presets/node';
 import { pythonPreset } from '../../config/presets/python';
 import { writingPreset } from '../../config/presets/writing';
 import { generatePresetConfig, writeJsonFile } from '../../lib/devcontainer-builder';
+import type { DevContainerConfig } from '../../types';
 
 const PRESETS: Record<string, DevContainerConfig> = {
   node: nodePreset,
@@ -19,6 +19,13 @@ const PRESETS: Record<string, DevContainerConfig> = {
   writing: writingPreset,
   bun: bunPreset,
 };
+
+/**
+ * 値が DevContainerConfig かどうかを検証する型ガード
+ */
+function isDevContainerConfig(value: unknown): value is DevContainerConfig {
+  return typeof value === 'object' && value !== null;
+}
 
 /**
  * project-config.ts を読み込む
@@ -33,8 +40,9 @@ async function loadProjectConfig(configDir: string): Promise<DevContainerConfig 
   try {
     console.log(`📝 Loading project-specific config from: ${configPath}`);
     const jiti = createJiti(import.meta.url);
-    const module = await jiti.import(configPath);
-    return module.default || module.projectConfig;
+    const module = (await jiti.import(configPath)) as Record<string, unknown>;
+    const config = module.default ?? module.projectConfig;
+    return isDevContainerConfig(config) ? config : undefined;
   } catch (error) {
     console.warn(`⚠️  Failed to load project config: ${error}`);
     return undefined;
@@ -55,17 +63,11 @@ async function copyTemplates(outputDir: string, templateDir: string) {
   console.log(`✅ Copied: ${join(outputDir, 'bin')}`);
 
   // initialize.sh のコピー
-  await copyFile(
-    join(templateDir, 'initialize.sh'),
-    join(outputDir, 'initialize.sh'),
-  );
+  await copyFile(join(templateDir, 'initialize.sh'), join(outputDir, 'initialize.sh'));
   console.log(`✅ Copied: ${join(outputDir, 'initialize.sh')}`);
 
   // post-create.sh のコピー
-  await copyFile(
-    join(templateDir, 'post-create.sh'),
-    join(outputDir, 'post-create.sh'),
-  );
+  await copyFile(join(templateDir, 'post-create.sh'), join(outputDir, 'post-create.sh'));
   console.log(`✅ Copied: ${join(outputDir, 'post-create.sh')}`);
 }
 
@@ -105,7 +107,7 @@ export const init = defineCommand({
     console.log('🔨 Initializing DevContainer configuration...\n');
 
     // preset の取得
-    let preset: DevContainerConfig | undefined = undefined;
+    let preset: DevContainerConfig | undefined;
     if (args.preset) {
       preset = PRESETS[args.preset];
       if (!preset) {

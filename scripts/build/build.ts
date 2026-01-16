@@ -32,13 +32,13 @@ import { fullstackPreset } from '../../src/config/presets/fullstack';
 import { nodePreset } from '../../src/config/presets/node';
 import { pythonPreset } from '../../src/config/presets/python';
 import { writingPreset } from '../../src/config/presets/writing';
-import type { DevContainerConfig } from '../../src/types';
 import {
   generatePresetConfig,
   getPostCreateCommand,
   loadProjectConfig,
   writeJsonFile,
 } from '../../src/lib/devcontainer-builder';
+import type { DevContainerConfig } from '../../src/types';
 
 /**
  * プリセットマップ（Self/Client 共通）
@@ -86,7 +86,7 @@ async function buildSelf(presetName?: string) {
   console.log('🔨 Building Self DevContainer configuration...\n');
 
   // preset を取得
-  let preset: DevContainerConfig | undefined = undefined;
+  let preset: DevContainerConfig | undefined;
   if (presetName) {
     preset = PRESETS[presetName];
     if (!preset) {
@@ -122,7 +122,7 @@ async function buildClient(presetName?: string) {
   console.log(`🔨 Building Client DevContainer configuration (${presetInfo})...\n`);
 
   // preset を取得
-  let preset: DevContainerConfig | undefined = undefined;
+  let preset: DevContainerConfig | undefined;
   if (presetName) {
     preset = PRESETS[presetName];
     if (!preset) {

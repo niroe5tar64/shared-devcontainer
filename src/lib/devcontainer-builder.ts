@@ -4,16 +4,17 @@
  * Self DevContainer と Client DevContainer の両方で使用する共通ユーティリティ
  */
 
-import { writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import type { DevContainerConfig, Mount } from '../types';
 import { base } from '../config/base';
+import type { DevContainerConfig, Mount } from '../types';
 
 /**
  * DevContainer スキーマ URL
  */
-export const SCHEMA_URL = 'https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json';
+export const SCHEMA_URL =
+  'https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json';
 
 /**
  * VS Code customizations の型定義
@@ -28,14 +29,18 @@ export interface VSCodeCustomizations {
 /**
  * VS Code customizations を取得
  */
-export function getVSCodeCustomizations(config: DevContainerConfig): VSCodeCustomizations | undefined {
+export function getVSCodeCustomizations(
+  config: DevContainerConfig,
+): VSCodeCustomizations | undefined {
   return config.customizations?.vscode as VSCodeCustomizations | undefined;
 }
 
 /**
  * postCreateCommand を取得
  */
-export function getPostCreateCommand(config: DevContainerConfig | undefined): string | string[] | undefined {
+export function getPostCreateCommand(
+  config: DevContainerConfig | undefined,
+): string | string[] | undefined {
   if (!config) return undefined;
   const cmd = config.postCreateCommand;
   if (typeof cmd === 'string' || Array.isArray(cmd)) {
@@ -79,7 +84,7 @@ function getMountTarget(mount: string | Mount): string | undefined {
 export function mergeMounts(
   base?: (string | Mount)[],
   preset?: (string | Mount)[],
-  project?: (string | Mount)[]
+  project?: (string | Mount)[],
 ): (string | Mount)[] | undefined {
   const lists = [base, preset, project];
   const result: (string | Mount)[] = [];
@@ -119,7 +124,10 @@ export function deepMerge<T extends Record<string, unknown>>(base?: T, preset?: 
   const result = { ...base } as T;
   for (const key in preset) {
     if (preset[key] && typeof preset[key] === 'object' && !Array.isArray(preset[key])) {
-      result[key] = deepMerge(base[key] as Record<string, unknown>, preset[key] as Record<string, unknown>) as T[Extract<keyof T, string>];
+      result[key] = deepMerge(
+        base[key] as Record<string, unknown>,
+        preset[key] as Record<string, unknown>,
+      ) as T[Extract<keyof T, string>];
     } else {
       result[key] = preset[key];
     }
@@ -130,7 +138,10 @@ export function deepMerge<T extends Record<string, unknown>>(base?: T, preset?: 
 /**
  * postCreateCommand を結合
  */
-export function mergePostCreateCommand(baseCmd?: string | string[], presetCmd?: string | string[]): string | undefined {
+export function mergePostCreateCommand(
+  baseCmd?: string | string[],
+  presetCmd?: string | string[],
+): string | undefined {
   const commands: string[] = [];
 
   if (baseCmd) {
@@ -163,7 +174,7 @@ export function mergePostCreateCommand(baseCmd?: string | string[], presetCmd?: 
  */
 export function generatePresetConfig(
   preset?: DevContainerConfig,
-  projectConfig?: DevContainerConfig
+  projectConfig?: DevContainerConfig,
 ): DevContainerConfig {
   const baseVSCode = getVSCodeCustomizations(base);
   const presetVSCode = preset ? getVSCodeCustomizations(preset) : undefined;
@@ -180,7 +191,7 @@ export function generatePresetConfig(
     // projectConfig で設定されていない場合は base + preset をマージ
     finalPostCreateCommand = mergePostCreateCommand(
       getPostCreateCommand(base),
-      getPostCreateCommand(preset)
+      getPostCreateCommand(preset),
     );
   }
 
@@ -195,15 +206,18 @@ export function generatePresetConfig(
       vscode: {
         extensions: mergeArrays(
           mergeArrays(baseVSCode?.extensions, presetVSCode?.extensions),
-          projectVSCode?.extensions
+          projectVSCode?.extensions,
         ),
         settings: deepMerge(
           deepMerge(baseVSCode?.settings, presetVSCode?.settings),
-          projectVSCode?.settings
+          projectVSCode?.settings,
         ),
       },
     },
-    containerEnv: deepMerge(deepMerge(base.containerEnv, preset?.containerEnv), projectConfig?.containerEnv),
+    containerEnv: deepMerge(
+      deepMerge(base.containerEnv, preset?.containerEnv),
+      projectConfig?.containerEnv,
+    ),
     remoteEnv: deepMerge(deepMerge(base.remoteEnv, preset?.remoteEnv), projectConfig?.remoteEnv),
     mounts: mergeMounts(base.mounts, preset?.mounts, projectConfig?.mounts),
     postCreateCommand: finalPostCreateCommand,
@@ -225,7 +239,9 @@ export async function writeJsonFile(filePath: string, data: unknown): Promise<vo
  * @param configDir - project-config.ts があるディレクトリ
  * @returns DevContainerConfig または undefined
  */
-export async function loadProjectConfig(configDir: string): Promise<DevContainerConfig | undefined> {
+export async function loadProjectConfig(
+  configDir: string,
+): Promise<DevContainerConfig | undefined> {
   const configPath = join(configDir, 'project-config.ts');
 
   if (!existsSync(configPath)) {

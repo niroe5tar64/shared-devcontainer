@@ -1,4 +1,4 @@
-import type { DevContainerConfig } from '../types';
+import type { DevContainerConfig } from '../../types';
 
 /**
  * AI Writing / Content Creation Preset
