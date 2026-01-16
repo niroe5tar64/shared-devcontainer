@@ -16,24 +16,39 @@ function isDevContainerConfig(value: unknown): value is DevContainerConfig {
 }
 
 /**
+ * project-config.ts の読み込み結果
+ */
+interface ProjectConfigResult {
+  projectConfig?: DevContainerConfig;
+  projectConfigMetadata?: Record<string, unknown>;
+}
+
+/**
  * project-config.ts を読み込む
  */
-async function loadProjectConfig(configDir: string): Promise<DevContainerConfig | undefined> {
+async function loadProjectConfig(configDir: string): Promise<ProjectConfigResult> {
   const configPath = join(configDir, 'project-config.ts');
 
   if (!existsSync(configPath)) {
-    return undefined;
+    return {};
   }
 
   try {
     console.log(`📝 Loading project-specific config from: ${configPath}`);
     const jiti = createJiti(import.meta.url);
     const module = (await jiti.import(configPath)) as Record<string, unknown>;
-    const config = module.default ?? module.projectConfig;
-    return isDevContainerConfig(config) ? config : undefined;
+
+    // named export の projectConfig を優先（module.default はモジュール全体を返すことがある）
+    const config = module.projectConfig ?? module.default;
+    const metadata = module.projectConfigMetadata as Record<string, unknown> | undefined;
+
+    return {
+      projectConfig: isDevContainerConfig(config) ? config : undefined,
+      projectConfigMetadata: metadata,
+    };
   } catch (error) {
     console.warn(`⚠️  Failed to load project config: ${error}`);
-    return undefined;
+    return {};
   }
 }
 
@@ -117,10 +132,16 @@ export const init = defineCommand({
     }
 
     // project-config.ts の読み込み
-    const projectConfig = await loadProjectConfig(outputDir);
+    const { projectConfig, projectConfigMetadata } = await loadProjectConfig(outputDir);
 
     // 設定のマージ
     const config = generatePresetConfig(preset, projectConfig);
+
+    // メタデータ（$comment など）をマージ
+    const devContainerConfig = {
+      ...projectConfigMetadata,
+      ...config,
+    };
 
     if (dryRun) {
       console.log('\n📋 Dry run mode - no files will be created');
@@ -133,7 +154,7 @@ export const init = defineCommand({
     await mkdir(outputDir, { recursive: true });
 
     // devcontainer.json の生成
-    await writeJsonFile(devcontainerJsonPath, config);
+    await writeJsonFile(devcontainerJsonPath, devContainerConfig);
 
     // テンプレートファイルのコピー
     // パッケージのルートディレクトリからtemplates/を見つける
