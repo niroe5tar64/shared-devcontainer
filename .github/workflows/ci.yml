@@ -25,6 +25,9 @@ jobs:
       - name: Lint and format check
         run: bun run check
 
+      - name: Run tests
+        run: bun run test
+
       - name: Build Self DevContainer
         run: bun run build
 

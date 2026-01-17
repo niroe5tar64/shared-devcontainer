@@ -27,7 +27,9 @@
     "lint": "biome lint --write .",
     "check": "biome check --write .",
     "typecheck": "tsc --noEmit",
-    "validate": "bun run typecheck && bun run check",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "validate": "bun run typecheck && bun run check && bun run test",
     "prepublishOnly": "bun run build:cli"
   },
   "keywords": [

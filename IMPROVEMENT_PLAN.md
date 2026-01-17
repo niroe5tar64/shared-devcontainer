@@ -76,13 +76,15 @@
 
 ### 3. テスト追加
 
-- [ ] テストフレームワーク導入（bun:test）
-- [ ] `src/lib/devcontainer-builder.ts` のユニットテスト
-  - `deepMerge()` のテスト
-  - `mergeArrays()` のテスト
-  - `mergeMounts()` のテスト
-  - `mergePostCreateCommand()` のテスト
-  - `generatePresetConfig()` のテスト
+- [x] テストフレームワーク導入（bun:test）
+- [x] `src/lib/devcontainer-builder.ts` のユニットテスト
+  - [x] `deepMerge()` のテスト
+  - [x] `mergeArrays()` のテスト
+  - [x] `mergeMounts()` のテスト
+  - [x] `mergePostCreateCommand()` のテスト
+  - [x] `generatePresetConfig()` のテスト
+  - [x] `getVSCodeCustomizations()` のテスト
+  - [x] `getPostCreateCommand()` のテスト
 - [ ] CLI コマンドの統合テスト
 - [ ] 生成される JSON のスキーマ検証テスト
 
@@ -138,6 +140,14 @@ git diff
 - このファイルは改善完了後に削除可能
 
 ## 変更履歴
+
+### 2026-01-17 (3回目)
+- テスト環境を整備
+  - `bun:test` でテストフレームワーク導入
+  - `tests/lib/devcontainer-builder.test.ts` でユニットテスト追加（40 テスト）
+  - CI ワークフローにテストステップを追加
+  - `package.json` に `test`, `test:watch` スクリプト追加
+  - `validate` スクリプトにテストを追加
 
 ### 2026-01-17 (2回目)
 - CI/CD パイプライン（`.github/workflows/ci.yml`）を追加
