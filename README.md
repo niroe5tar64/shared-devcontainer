@@ -107,18 +107,17 @@ export const base: DevContainerConfig = {
 bun run build
 ```
 
-### 変更例：Node.js プリセットに拡張機能を追加
+### 変更例：Bun プリセットに拡張機能を追加
 
 ```typescript
-// src/config/presets/node.ts
-export const nodePreset: DevContainerConfig = {
+// src/config/presets/bun.ts
+export const bunPreset: DevContainerConfig = {
   // ...
   customizations: {
     vscode: {
       extensions: [
-        'dbaeumer.vscode-eslint',
-        'esbenp.prettier-vscode',
-        'prisma.prisma', // ← 追加
+        'oven.bun-vscode',
+        'biomejs.biome', // ← 追加
       ],
     },
   },
@@ -155,31 +154,22 @@ export const rustPreset: DevContainerConfig = {
 };
 ```
 
-2. **`scripts/build/build.ts` と `src/cli/commands/init.ts` に追加**:
+2. **`src/config/presets/index.ts` に追加**:
 
 ```typescript
-// scripts/build/build.ts
-import { rustPreset } from '../../src/config/presets/rust';
+// src/config/presets/index.ts
+import { rustPreset } from './rust';
 
-const PRESETS: Record<string, DevContainerConfig> = {
-  node: nodePreset,
-  python: pythonPreset,
-  fullstack: fullstackPreset,
-  writing: writingPreset,
+export const PRESETS: Record<string, DevContainerConfig> = {
+  bun: bunPreset,
+  haskell: haskellPreset,
   rust: rustPreset, // ← 追加
 };
-```
 
-```typescript
-// src/cli/commands/init.ts
-import { rustPreset } from '../../config/presets/rust';
-
-const PRESETS: Record<string, DevContainerConfig> = {
-  node: nodePreset,
-  python: pythonPreset,
-  fullstack: fullstackPreset,
-  writing: writingPreset,
-  rust: rustPreset, // ← 追加
+export const PRESET_METADATA: Record<string, { name: string; description: string }> = {
+  bun: { name: 'Bun', description: 'Bun development environment' },
+  haskell: { name: 'Haskell', description: 'Haskell development environment with GHC, Cabal, Stack, and HLS' },
+  rust: { name: 'Rust', description: 'Rust development environment' }, // ← 追加
 };
 ```
 
@@ -227,9 +217,8 @@ bunx @niroe5tar64/devcontainer init --preset node
 
 | プロジェクトタイプ | プリセット | 含まれる機能 |
 |-------------------|-----------|-------------|
-| Node.js/TypeScript | `node` | Node.js 20, Bun, pnpm, ESLint, Prettier |
-| Python | `python` | Python 3.11, Poetry, Black, Ruff |
-| フルスタック（Docker使用） | `fullstack` | Node.js 20, Docker-in-Docker, Bun, pnpm |
+| Bun/TypeScript | `bun` | Bun runtime, TypeScript |
+| Haskell | `haskell` | GHC 9.8.4, Cabal, Stack, HLS |
 
 **共通で含まれる機能（すべてのプリセット）**:
 - AI アシスタント: Claude Code, GitHub Copilot
@@ -348,8 +337,10 @@ Claude Code には3つの設定スコープがあります：
 **[niro-agent-plugins](https://github.com/niroe5tar64/niro-agent-plugins)**
 
 開発効率を向上させる便利なプラグイン集：
-- `statusline@niro-agent-plugins` - ステータスライン表示機能
 - `git-ops@niro-agent-plugins` - Git操作支援機能
+- `decision-support@niro-agent-plugins` - 意思決定支援機能
+- `statusline@niro-agent-plugins` - ステータスライン表示機能
+- `bash-safety@niro-agent-plugins` - Bashコマンド安全性チェック
 
 プラグインのインストール方法は「プラグインの追加方法」セクションを参照してください。
 
@@ -441,9 +432,9 @@ claude plugin marketplace add <marketplace-name>
 
 新しい技術スタック用のプリセットを追加する場合：
 
-1. `src/presets/` に新しいファイルを作成
-2. `scripts/build/build.ts` の `PRESETS` に追加
-3. `bun run build` を実行
+1. `src/config/presets/` に新しいファイルを作成
+2. `src/config/presets/index.ts` の `PRESETS` と `PRESET_METADATA` に追加
+3. `bun run build` と `bun run build:cli` を実行
 
 ## バージョン履歴
 

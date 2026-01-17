@@ -12,9 +12,9 @@ paths: scripts/**
 
 ```bash
 bun run build              # preset なし（base のみ）
-bun run build node         # node preset を使用
+bun run build bun          # bun preset を使用
 bun run build:self         # 明示的に Self モード
-bun run build:self node    # Self モード + node preset
+bun run build:self bun     # Self モード + bun preset
 ```
 
 ### 主要な関数
@@ -32,11 +32,15 @@ bun run build:self node    # Self モード + node preset
 import { newPreset } from './new';
 
 export const PRESETS: Record<string, DevContainerConfig> = {
-  node: nodePreset,
-  python: pythonPreset,
-  fullstack: fullstackPreset,
-  writing: writingPreset,
+  bun: bunPreset,
+  haskell: haskellPreset,
   new: newPreset,  // 追加
+};
+
+export const PRESET_METADATA: Record<string, { name: string; description: string }> = {
+  bun: { name: 'Bun', description: 'Bun development environment' },
+  haskell: { name: 'Haskell', description: 'Haskell development environment with GHC, Cabal, Stack, and HLS' },
+  new: { name: 'New', description: 'New preset description' },  // 追加
 };
 ```
 

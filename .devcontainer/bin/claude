@@ -5,9 +5,14 @@ set -euo pipefail
 # $HOME を使用してユーザー非依存に
 real=$(find "$HOME/.vscode-server/extensions" -name "claude" -path "*/resources/native-binary/claude" -type f 2>/dev/null | head -1) || true
 
+# VS Code 拡張機能から見つからない場合は、PATH から探す
 if [ -z "${real:-}" ] || [ ! -x "$real" ]; then
-  echo "Error: real claude binary not found in VS Code extensions directory" >&2
-  echo "Hint: Ensure the Claude Code extension is installed in VS Code" >&2
+  real=$(command -v claude 2>/dev/null) || true
+fi
+
+if [ -z "${real:-}" ] || [ ! -x "$real" ]; then
+  echo "Error: claude binary not found" >&2
+  echo "Hint: Ensure the Claude Code extension is installed or 'claude' is in PATH" >&2
   exit 127
 fi
 

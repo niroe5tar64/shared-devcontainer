@@ -1,10 +1,8 @@
 #!/bin/bash
 set -e
 
-# スクリプトのディレクトリを取得（サブモジュール対応）
+# スクリプトのディレクトリを取得（シンボリックリンク対応）
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# プロジェクトルートを取得（SCRIPT_DIRの親ディレクトリ）
-PROJECT_ROOT="$(dirname "${SCRIPT_DIR}")"
 
 # Fix ownership of mounted directories
 # マウントされたディレクトリはホストのUID/GIDで作成されるため、

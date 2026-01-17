@@ -47,16 +47,16 @@ bun run generate-types
 # Self DevContainer（このプロジェクト自身）
 bun run build              # preset なし（base のみ）
 bun run build:self         # 明示的に Self モード
-bun run build:self node    # Self モード + node preset
+bun run build:self bun     # Self モード + bun preset
 ```
 
 ### プリセットの追加
 
 ```bash
-# 1. src/presets/rust.ts を作成
-# 2. scripts/build/build.ts の PRESETS に追加
+# 1. src/config/presets/rust.ts を作成
+# 2. src/config/presets/index.ts の PRESETS と PRESET_METADATA に追加
 # 3. ビルドして確認
-bun run build
+bun run build && bun run build:cli
 ```
 
 ### DevContainer の再ビルド
@@ -150,7 +150,10 @@ claude plugin marketplace add <marketplace-name>
 
 ```bash
 # 利用可能なプリセットを確認
-ls -la .devcontainer/shared/src/presets/
+npx @niroe5tar64/devcontainer list-presets
+
+# または開発時
+bun run scripts/build/build.ts --help
 ```
 
 ### 型エラーが発生する
@@ -210,10 +213,8 @@ chmod 700 ~/.claude ~/.codex
 
 | プロジェクトタイプ | プリセット | 含まれる機能 |
 |-------------------|-----------|-------------|
-| Node.js/TypeScript | `node` | Node.js 20, Bun, pnpm, ESLint, Prettier |
-| Python | `python` | Python 3.11, Poetry, Black, Ruff |
-| フルスタック（Docker使用） | `fullstack` | Node.js 20, Docker-in-Docker, Bun, pnpm |
-| 文章執筆 | `writing` | Node.js 20, textlint, 日本語校正ツール |
+| Bun/TypeScript | `bun` | Bun runtime, TypeScript |
+| Haskell | `haskell` | GHC 9.8.4, Cabal, Stack, HLS |
 
 **共通で含まれる機能（すべてのプリセット）**:
 - AI アシスタント: Claude Code, GitHub Copilot
