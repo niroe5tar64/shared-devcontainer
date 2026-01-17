@@ -23,6 +23,7 @@
     "build:cli": "tsup",
     "generate-types": "bun run scripts/ops/generate-types.ts",
     "setup-claude-plugins": "bun run scripts/ops/setup-claude-plugins.ts",
+    "create-preset": "bun run scripts/ops/create-preset.ts",
     "format": "biome format --write .",
     "lint": "biome lint --write .",
     "check": "biome check --write .",

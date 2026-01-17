@@ -72,7 +72,7 @@
 
 ---
 
-## 優先度：低（中期） - 一部完了
+## 優先度：低（中期） - 完了
 
 ### 3. テスト追加
 
@@ -85,8 +85,11 @@
   - [x] `generatePresetConfig()` のテスト
   - [x] `getVSCodeCustomizations()` のテスト
   - [x] `getPostCreateCommand()` のテスト
-- [ ] CLI コマンドの統合テスト
-- [ ] 生成される JSON のスキーマ検証テスト
+- [x] CLI コマンドの統合テスト
+  - `tests/cli/init.test.ts`: init コマンドのテスト（dry-run、ファイル生成、エラーハンドリング）
+  - `tests/cli/list-presets.test.ts`: list-presets コマンドのテスト
+- [x] 生成される JSON のスキーマ検証テスト
+  - `tests/schema/devcontainer-schema.test.ts`: DevContainer スキーマ準拠検証
 
 ### 4. CI/CD パイプライン
 
@@ -96,12 +99,10 @@
 
 ### 5. 開発体験向上
 
-- [ ] プリセット追加のスキャフォールドスクリプト
-  ```bash
-  bun run create-preset rust
-  # → src/config/presets/rust.ts を生成
-  # → src/config/presets/index.ts を自動更新
-  ```
+- [x] プリセット追加のスキャフォールドスクリプト
+  - `scripts/ops/create-preset.ts` を作成
+  - `bun run create-preset <name>` でプリセットファイルを生成
+  - `src/config/presets/index.ts` を自動更新
 
 ---
 
@@ -140,6 +141,17 @@ git diff
 - このファイルは改善完了後に削除可能
 
 ## 変更履歴
+
+### 2026-01-17 (4回目)
+- CLI コマンドの統合テストを追加
+  - `tests/cli/init.test.ts`: init コマンドの全機能テスト
+  - `tests/cli/list-presets.test.ts`: list-presets コマンドのテスト
+- 生成される JSON のスキーマ検証テストを追加
+  - `tests/schema/devcontainer-schema.test.ts`: DevContainer 公式スキーマ準拠検証
+- プリセット追加のスキャフォールドスクリプトを作成
+  - `scripts/ops/create-preset.ts`: プリセットファイル生成と index.ts 自動更新
+  - `package.json` に `create-preset` スクリプト追加
+- CLI のテンプレートパス計算を修正（開発時とビルド後の両方で動作）
 
 ### 2026-01-17 (3回目)
 - テスト環境を整備

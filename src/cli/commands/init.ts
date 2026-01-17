@@ -220,10 +220,19 @@ export const init = defineCommand({
 
     // テンプレートファイルのコピー
     // パッケージのルートディレクトリからtemplates/を見つける
-    // ビルド後は dist/cli/index.js なので、../../templates になる
+    // ビルド後は dist/cli/index.js、開発時は src/cli/commands/init.ts
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = resolve(__filename, '..');
-    const packageRoot = resolve(__dirname, '../..');
+
+    // dist/cli/ または src/cli/commands/ から実行される可能性がある
+    // templates/ ディレクトリが見つかるまで親を辿る
+    let packageRoot = resolve(__dirname);
+    for (let i = 0; i < 5; i++) {
+      if (existsSync(join(packageRoot, 'templates'))) {
+        break;
+      }
+      packageRoot = resolve(packageRoot, '..');
+    }
     const templateDir = join(packageRoot, 'templates');
 
     await copyTemplates(outputDir, templateDir);

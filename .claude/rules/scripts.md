@@ -25,7 +25,15 @@ bun run build:self bun     # Self モード + bun preset
 
 ### プリセットの追加
 
-`src/config/presets/index.ts` の `PRESETS` オブジェクトに新しいエントリを追加：
+スキャフォールドスクリプトを使用（推奨）：
+
+```bash
+bun run create-preset rust
+# → src/config/presets/rust.ts を生成
+# → src/config/presets/index.ts を自動更新
+```
+
+または手動で `src/config/presets/index.ts` の `PRESETS` オブジェクトに新しいエントリを追加：
 
 ```typescript
 // src/config/presets/index.ts
@@ -78,3 +86,25 @@ bun run generate-types
 
 - DevContainer 仕様に新しいプロパティが追加された時
 - 型エラーが発生し、スキーマが古い可能性がある時
+
+## scripts/ops/create-preset.ts
+
+新しいプリセットのスキャフォールドを生成するスクリプト。
+
+```bash
+bun run create-preset <preset-name>
+# 例: bun run create-preset rust
+```
+
+### 実行時の動作
+
+1. `src/config/presets/<name>.ts` を生成（テンプレート付き）
+2. `src/config/presets/index.ts` を自動更新
+   - インポート文を追加
+   - `PRESETS` オブジェクトにエントリを追加
+   - `PRESET_METADATA` オブジェクトにエントリを追加
+
+### 命名規則
+
+- 小文字とハイフンのみ使用可能（例: `rust`, `my-preset`）
+- キャメルケースに自動変換（例: `my-preset` → `myPresetPreset`）
