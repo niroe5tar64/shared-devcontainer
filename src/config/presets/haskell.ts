@@ -17,20 +17,6 @@ const DEVCONTAINER_USER = 'dev-user';
  */
 export const haskellPreset: DevContainerConfig = {
   name: 'Haskell Base',
-  image: 'mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye',
-
-  // Haskell 開発環境のセットアップ
-  // - GHC、Cabal、Stack、HLS を推奨バージョンでインストール
-  features: {
-    'ghcr.io/devcontainers-extra/features/haskell:3': {
-      ghcVersion: 'recommended',
-      cabalVersion: 'recommended',
-      stackVersion: 'recommended',
-      hlsVersion: 'recommended',
-      installStack: true,
-      installHLS: true,
-    },
-  },
 
   customizations: {
     vscode: {
@@ -54,7 +40,12 @@ export const haskellPreset: DevContainerConfig = {
     PATH: `/home/${DEVCONTAINER_USER}/.ghcup/bin:/home/${DEVCONTAINER_USER}/.cabal/bin:/home/${DEVCONTAINER_USER}/.local/bin:/home/${DEVCONTAINER_USER}/.bun/bin:\${containerEnv:PATH}`,
   },
 
-  // 追加の開発ツール
-  // Bun は base で既にインストール済み
-  postCreateCommand: 'npm install -g pnpm',
+  // Haskell 開発環境のセットアップ
+  // - ghcup インストーラーを使用して以下をセットアップ:
+  //   - GHC 9.8.1（最新安定版）
+  //   - Cabal 3.12.1.0
+  //   - Stack 2.15.3
+  //   - HLS 2.7.0.0（Haskell Language Server）
+  postCreateCommand:
+    'curl --proto "=https" --tlsv1.2 -sSf https://get-ghcup.haskell.org | BOOTSTRAP_HASKELL_NONINTERACTIVE=1 BOOTSTRAP_HASKELL_GHC_VERSION=9.8.1 BOOTSTRAP_HASKELL_CABAL_VERSION=3.12.1.0 BOOTSTRAP_HASKELL_INSTALL_STACK=1 BOOTSTRAP_HASKELL_INSTALL_HLS=1 sh',
 };

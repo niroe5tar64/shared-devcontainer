@@ -121,7 +121,7 @@ export const base: DevContainerConfig = {
   // 1. 基本ツール（vim, tree, jq）
   // 2. Bun（高速パッケージマネージャー）
   // 3. AI 開発ツール（Claude Code, Codex）のインストールとラッパースクリプト設定
-  postCreateCommand: 'bash ./post-create.sh',
+  postCreateCommand: 'bash .devcontainer/post-create.sh',
 
   remoteUser: DEVCONTAINER_USER,
 };
