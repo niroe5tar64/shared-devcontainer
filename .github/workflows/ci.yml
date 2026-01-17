@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Type check
+        run: bun run typecheck
+
+      - name: Lint and format check
+        run: bun run check
+
+      - name: Build Self DevContainer
+        run: bun run build
+
+      - name: Build CLI
+        run: bun run build:cli
+
+      - name: Verify generated files
+        run: |
+          # devcontainer.json が正しく生成されたか確認
+          if [ ! -f ".devcontainer/devcontainer.json" ]; then
+            echo "Error: devcontainer.json was not generated"
+            exit 1
+          fi
+
+          # CLI が正しくビルドされたか確認
+          if [ ! -f "dist/cli/index.js" ]; then
+            echo "Error: CLI was not built"
+            exit 1
+          fi
+
+          echo "All generated files verified successfully"

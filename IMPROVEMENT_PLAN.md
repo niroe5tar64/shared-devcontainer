@@ -41,15 +41,16 @@
 
 ---
 
-## 優先度：中（短期） - 一部完了
+## 優先度：中（短期） - 完了
 
 ### 2. コード品質改善
 
 #### 2.1 型安全性の向上
 
-- [ ] **src/lib/devcontainer-builder.ts:76-78**: `isDevContainerConfig()` を改善
-  - 現状: すべてのオブジェクトが DevContainerConfig として判定される
-  - 提案: 必須フィールドのチェックを追加、または zod などのスキーマ検証ライブラリを導入
+- [x] **src/cli/commands/init.ts**: `isDevContainerConfig()` を改善
+  - 配列チェックを追加
+  - 既知の DevContainer フィールドの検証を追加
+  - 認識されないフィールドのみの場合は警告を出力
 
 #### 2.2 haskell.ts のユーザー名対応
 
@@ -63,9 +64,15 @@
   - 古い: `GHC 9.8.1（最新安定版）`
   - 新しい: `GHC 9.8.4（最新安定版）`
 
+#### 2.4 postCreateCommand マージロジックのドキュメント
+
+- [x] **.claude/rules/architecture.md**: 詳細なマージ動作の説明を追加
+  - project-config で指定しない場合: base + preset を `&&` で結合
+  - project-config で指定した場合: 完全に上書き
+
 ---
 
-## 優先度：低（中期）
+## 優先度：低（中期） - 一部完了
 
 ### 3. テスト追加
 
@@ -81,15 +88,9 @@
 
 ### 4. CI/CD パイプライン
 
-- [ ] GitHub Actions ワークフロー追加
-  ```yaml
-  # .github/workflows/ci.yml
-  - bun run typecheck
-  - bun run check
-  - bun run build
-  - bun run build:cli
-  - bun test (テスト追加後)
-  ```
+- [x] GitHub Actions ワークフロー追加
+  - `.github/workflows/ci.yml` を作成
+  - 型チェック、Lint、ビルド、生成ファイル検証を実行
 
 ### 5. 開発体験向上
 
@@ -99,10 +100,6 @@
   # → src/config/presets/rust.ts を生成
   # → src/config/presets/index.ts を自動更新
   ```
-
-- [ ] postCreateCommand マージロジックのドキュメント追加
-  - 現在の動作: projectConfig で指定すると上書き、未指定だとマージ
-  - CLAUDE.md または .claude/rules/architecture.md に追記
 
 ---
 
@@ -142,7 +139,13 @@ git diff
 
 ## 変更履歴
 
-### 2026-01-17
+### 2026-01-17 (2回目)
+- CI/CD パイプライン（`.github/workflows/ci.yml`）を追加
+- 型安全性の向上（`isDevContainerConfig()` の改善）
+- postCreateCommand マージロジックのドキュメントを追加
+- CLI のプリセット説明を更新
+
+### 2026-01-17 (1回目)
 - 優先度：高の全タスクを完了
 - 優先度：中のコメント修正を完了
 - 型チェック、Lint、ビルドすべて成功確認

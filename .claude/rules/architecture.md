@@ -55,8 +55,32 @@ shared-devcontainer/
 | `customizations.vscode.extensions` | 配列を結合し重複排除 |
 | `customizations.vscode.settings` | オブジェクトを深くマージ |
 | `mounts` | base → preset → project をマージ（`target`/`dst` が同一なら後勝ち） |
-| `postCreateCommand` | project-config で明示指定すれば上書き、なければマージ |
+| `postCreateCommand` | 特殊ルール（下記参照） |
 | その他 | 後から指定したもので上書き |
+
+### postCreateCommand のマージ動作
+
+`postCreateCommand` は他のフィールドと異なる特殊なマージ動作をする：
+
+**1. project-config で指定しない場合（推奨）**
+- base と preset の `postCreateCommand` を `&&` で結合
+- 例: `"bash base.sh" && "bash preset.sh"`
+
+**2. project-config で明示的に指定した場合**
+- base + preset のマージ結果を**完全に上書き**
+- project-config の値のみが使用される
+
+```typescript
+// 例: project-config.ts
+export const projectConfig: DevContainerConfig = {
+  // 指定しない → base + preset がマージされる（推奨）
+
+  // 指定する → base + preset を上書き
+  postCreateCommand: 'bash custom-setup.sh',
+};
+```
+
+**注意**: 通常は `postCreateCommand` を project-config で指定せず、base + preset のマージに任せることを推奨。カスタムコマンドが必要な場合は、シェルスクリプトを追加して base の `post-create.sh` から呼び出す方法を検討。
 
 ## 生成されるファイル
 

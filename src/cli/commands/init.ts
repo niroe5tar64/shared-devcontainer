@@ -9,10 +9,72 @@ import { generatePresetConfig, writeJsonFile } from '../../lib/devcontainer-buil
 import type { DevContainerConfig } from '../../types';
 
 /**
+ * DevContainerConfig で使用される既知のフィールド
+ * 完全なリストではないが、よく使われるフィールドをカバー
+ */
+const KNOWN_DEVCONTAINER_FIELDS = new Set([
+  'name',
+  'image',
+  'dockerFile',
+  'build',
+  'features',
+  'customizations',
+  'forwardPorts',
+  'portsAttributes',
+  'postCreateCommand',
+  'postStartCommand',
+  'postAttachCommand',
+  'containerEnv',
+  'remoteEnv',
+  'remoteUser',
+  'mounts',
+  'runArgs',
+  'workspaceFolder',
+  'workspaceMount',
+  'shutdownAction',
+  'overrideCommand',
+  'initializeCommand',
+  'onCreateCommand',
+  'updateContentCommand',
+  'waitFor',
+  'userEnvProbe',
+  'hostRequirements',
+  'privileged',
+  'capAdd',
+  'securityOpt',
+  '$schema',
+]);
+
+/**
  * 値が DevContainerConfig かどうかを検証する型ガード
+ *
+ * DevContainer 仕様では空オブジェクト {} も有効な設定のため、
+ * 以下の条件で検証する：
+ * 1. null でないオブジェクトである
+ * 2. 配列ではない
+ * 3. 既知の DevContainer フィールドを持つか、空オブジェクトである
  */
 function isDevContainerConfig(value: unknown): value is DevContainerConfig {
-  return typeof value === 'object' && value !== null;
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false;
+  }
+
+  const keys = Object.keys(value);
+
+  // 空オブジェクトは有効（DevContainer 仕様で許可）
+  if (keys.length === 0) {
+    return true;
+  }
+
+  // 少なくとも1つの既知フィールドを持つか確認
+  const hasKnownField = keys.some((key) => KNOWN_DEVCONTAINER_FIELDS.has(key));
+  if (!hasKnownField) {
+    console.warn(
+      `⚠️  project-config.ts has no recognized DevContainer fields. Found: ${keys.join(', ')}`,
+    );
+  }
+
+  return true;
 }
 
 /**
@@ -82,7 +144,7 @@ export const init = defineCommand({
   args: {
     preset: {
       type: 'string',
-      description: 'Preset name (node, python, fullstack, writing, bun)',
+      description: 'Preset name (bun, haskell)',
       alias: 'p',
     },
     output: {
