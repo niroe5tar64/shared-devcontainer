@@ -5,7 +5,7 @@
  * .devcontainer/devcontainer.json が生成されます
  *
  * preset を使用する場合は、ビルド時に引数で指定：
- *   bun run build node  # node preset を使用
+ *   bun run build bun  # bun preset を使用
  */
 
 import type { DevContainerConfig } from '../src/types';
@@ -13,8 +13,8 @@ import type { DevContainerConfig } from '../src/types';
 export const projectConfig: DevContainerConfig = {
   name: 'Shared DevContainer Development',
 
-  // このプロジェクト自身では .devcontainer/post-create.sh を参照
-  postCreateCommand: 'bash .devcontainer/post-create.sh',
+  // postCreateCommand は base.ts で定義されているため、ここでは上書きしない
+  // これにより Self と CLI で同じマージルールが適用される
 };
 
 /**

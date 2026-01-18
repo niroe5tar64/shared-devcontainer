@@ -7,9 +7,9 @@
  *
  * Usage:
  *   bun run build              # base のみ
- *   bun run build node         # node preset を使用
+ *   bun run build bun          # bun preset を使用
  *   bun run build:self         # explicit Self モード
- *   bun run build:self node    # Self モード + node preset
+ *   bun run build:self bun     # Self モード + bun preset
  */
 
 import { mkdir } from 'node:fs/promises';

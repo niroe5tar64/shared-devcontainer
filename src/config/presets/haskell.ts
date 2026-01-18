@@ -2,8 +2,11 @@ import type { DevContainerConfig } from '../../types';
 
 /**
  * DevContainer ユーザー名
+ *
+ * 環境変数 DEVCONTAINER_USER で上書き可能。
+ * 例: DEVCONTAINER_USER=myuser bun run build
  */
-const DEVCONTAINER_USER = 'dev-user';
+const DEVCONTAINER_USER = process.env.DEVCONTAINER_USER || 'dev-user';
 
 /**
  * Haskell Preset
@@ -48,5 +51,5 @@ export const haskellPreset: DevContainerConfig = {
   //   - Stack（最新版）
   //   - HLS（Haskell Language Server、最新版）
   postCreateCommand:
-    'apt-get update && sudo apt-get install -y libgmp-dev && curl --proto "=https" --tlsv1.2 -sSf https://get-ghcup.haskell.org | BOOTSTRAP_HASKELL_NONINTERACTIVE=1 BOOTSTRAP_HASKELL_GHC_VERSION=9.8.4 BOOTSTRAP_HASKELL_CABAL_VERSION=3.12.1.0 BOOTSTRAP_HASKELL_INSTALL_STACK=1 BOOTSTRAP_HASKELL_INSTALL_HLS=1 sh',
+    'sudo apt-get update && sudo apt-get install -y libgmp-dev && curl --proto "=https" --tlsv1.2 -sSf https://get-ghcup.haskell.org | BOOTSTRAP_HASKELL_NONINTERACTIVE=1 BOOTSTRAP_HASKELL_GHC_VERSION=9.8.4 BOOTSTRAP_HASKELL_CABAL_VERSION=3.12.1.0 BOOTSTRAP_HASKELL_INSTALL_STACK=1 BOOTSTRAP_HASKELL_INSTALL_HLS=1 sh',
 };

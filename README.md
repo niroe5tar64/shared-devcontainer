@@ -196,13 +196,13 @@ echo "@niroe5tar64:registry=https://npm.pkg.github.com" >> .npmrc
 npx @niroe5tar64/devcontainer list-presets
 
 # DevContainer を初期化
-npx @niroe5tar64/devcontainer init --preset node
+npx @niroe5tar64/devcontainer init --preset bun
 ```
 
 または Bun を使用：
 
 ```bash
-bunx @niroe5tar64/devcontainer init --preset node
+bunx @niroe5tar64/devcontainer init --preset bun
 ```
 
 #### 3. DevContainer を開く
