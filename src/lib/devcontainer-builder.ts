@@ -4,9 +4,7 @@
  * Self DevContainer と Client DevContainer の両方で使用する共通ユーティリティ
  */
 
-import { existsSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import { base } from '../config/base';
 import type { DevContainerConfig, Mount } from '../types';
 
