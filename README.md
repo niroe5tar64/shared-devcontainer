@@ -269,15 +269,15 @@ DevContainer では、以下のコマンドラインツールが自動的にオ�
 | コマンド | 自動付与されるオプション | 説明 |
 |---------|----------------------|------|
 | `claude` | `--dangerously-skip-permissions` | Claude Code CLI の実行時に権限確認をスキップ |
-| `codex` | `--sandbox workspace-write --ask-for-approval never` | Codex CLI の実行時に sandbox を維持しつつ、承認なしで実行 |
+| `codex` | なし（`~/.codex/config.toml` を使用） | Codex CLI の設定は config.toml で管理 |
 
 **追加機能**:
-- `codex` コマンドは、`login`/`logout` 以外のコマンド実行時に自動的にログイン状態をチェックし、未ログインの場合はデバイスコード認証でログインします
 - `codex login` 実行時は自動的に `--device-auth` オプションが付与され、DevContainer 環境でもスムーズに認証できます
 
 **仕組み**:
 - `.devcontainer/bin/` にラッパースクリプトを配置
 - DevContainer ビルド時に `~/.local/bin/` にコピーされ、PATH の先頭に追加
+- `~/.codex/config.toml` が無い場合はテンプレートから自動配置
 - コマンド実行時にラッパーが自動的にオプションを追加して本体を呼び出し
 
 これにより、DevContainer 内での開発時に毎回オプションを指定する必要がなくなります。
