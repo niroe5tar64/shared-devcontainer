@@ -70,7 +70,6 @@ Self/Client 共通のユーティリティ関数を集約。
 | `mergeMounts()` | mounts をマージ（`target`/`dst` が同一なら後勝ち） |
 | `mergePostCreateCommand()` | postCreateCommand を結合 |
 | `writeJsonFile()` | JSON ファイルを書き込み |
-| `loadProjectConfig()` | project-config.ts を動的に読み込み |
 
 ## scripts/ops/generate-types.ts
 

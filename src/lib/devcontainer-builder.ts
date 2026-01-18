@@ -232,28 +232,3 @@ export async function writeJsonFile(filePath: string, data: unknown): Promise<vo
   await writeFile(filePath, `${json}\n`, 'utf-8');
   console.log(`✅ Generated: ${filePath}`);
 }
-
-/**
- * プロジェクト固有の設定を読み込み（オプション）
- *
- * @param configDir - project-config.ts があるディレクトリ
- * @returns DevContainerConfig または undefined
- */
-export async function loadProjectConfig(
-  configDir: string,
-): Promise<DevContainerConfig | undefined> {
-  const configPath = join(configDir, 'project-config.ts');
-
-  if (!existsSync(configPath)) {
-    return undefined;
-  }
-
-  try {
-    console.log(`📝 Loading project-specific config from: ${configPath}`);
-    const module = await import(configPath);
-    return module.default || module.projectConfig;
-  } catch (error) {
-    console.warn(`⚠️  Failed to load project config: ${error}`);
-    return undefined;
-  }
-}
