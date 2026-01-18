@@ -38,9 +38,10 @@ export const haskellPreset: DevContainerConfig = {
   },
 
   // PATH設定：Haskell ツールチェーンのバイナリを優先
-  // base.ts の PATH に加えて、ghcup、Cabal、Stack のバイナリディレクトリを前に追加
+  // ghcup、Cabal、Stack のバイナリディレクトリを追加
+  // base.ts の PATH は自動的に連結される
   remoteEnv: {
-    PATH: `/home/${DEVCONTAINER_USER}/.ghcup/bin:/home/${DEVCONTAINER_USER}/.cabal/bin:/home/${DEVCONTAINER_USER}/.local/bin:/home/${DEVCONTAINER_USER}/.bun/bin:\${containerEnv:PATH}`,
+    PATH: `/home/${DEVCONTAINER_USER}/.ghcup/bin:/home/${DEVCONTAINER_USER}/.cabal/bin`,
   },
 
   // Haskell 開発環境のセットアップ

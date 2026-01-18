@@ -162,6 +162,25 @@ export function mergePostCreateCommand(
 }
 
 /**
+ * PATH を連結
+ *
+ * preset の PATH と base の PATH を連結する。
+ * preset が追加パスのみを記述することで、base との密結合を避ける。
+ *
+ * @param basePath - base の PATH
+ * @param presetPath - preset の PATH（追加分のみ）
+ * @returns 連結された PATH（preset:base の順）
+ */
+export function mergePath(basePath?: string, presetPath?: string): string | undefined {
+  if (!basePath && !presetPath) return undefined;
+  if (!basePath) return presetPath;
+  if (!presetPath) return basePath;
+
+  // preset のパスを前に配置（優先度を高くする）
+  return `${presetPath}:${basePath}`;
+}
+
+/**
  * プリセットから完全な DevContainer 設定を生成
  *
  * base + preset + projectConfig を3層マージ
@@ -193,6 +212,27 @@ export function generatePresetConfig(
     );
   }
 
+  // remoteEnv のマージ（PATH は特殊処理）
+  const mergedRemoteEnv = deepMerge(
+    deepMerge(base.remoteEnv, preset?.remoteEnv),
+    projectConfig?.remoteEnv,
+  );
+
+  // PATH を3層マージ（base → preset → projectConfig の順で連結）
+  const basePath = base.remoteEnv?.PATH as string | undefined;
+  const presetPath = preset?.remoteEnv?.PATH as string | undefined;
+  const projectPath = projectConfig?.remoteEnv?.PATH as string | undefined;
+
+  // まず base + preset をマージ
+  const basePresetPath = mergePath(basePath, presetPath);
+  // 次に (base + preset) + projectConfig をマージ
+  const finalPath = mergePath(basePresetPath, projectPath);
+
+  // PATH を設定（他のフィールドは deepMerge の結果を維持）
+  if (finalPath && mergedRemoteEnv) {
+    mergedRemoteEnv.PATH = finalPath;
+  }
+
   return {
     $schema: SCHEMA_URL,
     ...base,
@@ -216,7 +256,7 @@ export function generatePresetConfig(
       deepMerge(base.containerEnv, preset?.containerEnv),
       projectConfig?.containerEnv,
     ),
-    remoteEnv: deepMerge(deepMerge(base.remoteEnv, preset?.remoteEnv), projectConfig?.remoteEnv),
+    remoteEnv: mergedRemoteEnv,
     mounts: mergeMounts(base.mounts, preset?.mounts, projectConfig?.mounts),
     postCreateCommand: finalPostCreateCommand,
   };

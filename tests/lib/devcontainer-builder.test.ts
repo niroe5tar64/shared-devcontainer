@@ -10,6 +10,7 @@ import {
   getVSCodeCustomizations,
   mergeArrays,
   mergeMounts,
+  mergePath,
   mergePostCreateCommand,
 } from '../../src/lib/devcontainer-builder';
 import type { DevContainerConfig, Mount } from '../../src/types';
@@ -159,6 +160,30 @@ describe('mergePostCreateCommand', () => {
   });
 });
 
+describe('mergePath', () => {
+  test('両方 undefined の場合は undefined を返す', () => {
+    expect(mergePath(undefined, undefined)).toBeUndefined();
+  });
+
+  test('basePath のみの場合は basePath を返す', () => {
+    expect(mergePath('/usr/bin:/bin', undefined)).toBe('/usr/bin:/bin');
+  });
+
+  test('presetPath のみの場合は presetPath を返す', () => {
+    expect(mergePath(undefined, '/opt/bin')).toBe('/opt/bin');
+  });
+
+  test('両方ある場合は preset:base の順で連結', () => {
+    expect(mergePath('/usr/bin:/bin', '/opt/bin:/opt/local/bin')).toBe(
+      '/opt/bin:/opt/local/bin:/usr/bin:/bin',
+    );
+  });
+
+  test('単一パスでも正しく連結', () => {
+    expect(mergePath('/usr/bin', '/opt/bin')).toBe('/opt/bin:/usr/bin');
+  });
+});
+
 describe('getVSCodeCustomizations', () => {
   test('customizations がない場合は undefined', () => {
     const config: DevContainerConfig = { image: 'test' };
@@ -269,6 +294,56 @@ describe('generatePresetConfig', () => {
     expect(result.postCreateCommand).toBe('echo project');
   });
 
+  test('postCreateCommand: preset のみの場合は base + preset が && で連結', () => {
+    const preset: DevContainerConfig = {
+      postCreateCommand: 'apt-get install -y package',
+    };
+    const result = generatePresetConfig(preset);
+    // base の postCreateCommand も含まれている
+    expect(result.postCreateCommand).toContain('bash .devcontainer/post-create.sh');
+    expect(result.postCreateCommand).toContain('apt-get install -y package');
+    // && で連結されている
+    expect(result.postCreateCommand).toContain('&&');
+    // base が先、preset が後
+    expect(result.postCreateCommand).toBe(
+      'bash .devcontainer/post-create.sh && apt-get install -y package',
+    );
+  });
+
+  test('postCreateCommand: preset がない場合は base のみ', () => {
+    const preset: DevContainerConfig = {
+      name: 'No PostCreate Preset',
+    };
+    const result = generatePresetConfig(preset);
+    // base の postCreateCommand のみ
+    expect(result.postCreateCommand).toBe('bash .devcontainer/post-create.sh');
+  });
+
+  test('postCreateCommand: 配列形式も正しくマージされる', () => {
+    const preset: DevContainerConfig = {
+      postCreateCommand: ['cmd1', 'cmd2'],
+    };
+    const result = generatePresetConfig(preset);
+    // base と preset が全て && で連結
+    expect(result.postCreateCommand).toContain('bash .devcontainer/post-create.sh');
+    expect(result.postCreateCommand).toContain('cmd1');
+    expect(result.postCreateCommand).toContain('cmd2');
+    expect(result.postCreateCommand).toBe('bash .devcontainer/post-create.sh && cmd1 && cmd2');
+  });
+
+  test('postCreateCommand: 実用例（Haskell preset のようなケース）', () => {
+    const preset: DevContainerConfig = {
+      postCreateCommand:
+        'sudo apt-get update && sudo apt-get install -y libgmp-dev && curl --proto "=https" --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh',
+    };
+    const result = generatePresetConfig(preset);
+    // base の基本セットアップが最初に実行される
+    expect(result.postCreateCommand).toMatch(/^bash \.devcontainer\/post-create\.sh &&/);
+    // preset の Haskell セットアップが後に実行される
+    expect(result.postCreateCommand).toContain('apt-get install -y libgmp-dev');
+    expect(result.postCreateCommand).toContain('get-ghcup.haskell.org');
+  });
+
   test('features は 3層で深くマージ', () => {
     const preset: DevContainerConfig = {
       features: {
@@ -297,5 +372,70 @@ describe('generatePresetConfig', () => {
     // projectConfig の方が優先される
     expect(result.mounts).toContainEqual('type=bind,source=/project,target=/mnt');
     expect(result.mounts).not.toContainEqual('type=bind,source=/preset,target=/mnt');
+  });
+
+  test('remoteEnv.PATH は base + preset で連結される', () => {
+    const preset: DevContainerConfig = {
+      remoteEnv: {
+        PATH: '/opt/preset/bin',
+      },
+    };
+    const result = generatePresetConfig(preset);
+    // base の PATH と preset の PATH が連結されているか確認
+    expect(result.remoteEnv?.PATH).toContain('/opt/preset/bin');
+    expect(result.remoteEnv?.PATH).toContain('/.local/bin');
+    expect(result.remoteEnv?.PATH).toContain('/.bun/bin');
+    // preset が前に来ている（優先度が高い）
+    expect(result.remoteEnv?.PATH).toMatch(/^\/opt\/preset\/bin:/);
+  });
+
+  test('remoteEnv.PATH は base + preset + projectConfig で3層連結される', () => {
+    const preset: DevContainerConfig = {
+      remoteEnv: {
+        PATH: '/opt/preset/bin',
+      },
+    };
+    const projectConfig: DevContainerConfig = {
+      remoteEnv: {
+        PATH: '/opt/project/bin',
+      },
+    };
+    const result = generatePresetConfig(preset, projectConfig);
+    // 全ての PATH が含まれている
+    expect(result.remoteEnv?.PATH).toContain('/opt/project/bin');
+    expect(result.remoteEnv?.PATH).toContain('/opt/preset/bin');
+    expect(result.remoteEnv?.PATH).toContain('/.local/bin');
+    // 優先度順：projectConfig > preset > base
+    expect(result.remoteEnv?.PATH).toMatch(/^\/opt\/project\/bin:\/opt\/preset\/bin:/);
+  });
+
+  test('remoteEnv.PATH がない preset でも base の PATH は保持される', () => {
+    const preset: DevContainerConfig = {
+      name: 'No PATH Preset',
+    };
+    const result = generatePresetConfig(preset);
+    // base の PATH が保持されている
+    expect(result.remoteEnv?.PATH).toContain('/.local/bin');
+    expect(result.remoteEnv?.PATH).toContain('/.bun/bin');
+  });
+
+  test('remoteEnv.PATH 以外のフィールドは deepMerge で処理される', () => {
+    const preset: DevContainerConfig = {
+      remoteEnv: {
+        PATH: '/opt/bin',
+        CUSTOM_VAR: 'preset-value',
+      },
+    };
+    const projectConfig: DevContainerConfig = {
+      remoteEnv: {
+        ANOTHER_VAR: 'project-value',
+      },
+    };
+    const result = generatePresetConfig(preset, projectConfig);
+    // PATH は連結される
+    expect(result.remoteEnv?.PATH).toContain('/opt/bin');
+    // 他のフィールドは deepMerge で処理される
+    expect(result.remoteEnv?.CUSTOM_VAR).toBe('preset-value');
+    expect(result.remoteEnv?.ANOTHER_VAR).toBe('project-value');
   });
 });
