@@ -23,32 +23,37 @@ DevContainer 環境で便利なデフォルトオプションを自動付与す�
 ### 動作
 
 1. VS Code 拡張機能ディレクトリから Claude バイナリを検索
-2. 見つかったバイナリを `--dangerously-skip-permissions` 付きで実行
+2. 見つからない場合、PATH から探す（自分自身を除外して再帰回避）
+3. それでも見つからない場合、npm グローバルインストールを確認
+4. 見つかったバイナリを `--dangerously-skip-permissions` 付きで実行
 
-### 現在の制約（要改善）
+### 改善点
 
-- ユーザー名が `dev-user` 固定（`/home/dev-user/.vscode-server/...`）
-- VS Code 系エディタのみ対応
+- ✅ 再帰実行リスクを解消（自分自身を除外するロジック追加）
+- ✅ ユーザー名非依存（`$HOME` 環境変数を使用）
+- ✅ npm グローバルインストールにも対応
 
 ## codex ラッパー
 
 ```bash
-# 自動付与されるオプション
---sandbox workspace-write
---ask-for-approval never
---device-auth  # login コマンド
+# 設定方法
+~/.codex/config.toml で approval_policy と sandbox_mode を設定
+
+# login コマンドのみ自動付与
+--device-auth
 ```
 
 ### 動作
 
 1. `which -a codex` で本物のバイナリを検索（bash ラッパーをスキップ）
-2. `login`/`logout` 以外のコマンド実行前にログイン状態をチェック
-3. 未ログインなら自動的にデバイス認証でログイン
-4. `--sandbox workspace-write --ask-for-approval never` を付与して実行
+2. `login` コマンドの場合、`--device-auth` を付与してデバイス認証を使用
+3. その他のコマンドは `~/.codex/config.toml` の設定で実行
 
-### 現在の制約（要改善）
+### 改善点
 
-- 本物のバイナリ検出ロジックが複雑
+- ✅ config.toml ベースに移行（公式サポートの設定方法）
+- ✅ 非公式環境変数（`CODEX_SANDBOX`、`CODEX_APPROVAL`）を廃止
+- ✅ ラッパースクリプトを簡素化（設定は config.toml に委譲）
 
 ## post-create.sh
 
@@ -59,8 +64,17 @@ DevContainer 作成後に実行されるセットアップスクリプト。
 1. 基本ツールインストール（vim, tree, jq, unzip）
 2. Bun インストール
 3. Claude Code / Codex CLI インストール（npm）
-4. ラッパースクリプトを `~/.local/bin/` にコピー
-5. PATH 設定
+4. Codex config.toml のセットアップ（既存設定がなければコピー）
+5. ラッパースクリプトを `~/.local/bin/` にコピー
+
+### PATH 設定
+
+`devcontainer.json` の `remoteEnv.PATH` で一元管理：
+```typescript
+remoteEnv: {
+  PATH: `/home/${DEVCONTAINER_USER}/.local/bin:/home/${DEVCONTAINER_USER}/.bun/bin:\${containerEnv:PATH}`,
+}
+```
 
 ### 配布先での参照
 
@@ -71,11 +85,11 @@ DevContainer 作成後に実行されるセットアップスクリプト。
 }
 ```
 
-## 今後の改善方針
+## 改善履歴
 
-ディレクトリ構成や配布方法は今後変更の可能性あり。
-以下の点を柔軟に対応できるようにする：
+### 2026-01-18: ラッパースクリプト改善
 
-- ユーザー名の動的取得（`$USER` や `whoami`）
-- 作業ディレクトリの柔軟な指定
-- 環境変数による設定のカスタマイズ
+- Claude ラッパー: 再帰実行リスクを解消
+- Codex ラッパー: config.toml ベースに移行
+- PATH 設定: devcontainer.json の remoteEnv に一本化
+- Codex 設定: 公式サポートの config.toml を使用

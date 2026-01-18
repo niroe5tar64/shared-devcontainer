@@ -38,15 +38,22 @@ else
     echo "Claude Code and Codex CLI tools already installed, skipping..."
 fi
 
+# Install Codex config.toml (skip if user already has one)
+if [ ! -f ~/.codex/config.toml ]; then
+    echo "Installing Codex config.toml..."
+    mkdir -p ~/.codex
+    cp "${SCRIPT_DIR}/codex/config.toml" ~/.codex/config.toml
+else
+    echo "Codex config.toml already exists, skipping..."
+fi
+
 # Install wrapper scripts for claude and codex
 mkdir -p ~/.local/bin
 cp "${SCRIPT_DIR}/bin/claude" ~/.local/bin/claude
 cp "${SCRIPT_DIR}/bin/codex" ~/.local/bin/codex
 chmod +x ~/.local/bin/claude ~/.local/bin/codex
 
-# Add ~/.local/bin to PATH (prepend to ensure wrappers are found first)
-append_line_once 'export PATH="$HOME/.local/bin:$PATH"' ~/.bashrc
-append_line_once 'export PATH="$HOME/.local/bin:$PATH"' ~/.zshrc
+# PATH は devcontainer.json の remoteEnv で設定済み
 
 # Fix git credential helper (retry after initial container setup completes)
 # Wait a bit to avoid "Device or resource busy" error during container startup

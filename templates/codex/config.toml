@@ -1,0 +1,27 @@
+# DevContainer 環境向け Codex 設定
+# この設定は ~/.codex/config.toml にコピーされます
+#
+# 詳細: https://developers.openai.com/codex/config-reference/
+
+[core]
+# 承認ポリシー: untrusted | on-failure | on-request | never
+# - untrusted: 信頼されていないコマンドのみ承認が必要
+# - on-failure: 失敗時に承認が必要
+# - on-request: 必要に応じて承認を求める（推奨）
+# - never: 承認なしで実行（DevContainer内では安全）
+approval_policy = "on-request"
+
+# サンドボックスモード: read-only | workspace-write | danger-full-access
+# - read-only: 読み取り専用
+# - workspace-write: ワークスペース内の書き込みを許可（推奨）
+# - danger-full-access: すべてのアクセスを許可（Landlockが利用できない環境向け）
+sandbox_mode = "workspace-write"
+
+[features]
+# ツール有効化
+shell_tool = true
+web_search_request = true
+
+# Beta機能
+unified_exec = true  # PTY-backed execution
+shell_snapshot = true  # Speed up repeated commands
